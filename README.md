@@ -9,13 +9,17 @@ To connect to the backend on your browser you can either:
 1. install python
 2. install python virtual environments using
     - C:\\...\\Capstone> `pip install virtualenv`
-3. if you are developing on the backend you will also need to install the package requirements from requirements.txt
+3. Create the virtual environment using:
+    - C:\\...\\Capstone> `python -m venv C:\\path\\To\\Project\\...\\Capstone>`
+    - Ensure the `venv` folder was created in the `Capstone` project folder
+4. if you are developing on the backend you will also need to install the package requirements from requirements.txt
     - C:\\...\\Capstone> `pip install -r requirements.txt`
+    - You can also run `./runserver.bat` which installs packages as well.
 
 ## Starting the development Server
 1. install python and python virtual environments if not already installed.
 2. To start the development Server, run the runserver.bat script. 
-    -   This will launch the virtual environment and then run the Django server on port 8000
+    -   This will launch the virtual environment, install packages, and then run the Django server on port 8000
 
 Type:\
 C:\\...\\Capstone> `.\runserver.bat`
