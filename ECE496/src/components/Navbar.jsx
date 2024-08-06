@@ -1,3 +1,5 @@
+// Not in use
+
 import { Nav, NavLink, NavMenu } from "./NavbarElements";
 
 function Navbar() {
@@ -12,7 +14,7 @@ function Navbar() {
             Contact Us
           </NavLink>
           <NavLink to="/questionnaire" activeStyle>
-            Blogs
+            Questionnaire
           </NavLink>
           <NavLink to="/sign-up" activeStyle>
             Sign Up
