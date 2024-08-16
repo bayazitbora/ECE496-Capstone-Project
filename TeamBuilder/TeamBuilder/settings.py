@@ -20,8 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-kl@o!(bppbw6#4tej0!i2#(ia6(-89z8x0l=^8u=n7k1xnk)^9'
+# SECURITY WARNING: Todo Change to not be included before launch!
+SECRET_KEY = 'th77&n080o8!jar!(*d!(l$didy%!^o9hja*+w7*fd_oe$h__w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -59,6 +59,8 @@ SIMPLE_JWT = {
 
     "ALGORITHM": "HS256",
     "VERIFYING_KEY": "",
+    #Todo Change to not be included before launch!
+    "SIGNING_KEY": "mwvzD1emrDgUZS91YD3uYlhbCLeg6r3q",
     "AUDIENCE": None,
     "ISSUER": None,
     "JSON_ENCODER": None,
