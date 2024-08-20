@@ -1,17 +1,38 @@
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { TextField, Button } from "@mui/material";
-// import { signUpContext } from "../context/SignUpContext";
+import { SignUpContext } from "../context/SignUpContext";
+import { registerUser } from "../api/api";
 import "./Input.css";
 
 function SignUp() {
-  // const { setFormData } = useContext(signUpContext);
-
+  const { setFormData } = useContext(SignUpContext);
+  const navigate = useNavigate();
   const [formState, setFormState] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
+    username: "",
     email: "",
     password: "",
   });
+
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    console.log("Submit button clicked");
+    setFormData(formState);
+    navigate("/questionnaire");
+
+    //   try {
+    //     const data = await registerUser(formState);
+    //     console.log("Registration successful:", data);
+    //     navigate("/questionnaire");
+    //   } catch (error) {
+    //     setError("Failed to register user. Please try again.");
+    //     console.error("Registration error:", error);
+    //   }
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -19,12 +40,6 @@ function SignUp() {
       ...prevState,
       [name]: value,
     }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // setFormData(formState);
-    console.log("Submitted form data:", formState);
   };
 
   return (
@@ -69,13 +84,16 @@ function SignUp() {
         </div>
         <TextField
           id="standard-input"
-          label="E-mail address"
+          label="Username"
           variant="outlined"
           margin="normal"
+          name="username"
+          value={formState.username}
+          onChange={handleInputChange}
         />
         <TextField
           id="standard-input"
-          label="Re-type your e-mail address"
+          label="E-mail address"
           variant="outlined"
           margin="normal"
           name="email"
@@ -84,20 +102,33 @@ function SignUp() {
         />
         <TextField
           id="standard-input"
-          label="Password"
+          label="Re-type your e-mail address"
           variant="outlined"
           margin="normal"
+          name="confirmEmail"
         />
         <TextField
           id="standard-input"
-          label="Re-type your password"
+          label="Password"
           variant="outlined"
           margin="normal"
           name="password"
           value={formState.password}
           onChange={handleInputChange}
         />
-        <Button id="standard-button" variant="contained" size="large">
+        <TextField
+          id="standard-input"
+          label="Re-type your password"
+          variant="outlined"
+          margin="normal"
+          name="confirmPassword"
+        />
+        <Button
+          id="standard-button"
+          variant="contained"
+          size="large"
+          type="submit"
+        >
           Sign Up
         </Button>
       </form>

@@ -1,8 +1,9 @@
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useReducer } from "react";
 
 const initialState = {
-  firstName: "",
-  lastName: "",
+  first_name: "",
+  last_name: "",
+  username: "",
   email: "",
   password: "",
 };
