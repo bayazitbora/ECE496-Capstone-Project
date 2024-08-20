@@ -5,11 +5,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.decomposition import PCA
+from sklearn.metrics.pairwise import euclidean_distances
 import spacy
 import numpy as np
 from sklearn.metrics import silhouette_score
 import random
 import matplotlib.pyplot as plt
+import time
 
 # Load the spacy model
 nlp = spacy.load('en_core_web_sm')
@@ -44,8 +46,26 @@ class CustomMultiLabelEmbeddingTransformer(BaseEstimator, TransformerMixin):
         normalized = np.clip(normalized, 0, 1)
         return normalized
 
+
+# Generate a list of 8 non-negative integers that add up to 10
+def generate_random_list(sum_total, length):
+    # Start with a list of zeros
+    result = [0] * length
+    for _ in range(sum_total):
+        # Randomly increment one of the elements
+        result[random.randint(0, length - 1)] += 1
+    return result
+
 def generate_random_student():
+    # Generate random GPA
     gpa = np.clip(np.random.normal(3, 1), 0, 4)  # Normal distribution centered at 3.0, clipped to [0, 4]
+    # Generate random personality scores for eight Belbin Team Roles 
+    belbin_result = []
+    for _ in range(7):
+        belbin_result.append(generate_random_list(10, 8))
+    personality_scores = []
+    for i in range(8):
+        personality_scores.append(sum(section[i] for section in belbin_result))
     return {
         'GPA': round(gpa, 2),
         'major': random.choice(major_categories),
@@ -54,7 +74,7 @@ def generate_random_student():
         'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
         'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
         'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))),
-        'personality_scores': [random.randint(0, 10) for _ in range(20)]
+        'personality_scores': personality_scores
     }
 
 def generate_students(n):
@@ -96,8 +116,8 @@ def form_groups_greedy(data, group_size):
         if (len(remaining_indices)):
             data.loc[remaining_indices, 'group'] = groups_num
             groups_num += 1
-
     data['group'] = data['group'].astype(int)
+
 
 def find_best_k(X, k_range):
     silhouette_scores = []
@@ -111,8 +131,24 @@ def find_best_k(X, k_range):
 
     best_k = k_range[np.argmax(silhouette_scores)]
     return best_k, silhouette_scores
-    
 
+def evaluate_groups(X, data):
+    similarities = []
+    for group in data['group'].unique():
+        group_data = data[data['group'] == group]
+        group_indices = list(group_data.index)
+        group_vectors = X[group_indices]
+        if len(group_vectors) < 2:  # If the group has fewer than 2 members, skip
+            similarities.append(1.0)  # Consider it fully similar
+            continue
+        # Calculate pairwise Euclidean distances within the group
+        distance_matrix = euclidean_distances(group_vectors)
+        # Convert distances to similarities (e.g., by taking the inverse)
+        similarity_matrix = 1 / (1 + distance_matrix)
+        # Take the average of the upper triangle (excluding the diagonal)
+        avg_similarity = np.mean(similarity_matrix[np.triu_indices(len(group_vectors), k=1)])
+        similarities.append(avg_similarity)
+    return np.mean(similarities)
 
 # Define predefined categories
 major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
@@ -133,7 +169,6 @@ data.to_pickle('student_data.pkl')
 #data = pd.read_pickle('student_data.pkl')
 #print(data)
 
-
 # Preprocessing pipeline
 preprocessor = ColumnTransformer(
     transformers=[
@@ -146,9 +181,18 @@ preprocessor = ColumnTransformer(
         ('schedule', CustomMultiLabelEmbeddingTransformer(schedule_categories), 'schedule')
     ])
 
+start_time = time.time()
+
 # Apply transformation
 X = preprocessor.fit_transform(data)
-#print(X)
+print(X[0])
+
+# Scale the personality_scores separately
+personality_scores_scaled = MinMaxScaler().fit_transform(np.array(data['personality_scores'].tolist()))
+
+# Combine the transformed data `X` with the scaled personality scores
+X_combined = np.hstack((X, personality_scores_scaled))
+print(X_combined[0])
 
 # Clustering
 k_range = range(2, 10)  # Testing k values
@@ -161,9 +205,17 @@ data['cluster'] = clustering.labels_
 
 print("Silhouette Score (Average):", silhouette_score(X, data['cluster']))
 
-# Form groups of 3 students within each cluster using Greedy approach
+# Form groups of 4 students within each cluster using Greedy approach
 form_groups_greedy(data, group_size)
 print(data)
+
+end_time = time.time()
+runtime = end_time - start_time
+print(f"The algorithm took {runtime} seconds")
+
+avg_similarity = evaluate_groups(X_combined, data)
+
+print(f"Average similarity: {avg_similarity}")
 
 visualize_clusters(X, data['cluster'])
 
