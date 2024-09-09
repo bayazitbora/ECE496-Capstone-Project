@@ -20,7 +20,7 @@ function Start() {
         <Button
           variant="contained"
           size="large"
-          onClick={() => navigate("/sign-up")}
+          onClick={() => navigate("/questionnaire")}
         >
           Sign Up
         </Button>
