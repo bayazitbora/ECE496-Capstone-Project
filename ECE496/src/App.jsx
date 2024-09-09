@@ -3,7 +3,7 @@ import LogIn from "./pages/LogIn";
 import SignUp from "./pages/SignUp";
 // import About from "./pages/About";
 // import Contact from "./pages/Contact";
-import Questionnaire from "./pages/Questionnaire";
+import Questionnaire from "./pages/Questionnaire/Questionnaire";
 import Start from "./components/Start";
 import { SignUpProvider } from "./context/SignUpContext";
 import "./App.css";

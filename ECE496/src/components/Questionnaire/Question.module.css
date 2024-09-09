@@ -1,0 +1,25 @@
+.question {
+  position: relative;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.questionContainer h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.confirmButton {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.confirmButton:hover {
+  background-color: #45a049;
+}
