@@ -2,6 +2,14 @@ import styles from "./Question.module.css";
 import Question1 from "./Question1";
 import Question2 from "./Question2";
 import Question3 from "./Question3";
+import Question4 from "./Question4";
+import Question5 from "./Question5";
+import Question6 from "./Question6";
+import Question7 from "./Question7";
+import Question8 from "./Question8";
+import Question9 from "./Question9";
+import Question10 from "./Question10";
+import Question11 from "./Question11";
 
 function QuestionTemplate({
   currentStep,
@@ -29,26 +37,70 @@ function QuestionTemplate({
           />
         );
       case 3:
+        return <Question3 />;
+      case 4:
         return (
-          <Question3
+          <Question4
             formState={formState}
             handleInputChange={handleInputChange}
           />
         );
-      // case 4:
-      //   return <Question4  />;
-      // case 5:
-      //   return <Question5 />;
-      // case 6:
-      //   return <Question6 />;
-      // case 7:
-      //   return <Question7 />;
-      // case 8:
-      //   return <Question8  />;
-      // case 9:
-      //   return <Question9  />;
+      case 5:
+        return (
+          <Question5
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
+      case 6:
+        return (
+          <Question6
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
+      case 7:
+        return (
+          <Question7
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
+      case 8:
+        return (
+          <Question8
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
+      case 9:
+        return (
+          <Question9
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
+      case 10:
+        return (
+          <Question10
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
+      case 11:
+        return (
+          <Question11
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
       default:
-        return <Question1 />;
+        return (
+          <Question1
+            formState={formState}
+            handleInputChange={handleInputChange}
+          />
+        );
     }
   };
   const goBackButton = (currentStep, prevStep) => {
@@ -82,7 +134,7 @@ function QuestionTemplate({
     <div className={styles.question}>
       <div className={styles.questionContainer}>
         {renderQuestion()}
-        <div>
+        <div className={styles.confirmCancelContainer}>
           {goBackButton(currentStep, prevStep)}{" "}
           {confirmButton(currentStep, totalSteps, nextStep, handleSubmit)}
         </div>

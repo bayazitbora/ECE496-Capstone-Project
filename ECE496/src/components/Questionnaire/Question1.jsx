@@ -5,13 +5,7 @@ function Question1({ formState, handleInputChange }) {
   return (
     <div>
       <h2>Welcome!</h2>
-      <text>In order to find you a team, we need to learn more about you.</text>
-      <br />
-      <text>Answer a few questions to get started.</text>
-      <br />
-      <text>You will be able to modify your answers later.</text>
-      <br />
-      <text>Let us create your Account. </text>
+      <text>How should we call you?</text>
       <div>
         <TextField
           id="name-input"

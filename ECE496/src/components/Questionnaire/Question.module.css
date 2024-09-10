@@ -11,6 +11,10 @@
   margin-bottom: 20px;
 }
 
+.confirmCancelContainer {
+  padding-top: 15px;
+}
+
 .confirmButton {
   padding: 10px 20px;
   background-color: #4caf50;

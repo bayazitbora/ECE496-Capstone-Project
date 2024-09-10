@@ -1,25 +1,13 @@
-import { TextField } from "@mui/material";
-
-function Question3(formState, handleInputChange) {
+function Question3() {
   return (
     <div>
-      <h2>Choose a strong password</h2>
-      <TextField
-        id="standard-input"
-        label="Password"
-        variant="outlined"
-        margin="normal"
-        name="password"
-        value={formState.password}
-        onChange={handleInputChange}
-      />
-      <TextField
-        id="standard-input"
-        label="Re-type your password"
-        variant="outlined"
-        margin="normal"
-        name="confirmPassword"
-      />
+      <h2>Tell us about you</h2>
+      <text>In order to find you a team, we need to learn more about you.</text>
+      <br />
+      <text>You will be able to modify your answers later.</text>
+      <br />
+      <text>It will only take 5 minutes.</text>
+      <br />
     </div>
   );
 }

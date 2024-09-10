@@ -9,9 +9,9 @@ function ProgressBar({ currentStep, totalSteps }) {
         className={styles.progressBarFill}
         style={{ width: `${progress * 100}%` }}
       ></div>
-      <span>
+      {/* <span>
         {currentStep} / {totalSteps}
-      </span>
+      </span> */}
     </div>
   );
 }

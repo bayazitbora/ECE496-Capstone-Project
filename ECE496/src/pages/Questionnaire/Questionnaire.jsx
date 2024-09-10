@@ -14,10 +14,18 @@ function Questionnaire() {
     username: "",
     email: "",
     password: "",
+    project_interests: [],
+    availability: [],
+    meeting_frequency: "",
+    gpa_range: "",
+    major: "",
+    minors: [],
+    courses_taken: [],
+    skills: [],
   });
   // const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 9;
+  const totalSteps = 11;
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
