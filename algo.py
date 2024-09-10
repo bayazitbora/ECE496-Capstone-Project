@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -17,34 +17,43 @@ import time
 nlp = spacy.load('en_core_web_sm')
 
 class EmbeddingTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, categories):
-        self.categories = categories
-        self.embeddings = {cat: nlp(cat).vector for cat in categories}
+    def __init__(self):
         self.scaler = MinMaxScaler()
-
+    
     def fit(self, X, y=None):
         return self
-    
+
     def transform(self, X):
-        transformed = np.array([self.embeddings[val] for val in X.squeeze()])
+        transformed = np.array([nlp(val).vector for val in X.squeeze()])
         normalized = self.scaler.fit_transform(transformed)
         normalized = np.clip(normalized, 0, 1)
         return normalized
 
 class CustomMultiLabelEmbeddingTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, categories):
-        self.categories = categories
-        self.embeddings = {cat: nlp(cat).vector for cat in categories}
+    def __init__(self):
         self.scaler = MinMaxScaler()
 
     def fit(self, X, y=None):
         return self
-    
+
     def transform(self, X):
-        transformed = np.array([np.mean([self.embeddings[val] for val in vals], axis=0) for vals in X])
+        print(X)
+        transformed = np.array([np.mean([nlp(val).vector for val in vals], axis=0) for vals in X])
         normalized = self.scaler.fit_transform(transformed)
         normalized = np.clip(normalized, 0, 1)
         return normalized
+
+class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
+    def __init__(self, classes):
+        self.classes = classes
+        self.mlb = MultiLabelBinarizer(classes=self.classes)
+
+    def fit(self, X, y=None):
+        self.mlb.fit(X)
+        return self
+
+    def transform(self, X):
+        return self.mlb.transform(X)
 
 
 # Generate a list of 8 non-negative integers that add up to 10
@@ -59,13 +68,7 @@ def generate_random_list(sum_total, length):
 def generate_random_student():
     # Generate random GPA
     gpa = np.clip(np.random.normal(3, 1), 0, 4)  # Normal distribution centered at 3.0, clipped to [0, 4]
-    # Generate random personality scores for eight Belbin Team Roles 
-    belbin_result = []
-    for _ in range(7):
-        belbin_result.append(generate_random_list(10, 8))
-    personality_scores = []
-    for i in range(8):
-        personality_scores.append(sum(section[i] for section in belbin_result))
+    meeting_freq = random.randint(1, 7) 
     return {
         'GPA': round(gpa, 2),
         'major': random.choice(major_categories),
@@ -74,7 +77,7 @@ def generate_random_student():
         'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
         'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
         'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))),
-        'personality_scores': personality_scores
+        'meeting_freq': meeting_freq
     }
 
 def generate_students(n):
@@ -93,6 +96,7 @@ def visualize_clusters(X, labels):
     plt.show()
 
 # Form groups using Greedy approach based on personality scores
+# TODO: Change the below method to form groups using Greedy approach based on the remaining attributes (gpa, major, minor, courses_taken, technical_skills)
 def form_groups_greedy(data, group_size):
     groups_num = 0
     for cluster in data['cluster'].unique():
@@ -119,11 +123,11 @@ def form_groups_greedy(data, group_size):
     data['group'] = data['group'].astype(int)
 
 
-def find_best_k(X, k_range):
+def find_best_k(X, clustering_features, k_range):
     silhouette_scores = []
 
     for k in k_range:
-        kmeans = KMeans(n_clusters=k, random_state=0).fit(X)
+        kmeans = KMeans(n_clusters=k, random_state=0).fit(clustering_features)
         labels = kmeans.labels_
         score = silhouette_score(X, labels)
         silhouette_scores.append(score)
@@ -153,10 +157,10 @@ def evaluate_groups(X, data):
 # Define predefined categories
 major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
 minor_categories = ['Math', 'Physics', 'Chem', 'Econ', 'Business', 'None']
-courses_categories = ['CSC101', 'CSC102', 'CSC103', 'ECE201', 'ECE202', 'ME101', 'ME102']
+courses_categories = ["Electric and Magnetic Fields", "Fields and Waves", "Dynamics", "Communication Systems", "Electric Drives", "Computer Systems Programming", "Physiological Control Systems", "Sensory Communication", "Introduction to Electronic Devices", "Mechanics"]
 interests_categories = ['AI', 'ML', 'Robotics', 'Circuits', 'Signal Processing', 'Thermodynamics', 'Fluid Mechanics']
 skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'AutoCAD']
-schedule_categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+schedule_categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 # Example usage:
 n = 200  # Number of students to generate
@@ -173,32 +177,38 @@ data.to_pickle('student_data.pkl')
 preprocessor = ColumnTransformer(
     transformers=[
         ('num', MinMaxScaler(), ['GPA']),
-        ('major', EmbeddingTransformer(major_categories), 'major'),
-        ('minor', EmbeddingTransformer(minor_categories), 'minor'),
-        ('courses', CustomMultiLabelEmbeddingTransformer(courses_categories), 'courses_taken'),
-        ('interests', CustomMultiLabelEmbeddingTransformer(interests_categories), 'areas_of_interest'),
-        ('skills', CustomMultiLabelEmbeddingTransformer(skills_categories), 'technical_skills'),
-        ('schedule', CustomMultiLabelEmbeddingTransformer(schedule_categories), 'schedule')
+        ('major', EmbeddingTransformer(), 'major'),
+        ('minor', EmbeddingTransformer(), 'minor'),
+        ('courses', CustomMultiLabelEmbeddingTransformer(), 'courses_taken'),
+        ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
+        ('skills', CustomMultiLabelEmbeddingTransformer(), 'technical_skills'),
+        ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+        ('freq', MinMaxScaler(), ['meeting_freq']),
+    ])
+
+dealbreakers_preprocessor = ColumnTransformer(
+    transformers=[
+        ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
+        ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+        ('freq', MinMaxScaler(), ['meeting_freq']),
     ])
 
 start_time = time.time()
 
-# Apply transformation
+# Apply transformations and convert the dataframe into a list of embeddings, where each student is represented by a single embedding vector
 X = preprocessor.fit_transform(data)
 print(X[0])
 
-# Scale the personality_scores separately
-personality_scores_scaled = MinMaxScaler().fit_transform(np.array(data['personality_scores'].tolist()))
-
-# Combine the transformed data `X` with the scaled personality scores
-X_combined = np.hstack((X, personality_scores_scaled))
-print(X_combined[0])
+# Select only certain columns (features) for clustering, also called 'dealbreakers'
+clustering_features = data[['areas_of_interest', 'schedule', 'meeting_freq']]
+# Convert into list of embeddings
+dealbreakers = dealbreakers_preprocessor.fit_transform(clustering_features)
 
 # Clustering
 k_range = range(2, 10)  # Testing k values
-best_k, silhouette_scores = find_best_k(X, k_range)
+best_k, silhouette_scores = find_best_k(X, dealbreakers, k_range)
 print(f"Best k: {best_k}")
-clustering = KMeans(n_clusters=best_k).fit(X)
+clustering = KMeans(n_clusters=best_k).fit(dealbreakers)
 
 # Assign clusters to students
 data['cluster'] = clustering.labels_
@@ -218,9 +228,3 @@ avg_similarity = evaluate_groups(X_combined, data)
 print(f"Average similarity: {avg_similarity}")
 
 visualize_clusters(X, data['cluster'])
-
-
-
-
-
-
