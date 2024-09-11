@@ -99,6 +99,7 @@ def visualize_clusters(X, labels):
 # TODO: Change the below method to form groups using Greedy approach based on the remaining attributes (gpa, major, minor, courses_taken, technical_skills)
 def form_groups_greedy(data, group_size):
     groups_num = 0
+
     for cluster in data['cluster'].unique():
         cluster_data = data[data['cluster'] == cluster]
         remaining_indices = list(cluster_data.index)
@@ -120,6 +121,8 @@ def form_groups_greedy(data, group_size):
         if (len(remaining_indices)):
             data.loc[remaining_indices, 'group'] = groups_num
             groups_num += 1
+            
+    print("preffered traits grouped")
     data['group'] = data['group'].astype(int)
 
 
