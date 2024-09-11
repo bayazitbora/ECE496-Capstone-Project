@@ -9,7 +9,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
-from django.contrib.auth.models import User
+from django.conf import settings
+User = settings.AUTH_USER_MODEL
+from django.contrib.auth import get_user_model
 
 from .serializers import UserSerializer
 
@@ -19,7 +21,7 @@ def register_user(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        user = User.objects.get(username=request.data['username'])
+        user = get_user_model().objects.get(username=request.data['username'])
         user.set_password(request.data['password']) #hashes user password
         user.save()
 
@@ -47,15 +49,25 @@ def getStatus(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getUser(request):
-    user = request.user
+    user = get_user_model().objects.get(username=request.data['username'])
+    return Response ({
+        "username": user.get_username(),
+        "name": user.get_full_name(),
+        #skills
+        #store some of who they matched with
+        #other user profile info
+    })
 
     return HttpResponse(0)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def updateUser(request):
-    #update the user information
-    #Return in JSON format or call getUser
+def updateSkills(request):
+    user = User.objects.get(username=request.data['username'])
+    
+    if 'skills' in request.data:
+        user.update_skills(request.data['skills'])
+        
     return HttpResponse(0)
 
 #------------------------------------------------

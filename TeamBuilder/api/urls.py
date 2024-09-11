@@ -10,7 +10,7 @@ urlpatterns = [
     path('', views.getRoutes),
     path('getStatus/', views.getStatus, name="getStatus"),
     path('getUser/', views.getUser, name="getUser"),
-    path('updateUser/', views.updateUser, name="updateUser"),
+    path('updateSkills/', views.updateSkills, name="updateSkills"),
 
     path('register/', views.register_user, name='registerUser'),
     

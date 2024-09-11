@@ -19,9 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: Todo Change to not be included before launch!
-SECRET_KEY = 'th77&n080o8!jar!(*d!(l$didy%!^o9hja*+w7*fd_oe$h__w'
+import os
+#Ask for secret key during development
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -59,8 +59,8 @@ SIMPLE_JWT = {
 
     "ALGORITHM": "HS256",
     "VERIFYING_KEY": "",
-    #Todo Change to not be included before launch!
-    "SIGNING_KEY": "mwvzD1emrDgUZS91YD3uYlhbCLeg6r3q",
+    #Set secret key in system environment settings
+    "SIGNING_KEY": os.environ["SECRET_KEY"],
     "AUDIENCE": None,
     "ISSUER": None,
     "JSON_ENCODER": None,
@@ -178,3 +178,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #Change this to be the domain of the front end later
 CORS_ALLOW_ALL_ORIGINS = True
+
+#Set custom user model
+AUTH_USER_MODEL = "api.MyUser"

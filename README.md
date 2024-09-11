@@ -12,7 +12,9 @@ To connect to the backend on your browser you can either:
 3. Create the virtual environment using:
     - C:\\...\\Capstone> `python -m venv C:\\path\\To\\Project\\...\\Capstone>`
     - Ensure the `venv` folder was created in the `Capstone` project folder
-4. if you are developing on the backend you will also need to install the package requirements from requirements.txt
+4. Install Django: https://docs.djangoproject.com/en/5.1/howto/windows/
+
+5. if you are developing on the backend you will also need to install the package requirements from requirements.txt
     - C:\\...\\Capstone> `pip install -r requirements.txt`
     - You can also run `./runserver.bat` which installs packages as well.
 
