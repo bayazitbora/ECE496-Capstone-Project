@@ -106,6 +106,20 @@ def form_groups_greedy(data, group_size):
         remaining_indices = list(cluster_data.index)
         while len(remaining_indices) >= group_size:
             group = []
+
+            #below is to be deleted/changed until ***
+            #say traits are GPA/major/minor/courses taken/interest/tecchnical skills/scheduele/meeting freq
+            #preffered traits to group within clusters according to similirity use: (minor and courses not used for now)
+            #GPA/major/interest/tech skill
+
+            #GPA: number btwn 0 and 4
+            #major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
+            #interests_categories = ['AI', 'ML', 'Robotics', 'Circuits', 'Signal Processing', 'Thermodynamics', 'Fluid Mechanics']
+            #skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'AutoCAD']
+            #solution 1 to find similary: use of vectors of dimention 7, sum all vectors for a student and compare euclidean distances to other students
+            #solution 2: use embedding from transformers #TODO
+
+
             # Greedy approach to find the group with the smallest sum of personality score distances
             for _ in range(group_size):
                 if not group:
@@ -118,11 +132,14 @@ def form_groups_greedy(data, group_size):
                     remaining_indices.remove(next_index)
                     group.append(next_index)
                 data.loc[group, 'group'] = groups_num
+
+            # ***    
+
             groups_num += 1
         if (len(remaining_indices)):
             data.loc[remaining_indices, 'group'] = groups_num
             groups_num += 1
-            
+
     print("preffered traits grouped")
     data['group'] = data['group'].astype(int)
 
