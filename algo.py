@@ -12,9 +12,11 @@ from sklearn.metrics import silhouette_score
 import random
 import matplotlib.pyplot as plt
 import time
+from sentence_transformers import SentenceTransformer
 
-# Load the spacy model
-nlp = spacy.load('en_core_web_sm')
+# Use the all-MiniLM-L6-v2 transformer model to obtain embeddings for student attributes
+# For more information, refer to documentation: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+nlp_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 class EmbeddingTransformer(BaseEstimator, TransformerMixin):
     def __init__(self):
@@ -24,7 +26,7 @@ class EmbeddingTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        transformed = np.array([nlp(val).vector for val in X.squeeze()])
+        transformed = np.array([nlp_model.encode(val) for val in X.squeeze()])
         normalized = self.scaler.fit_transform(transformed)
         normalized = np.clip(normalized, 0, 1)
         return normalized
@@ -37,8 +39,7 @@ class CustomMultiLabelEmbeddingTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        print(X)
-        transformed = np.array([np.mean([nlp(val).vector for val in vals], axis=0) for vals in X])
+        transformed = np.array([np.mean([nlp_model.encode(val) for val in vals], axis=0) for vals in X])
         normalized = self.scaler.fit_transform(transformed)
         normalized = np.clip(normalized, 0, 1)
         return normalized
@@ -76,8 +77,8 @@ def generate_random_student():
         'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
         'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
         'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
-        'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))),
-        'meeting_freq': meeting_freq
+        'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        'meeting_freq': meeting_freq # change according to questionnaire
     }
 
 def generate_students(n):
