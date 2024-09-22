@@ -1,3 +1,4 @@
+from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_greedy, find_best_k
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer
 from sklearn.compose import ColumnTransformer
@@ -12,50 +13,24 @@ from sklearn.metrics import silhouette_score
 import random
 import matplotlib.pyplot as plt
 import time
-from sentence_transformers import SentenceTransformer
 
-# Use the all-MiniLM-L6-v2 transformer model to obtain embeddings for student attributes
-# For more information, refer to documentation: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-nlp_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-
-class EmbeddingTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self):
-        self.scaler = MinMaxScaler()
-    
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        transformed = np.array([nlp_model.encode(val) for val in X.squeeze()])
-        normalized = self.scaler.fit_transform(transformed)
-        normalized = np.clip(normalized, 0, 1)
-        return normalized
-
-class CustomMultiLabelEmbeddingTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self):
-        self.scaler = MinMaxScaler()
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        transformed = np.array([np.mean([nlp_model.encode(val) for val in vals], axis=0) for vals in X])
-        normalized = self.scaler.fit_transform(transformed)
-        normalized = np.clip(normalized, 0, 1)
-        return normalized
-
-class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
-    def __init__(self, classes):
-        self.classes = classes
-        self.mlb = MultiLabelBinarizer(classes=self.classes)
-
-    def fit(self, X, y=None):
-        self.mlb.fit(X)
-        return self
-
-    def transform(self, X):
-        return self.mlb.transform(X)
-
+def evaluate_groups(X, data):
+    similarities = []
+    for group in data['group'].unique():
+        group_data = data[data['group'] == group]
+        group_indices = list(group_data.index)
+        group_vectors = X[group_indices]
+        if len(group_vectors) < 2:  # If the group has fewer than 2 members, skip
+            similarities.append(1.0)  # Consider it fully similar
+            continue
+        # Calculate pairwise Euclidean distances within the group
+        distance_matrix = euclidean_distances(group_vectors)
+        # Convert distances to similarities (e.g., by taking the inverse)
+        similarity_matrix = 1 / (1 + distance_matrix)
+        # Take the average of the upper triangle (excluding the diagonal)
+        avg_similarity = np.mean(similarity_matrix[np.triu_indices(len(group_vectors), k=1)])
+        similarities.append(avg_similarity)
+    return np.mean(similarities)
 
 # Generate a list of 8 non-negative integers that add up to 10
 def generate_random_list(sum_total, length):
@@ -96,84 +71,6 @@ def visualize_clusters(X, labels):
     plt.colorbar(label='Cluster Label')
     plt.show()
 
-# Form groups using Greedy approach based on personality scores
-# TODO: Change the below method to form groups using Greedy approach based on the remaining attributes (gpa, major, minor, courses_taken, technical_skills)
-def form_groups_greedy(data, group_size):
-    groups_num = 0
-
-    for cluster in data['cluster'].unique():
-        cluster_data = data[data['cluster'] == cluster]
-        remaining_indices = list(cluster_data.index)
-        while len(remaining_indices) >= group_size:
-            group = []
-
-            #below is to be deleted/changed until ***
-            #say traits are GPA/major/minor/courses taken/interest/tecchnical skills/scheduele/meeting freq
-            #preffered traits to group within clusters according to similirity use: (minor and courses not used for now)
-            #GPA/major/interest/tech skill
-
-            #GPA: number btwn 0 and 4
-            #major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
-            #interests_categories = ['AI', 'ML', 'Robotics', 'Circuits', 'Signal Processing', 'Thermodynamics', 'Fluid Mechanics']
-            #skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'AutoCAD']
-            #solution 1 to find similary: use of vectors of dimention 7, sum all vectors for a student and compare euclidean distances to other students
-            #solution 2: use embedding from transformers #TODO
-
-
-            # Greedy approach to find the group with the smallest sum of personality score distances
-            for _ in range(group_size):
-                if not group:
-                    first_index = remaining_indices.pop(0)
-                    group.append(first_index)
-                else:
-                    last_index = group[-1]
-                    last_score = data.iloc[last_index]['personality_scores']
-                    next_index = min(remaining_indices, key=lambda idx: np.linalg.norm(np.array(last_score) - np.array(data.iloc[idx]['personality_scores'])))
-                    remaining_indices.remove(next_index)
-                    group.append(next_index)
-                data.loc[group, 'group'] = groups_num
-
-            # ***    
-
-            groups_num += 1
-        if (len(remaining_indices)):
-            data.loc[remaining_indices, 'group'] = groups_num
-            groups_num += 1
-
-    print("preffered traits grouped")
-    data['group'] = data['group'].astype(int)
-
-
-def find_best_k(X, clustering_features, k_range):
-    silhouette_scores = []
-
-    for k in k_range:
-        kmeans = KMeans(n_clusters=k, random_state=0).fit(clustering_features)
-        labels = kmeans.labels_
-        score = silhouette_score(X, labels)
-        silhouette_scores.append(score)
-        print(f"Silhouette score for k={k}: {score}")
-
-    best_k = k_range[np.argmax(silhouette_scores)]
-    return best_k, silhouette_scores
-
-def evaluate_groups(X, data):
-    similarities = []
-    for group in data['group'].unique():
-        group_data = data[data['group'] == group]
-        group_indices = list(group_data.index)
-        group_vectors = X[group_indices]
-        if len(group_vectors) < 2:  # If the group has fewer than 2 members, skip
-            similarities.append(1.0)  # Consider it fully similar
-            continue
-        # Calculate pairwise Euclidean distances within the group
-        distance_matrix = euclidean_distances(group_vectors)
-        # Convert distances to similarities (e.g., by taking the inverse)
-        similarity_matrix = 1 / (1 + distance_matrix)
-        # Take the average of the upper triangle (excluding the diagonal)
-        avg_similarity = np.mean(similarity_matrix[np.triu_indices(len(group_vectors), k=1)])
-        similarities.append(avg_similarity)
-    return np.mean(similarities)
 
 # Define predefined categories
 major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
@@ -227,12 +124,11 @@ dealbreakers = dealbreakers_preprocessor.fit_transform(clustering_features)
 
 # Clustering
 k_range = range(2, 10)  # Testing k values
-best_k, silhouette_scores = find_best_k(X, dealbreakers, k_range)
+best_k, best_labels = find_best_k(X, dealbreakers, k_range)
 print(f"Best k: {best_k}")
-clustering = KMeans(n_clusters=best_k).fit(dealbreakers)
 
 # Assign clusters to students
-data['cluster'] = clustering.labels_
+data['cluster'] = best_labels
 
 print("Silhouette Score (Average):", silhouette_score(X, data['cluster']))
 
