@@ -184,7 +184,7 @@ skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'A
 schedule_categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 # Example usage:
-n = 200  # Number of students to generate
+n = 10  # Number of students to generate
 group_size = 4 # Number of students per group
 data = generate_students(n)
 # Save the student data to a CSV file
