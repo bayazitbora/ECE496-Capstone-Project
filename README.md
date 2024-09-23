@@ -1,12 +1,29 @@
-This branch contains the algorithm that clusters students and forms optimal groups based on a set of attributes. 
+# Student Grouping Algorithm
 
-Usage: The backend should import algorithm.py and call 'cluster_and_match_students', providing the following input parameters:
-  - data: DataFrame containing student data with attributes; each row corresponds to a student, each column corresponds to an attribute
-  - schedule_categories: List of possible schedule categories for one-hot encoding (e.g. ["Monday 9:00", "Monday 10:00", ..., "Saturday 21:00"])
-  - group_size: The desired number of students in each group
+This branch contains the algorithm that clusters students and forms optimal groups based on a set of attributes.
 
-The function modifies the input DataFrame by adding 'cluster' and 'group' columns, where each student has an integer identifier corresponding to their unique cluster and group.
+## Usage
 
-The algo_test.py and eval_clustering_algos.py are test scripts that will not be used in the final product, and can be described as follows: 
-- algo_test.py: Tests the algorithm using a random synthetic student dataset
-- eval_clustering_algos.py: Evaluates different clustering algorithms with synthetic student data according to two metrics; latency and silhouette score. Creates a comparison table and saves it to a CSV file (student_comparision.csv)
+To use the algorithm, the backend should import `algorithm.py` and call the function `cluster_and_match_students`. The following input parameters are required:
+
+- **data**: A DataFrame containing student data with attributes. Each row corresponds to a student, and each column corresponds to an attribute.
+- **schedule_categories**: A list of possible schedule categories for one-hot encoding (e.g. `["Monday 9:00", "Monday 10:00", ..., "Saturday 21:00"]`).
+- **group_size**: The desired number of students in each group.
+
+### Output
+
+The function modifies the input DataFrame by adding two new columns:
+
+- **cluster**: An integer identifier corresponding to the student's unique cluster.
+- **group**: An integer identifier corresponding to the student's assigned group.
+
+## Test Scripts
+
+The following test scripts are provided for testing and evaluation purposes but will not be included in the final product:
+
+- **algo_test.py**: Tests the algorithm using a random synthetic student dataset.
+- **eval_clustering_algos.py**: Evaluates different clustering algorithms with synthetic student data according to two metrics:
+  - Latency
+  - Silhouette score
+
+  This script creates a comparison table and saves it to a CSV file (`student_comparision.csv`).
