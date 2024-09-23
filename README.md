@@ -23,7 +23,7 @@ The following test scripts are provided for testing and evaluation purposes but 
 
 - **algo_test.py**: Tests the algorithm using a random synthetic student dataset.
 - **eval_clustering_algos.py**: Evaluates different clustering algorithms with synthetic student data according to two metrics:
-  - Latency
+  - Latency (runtime of the clustering algorithm)
   - Silhouette score
 
   This script creates a comparison table and saves it to a CSV file (`student_comparision.csv`).
