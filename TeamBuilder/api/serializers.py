@@ -12,3 +12,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name']
         extra_kwargs = {'password': {'write_only': True}}
+
+class SkillSerializer(serializers.Serializer):
+    skill = serializers.CharField()
+
+
+class ProfileSerializer(serializers.Serializer):
+    skills = SkillSerializer(many=True)
+    class Meta:
+        fields = ('courseTitle','major', 'minor', 'skills', 'hoursToCommit', 'availableTimes')
+
