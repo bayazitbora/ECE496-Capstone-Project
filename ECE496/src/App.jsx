@@ -4,6 +4,7 @@ import SignUp from "./pages/SignUp";
 // import About from "./pages/About";
 // import Contact from "./pages/Contact";
 import Questionnaire from "./pages/Questionnaire/Questionnaire";
+import Profile from "./pages/Profile";
 import Start from "./components/Start";
 import { SignUpProvider } from "./context/SignUpContext";
 import "./App.css";
@@ -13,6 +14,8 @@ const router = createBrowserRouter([
   { path: "/log-in", element: <LogIn /> },
   { path: "/sign-up", element: <SignUp /> },
   { path: "/questionnaire", element: <Questionnaire /> },
+  { path: "/profile", element: <Profile /> },
+  { path: "*", element: <h1>Not Found</h1> },
 ]);
 
 function App() {

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "./Questionnaire.module.css";
 
 import ProgressBar from "../../components/Questionnaire/ProgressBar";
@@ -7,7 +7,7 @@ import QuestionTemplate from "../../components/Questionnaire/QuestionTemplate";
 import { SignUpContext } from "../../context/SignUpContext";
 
 function Questionnaire() {
-  const { setFormData } = useContext(SignUpContext);
+  const { setFormData } = useContext(SignUpContext); // make different contexts for sign up and form data
   const [signUpState, setSignUpState] = useState({
     profile_type: "", // stu or instr profiles
     first_name: "",
@@ -26,9 +26,9 @@ function Questionnaire() {
     courses_taken: [],
     skills: [],
   });
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 11;
+  const totalSteps = 12;
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
@@ -46,7 +46,7 @@ function Questionnaire() {
     console.log("Submit button clicked");
     setFormData(formState);
     console.log(formState);
-    // navigate("/questionnaire"); // TODO: change this
+    navigate("/profile");
   };
 
   const handleSignUpInputChange = (event) => {
