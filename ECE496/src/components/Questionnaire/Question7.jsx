@@ -13,7 +13,12 @@ function Question7(formState, handleInputChange) {
     <div>
       <h2>What is your GPA? </h2>
       <text>Choose one of the ranges below:</text>
-      <QuestionOptions choices={gpa_ranges} />
+      <QuestionOptions
+        choices={gpa_ranges}
+        selectedValues={formState.gpa_range || []}
+        fieldName={"gpa_range"}
+        handleInputChange={handleInputChange}
+      />
     </div>
   );
 }

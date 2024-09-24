@@ -4,8 +4,7 @@ import { TextField } from "@mui/material";
 function Question1({ formState, handleInputChange }) {
   return (
     <div>
-      <h2>Welcome!</h2>
-      <text>How should we call you?</text>
+      <h2>How should we call you?</h2>
       <div>
         <TextField
           id="name-input"

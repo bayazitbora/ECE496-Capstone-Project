@@ -14,7 +14,12 @@ function Question6(formState, handleInputChange) {
     <div>
       <h2>How often would you like to meet your team? </h2>
       <text>Preferred number of meeting hours per week:</text>
-      <QuestionOptions choices={frequency_pref} />
+      <QuestionOptions
+        choices={frequency_pref}
+        selectedValues={formState.meeting_frequency || []}
+        fieldName={"meeting_frequency"}
+        handleInputChange={handleInputChange}
+      />
     </div>
   );
 }

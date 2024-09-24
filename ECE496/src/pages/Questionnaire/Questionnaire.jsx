@@ -8,12 +8,15 @@ import { SignUpContext } from "../../context/SignUpContext";
 
 function Questionnaire() {
   const { setFormData } = useContext(SignUpContext);
-  const [formState, setFormState] = useState({
+  const [signUpState, setSignUpState] = useState({
+    profile_type: "", // stu or instr profiles
     first_name: "",
     last_name: "",
     username: "",
     email: "",
     password: "",
+  });
+  const [formState, setFormState] = useState({
     project_interests: [],
     availability: [],
     meeting_frequency: "",
@@ -46,7 +49,15 @@ function Questionnaire() {
     // navigate("/questionnaire"); // TODO: change this
   };
 
-  const handleInputChange = (event) => {
+  const handleSignUpInputChange = (event) => {
+    const { name, value } = event.target;
+    setSignUpState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleFormInputChange = (event) => {
     const { name, value } = event.target;
     setFormState((prevState) => ({
       ...prevState,
@@ -62,8 +73,10 @@ function Questionnaire() {
         totalSteps={totalSteps}
         nextStep={nextStep}
         prevStep={prevStep}
+        signUpState={signUpState}
         formState={formState}
-        handleInputChange={handleInputChange}
+        handleSignUpInputChange={handleSignUpInputChange}
+        handleFormInputChange={handleFormInputChange}
         handleSubmit={handleSubmit}
       />
     </div>

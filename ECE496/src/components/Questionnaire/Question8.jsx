@@ -16,7 +16,12 @@ function Question8(formState, handleInputChange) {
     <div>
       <h2>What is your Program of Study? </h2>
       <text>Choose your Engineering Major amongst the list:</text>
-      <QuestionOptions choices={majors} />
+      <QuestionOptions
+        choices={majors}
+        selectedValues={formState.major || []}
+        fieldName={"major"}
+        handleInputChange={handleInputChange}
+      />
     </div>
   );
 }

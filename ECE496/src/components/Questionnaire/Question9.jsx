@@ -19,7 +19,12 @@ function Question9(formState, handleInputChange) {
     <div>
       <h2>Are you pursuing any Minor(s)? </h2>
       <text>Choose your Engineering Minor(s) amongst the list:</text>
-      <QuestionOptions choices={minors} />
+      <QuestionOptions
+        choices={minors}
+        selectedValues={formState.minors || []}
+        fieldName={"minors"}
+        handleInputChange={handleInputChange}
+      />
     </div>
   );
 }

@@ -15,7 +15,12 @@ function Question10(formState, handleInputChange) {
     <div>
       <h2>What are your skills? </h2>
       <text>Choose from the list of relevant skills:</text>
-      <QuestionOptions choices={skills} />
+      <QuestionOptions
+        choices={skills}
+        selectedValues={formState.skills || []}
+        fieldName={"skills"}
+        handleInputChange={handleInputChange}
+      />
     </div>
   );
 }
