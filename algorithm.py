@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer
+from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer, normalize
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -14,9 +14,8 @@ import matplotlib.pyplot as plt
 import time
 from sentence_transformers import SentenceTransformer
 
-# Use the all-MiniLM-L6-v2 transformer model to obtain embeddings for student attributes
-# For more information, refer to documentation: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-nlp_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+# Load the spacy model
+nlp = spacy.load('en_core_web_lg')
 
 class EmbeddingTransformer(BaseEstimator, TransformerMixin):
     """
@@ -40,7 +39,7 @@ class EmbeddingTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        transformed = np.array([nlp_model.encode(val) for val in X.squeeze()])
+        transformed = np.array([nlp(val).vector for val in X.squeeze()])
         normalized = self.scaler.fit_transform(transformed)
         normalized = np.clip(normalized, 0, 1)
         return normalized
@@ -67,7 +66,7 @@ class CustomMultiLabelEmbeddingTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        transformed = np.array([np.mean([nlp_model.encode(val) for val in vals], axis=0) for vals in X])
+        transformed = np.array([np.mean([nlp(val).vector for val in vals], axis=0) for vals in X])
         normalized = self.scaler.fit_transform(transformed)
         normalized = np.clip(normalized, 0, 1)
         return normalized
@@ -205,6 +204,7 @@ def cluster_and_match_students(data, schedule_categories, group_size):
     dealbreakers_preprocessor = ColumnTransformer(
         transformers=[
             ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
+            ('major', EmbeddingTransformer(), 'major'),
             ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
             ('freq', MinMaxScaler(), ['meeting_freq']),
         ])
@@ -213,16 +213,24 @@ def cluster_and_match_students(data, schedule_categories, group_size):
     X = preprocessor.fit_transform(data)
 
     # Select only certain columns (features) for clustering, also called 'dealbreakers'
-    clustering_features = data[['areas_of_interest', 'schedule', 'meeting_freq']]
+    clustering_features = data[['areas_of_interest', 'major', 'schedule', 'meeting_freq']]
     # Convert into list of embeddings
     dealbreakers = dealbreakers_preprocessor.fit_transform(clustering_features)
+    dealbreakers = normalize(dealbreakers, norm='l2')
 
-    # Cluster students using k-means clustering, using the 'best' k value from a given range
-    k_range = range(2, 10) 
-    best_k, best_labels = find_best_k(X, dealbreakers, k_range)
+    # Clustering
+    model = KMeans()
 
-    # Assign clusters to students
-    data['cluster'] = best_labels
+    # Use KElbowVisualizer to find the optimal k
+    visualizer = KElbowVisualizer(model, k=(2, 12), metric='silhouette') 
+    visualizer.fit(dealbreakers)  
+    optimal_k = visualizer.elbow_value_ if visualizer.elbow_value_ is not None else 5
+
+    # Cluster the data using the optimal k
+    kmeans = KMeans(n_clusters=optimal_k).fit(dealbreakers)
+
+    # Label the dataframe
+    data['cluster'] = kmeans.labels_
 
     # Form groups of 'group_size' students within each cluster using Greedy approach
     form_groups_greedy(data, group_size)
