@@ -12,7 +12,7 @@ from rest_framework import status
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth import get_user_model
-from models import Course
+from .models import Course
 
 from .serializers import UserSerializer, ProfileSerializer
 
@@ -102,7 +102,7 @@ def updateProfile(request):
             else:
                 #user has more than one profile, this is a bug, throw error for now
                 return Response({"message": "User has more than one profile for a given course"}, 
-                                status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     print(user.profile.all())
     return Response({
