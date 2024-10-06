@@ -20,10 +20,10 @@ class AvailableTimes(models.Model):
 
 class Skill(models.Model):
     skillName       = models.CharField(max_length=100, default="None")
-
+    
 #Profile contains the user information that can be used to form teams
 class Profile(models.Model):
-    courseTitle       = models.CharField(max_length=100, default="N/A")
+    courseCode    = models.CharField(max_length=100)
     minor           = models.CharField(max_length=100)
     major           = models.CharField(max_length=100)
     skills          = models.ManyToManyField(Skill, blank=True)
@@ -31,12 +31,15 @@ class Profile(models.Model):
     availableTimes  = models.ManyToManyField(AvailableTimes)
 
     class Meta:
-        ordering = ["courseTitle"]
+        ordering = ["courseCode"]
 
     def __str__(self):
         #change this so we can index Profile by course
-        #Profile(courseTitle="ECE467") for example
-        return self.courseTitle 
+        #Profile(courseCode="ECE467") for example
+        return (str(self.courseCode) + ", " 
+                + str(self.major) + ", "
+                + str(self.minor) + ", "
+                + str(self.hoursToCommit)) 
     
     def update_skills(self, listOfSkills):
         for skill in listOfSkills:
@@ -47,10 +50,10 @@ class Profile(models.Model):
         self.major          = profile['major'] 
         self.minor          = profile['minor']
         self.hoursToCommit  = profile['hoursToCommit']
-        status = self.availableTimes.update_available_times(profile['availableTimes'])
-        status = self.skills.update_skills(profile['skills'])
+        #status = self.availableTimes.update_available_times(profile['availableTimes'])
+        #status = self.skills
 
-        return status
+        return self
 #MyUser contains administrative details that effect the user experience on the site
 class MyUser(AbstractUser):
     is_teacher      = models.BooleanField(default=False)
@@ -79,3 +82,10 @@ class Course(models.Model):
     courseName      = models.CharField(max_length=140, default="N/A")
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')
+    def __str__ (self):
+        return self.courseCode
+    
+    def update_course(self, courseInfo, user):
+        self.teacher.add(user)
+        self.courseName = courseInfo['courseName']
+        self.courseCode = courseInfo['courseCode']

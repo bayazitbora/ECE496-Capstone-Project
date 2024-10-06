@@ -21,10 +21,16 @@ To connect to the backend on your browser you can either:
 ## Starting the development Server
 1. install python and python virtual environments if not already installed.
 2. To start the development Server, run the runserver.bat script. 
-    -   This will launch the virtual environment, install packages, and then run the Django server on port 8000
+    -   This will launch the virtual environment, install packages, and then run the Django server on port 8000\
 
 Type:\
 C:\\...\\Capstone> `.\runserver.bat`
+
+    or\
+    Run:\
+C:\\...\\Capstone> `pip install -r requirements.txt`\
+    Then the start command"\
+C:\\...\\Capstone> `python /TeamBuilder/manage.py runserver`
 
 ## Virtual Environments
 [!WARNING]\

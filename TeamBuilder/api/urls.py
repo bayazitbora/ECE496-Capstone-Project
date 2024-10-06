@@ -11,6 +11,8 @@ urlpatterns = [
     path('getStatus/', views.getStatus, name="getStatus"),
     path('getUser/', views.getUser, name="getUser"),
     path('updateSkills/', views.updateSkills, name="updateSkills"),
+    path('updateProfile/', views.updateProfile, name="updateProfile"),
+    path('createCourse/', views.createCourse, name="createCourse"),
 
     path('register/', views.register_user, name='registerUser'),
     

@@ -2,4 +2,3 @@ __pycache__
 venv/
 TeamBuilder/db.sqlite3
 migrations
-test.rest
