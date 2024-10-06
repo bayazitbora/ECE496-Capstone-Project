@@ -18,9 +18,10 @@ class SkillSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.Serializer):
-    skills = SkillSerializer(many=True)
-    friends_list = serializers.SerializerMethodField()
-
+    courseCode      = serializers.CharField(max_length=100)
+    major           = serializers.CharField(max_length=100)
+    minor           = serializers.CharField(max_length=100)
+    hoursToCommit   = serializers.IntegerField(default=0)
     class Meta:
-        fields = ('courseTitle', 'major', 'minor', 'skills', 'hoursToCommit')
+        fields = ('courseCode', 'major', 'minor', 'hoursToCommit')
 

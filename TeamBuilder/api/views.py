@@ -39,8 +39,14 @@ def register_user(request):
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
+        '/api/getStatus,',
         '/api/token',
-        '/api/token/refresh'
+        '/api/token/refresh',
+        '/api/register',
+        '/api/getUser',
+        '/api/createCourse',
+        '/api/updateProfile',
+        '/api/update_profile',
         # add more routes...
     ]
     return Response(routes)
@@ -51,11 +57,16 @@ def getRoutes(request):
 @permission_classes([IsAuthenticated])
 def getUser(request):
     user = get_user_model().objects.get(username=request.user.username)
-    return Response ({
+    response = Response ({
         "username": user.get_username(),
         "name": user.get_full_name(),
-        "profile": ProfileSerializer(user.profile.all())
+        "profiles": {
+        }
     })
+    for iProfile in user.profile.all():
+        serialized = ProfileSerializer(iProfile)
+        response.data['profiles'][iProfile.courseCode] = serialized.data
+    return response
 
 
 @api_view(['POST'])
