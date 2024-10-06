@@ -16,7 +16,7 @@ function Profile() {
     password: "********", // Keep password hidden
     courses: [
       {
-        course_name: "Introduction to Digital Electronics",
+        course_name: "Introduction to Electronics",
         project_interests: ["Analog Electronics", "Signal Processing"],
         availability: ["Monday", "Wednesday"],
         meeting_frequency: "Weekly",
@@ -27,7 +27,7 @@ function Profile() {
         skills: ["Circuit Design", "MATLAB"],
       },
       {
-        course_name: "Advanced Software Engineering",
+        course_name: "Software Engineering",
         project_interests: ["Software Architecture", "AI"],
         availability: ["Tuesday", "Thursday"],
         meeting_frequency: "Bi-weekly",
