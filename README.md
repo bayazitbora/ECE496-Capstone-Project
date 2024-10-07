@@ -20,3 +20,7 @@ To connect to the frontend on your browser you can
 1. Use the command
    `npm run dev`
 2. Click on the localhost link that appears in your terminal to see the frontend in browser
+
+## Frontend Prototype
+
+[Figma File](https://www.figma.com/design/9oaN7h15Nrf5LuskqgqAzx/Teammate-Finder?node-id=0-1&t=JQP5XCBwL9L3vNPV-1)
