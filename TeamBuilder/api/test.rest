@@ -1,0 +1,58 @@
+POST http://127.0.0.1:8000/
+content-type: application/json
+
+{
+    "username": "Josh",
+    "time": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+
+###
+
+POST http://127.0.0.1:8000/api/register/
+content-type: application/json
+
+{
+    "username": "newUser",
+    "password": "Thisisatest",
+    "email": "Something@gmail.com",
+    "first_name": "new",
+    "last_name": "user"
+}
+
+###
+# @name login
+POST http://127.0.0.1:8000/api/token/
+content-type: application/json
+
+{
+    "username": "newUser",
+    "password": "Thisisatest"
+}
+
+###
+@jwtoken = {{login.response.body.$.access}}
+
+###
+POST http://127.0.0.1:8000/api/updateProfile/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+    "email": "Something@gmail.com",
+    "profile": {
+        "courseCode": "Civ220",
+        "major": "ECE",
+        "minor": "Business",
+        "hoursToCommit": "9"
+    }
+}
+
+
+###
+POST http://127.0.0.1:8000/api/getUser/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "email": "Something@gmail.com"
+}
