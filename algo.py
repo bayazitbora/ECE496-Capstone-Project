@@ -95,52 +95,89 @@ def visualize_clusters(X, labels):
     plt.colorbar(label='Cluster Label')
     plt.show()
 
-# Form groups using Greedy approach based on personality scores
-# TODO: Change the below method to form groups using Greedy approach based on the remaining attributes (gpa, major, minor, courses_taken, technical_skills)
+
+# similarity of transformed student embeddings
+def student_similarity(emb1, emb2):
+    return np.linalg.norm(emb1-emb2) #smaller number means more similar
+
+# Changed the below method to form groups using Greedy approach based on the remaining attributes (preffered traits)
 def form_groups_greedy(data, group_size):
     groups_num = 0
 
-    for cluster in data['cluster'].unique():
+    for cluster in data['cluster'].unique(): #iterate through clusters
         cluster_data = data[data['cluster'] == cluster]
         remaining_indices = list(cluster_data.index)
+        
+        #put all student info in transformer and have embeddigns for all students 
+        student_embeddings = preffered_traits_preprocessor.fit_transform(cluster_data)
+
         while len(remaining_indices) >= group_size:
             group = []
 
-            #below is to be deleted/changed until ***
-            #say traits are GPA/major/minor/courses taken/interest/tecchnical skills/scheduele/meeting freq
-            #preffered traits to group within clusters according to similirity use: (minor and courses not used for now)
-            #GPA/major/interest/tech skill
+            similarity_array = []
+            for student1 in range(len(remaining_indices)):
+                for student2 in range(student1 + 1 , len(remaining_indices)):
+                    #compare the similarity of student embeddings
+                    sim = student_similarity(student_embeddings[remaining_indices[student1]],student_embeddings[remaining_indices[student2]])
+                    similarity_array.append(remaining_indices[student1], remaining_indices[student2], sim) #collect all similarity scores in an array for each student
+                    
+            sorted_sim_array = sorted(similarity_array, key=lambda x: x[2]) #array in ascending order according to score
+            
+            first = sorted_sim_array[0] #take lowest score (closest students)
+            group.extend(first[:2]) #put those two students in the group
+            #update indeces, take out the 2 students just added.
+            #remaining_indices = [index for index in remaining_indices if index not in group] #this takes too much time
+            remaining_indices.remove(first[0])
+            remaining_indices.remove(first[1])
+            sorted_sim_array.pop(0) #remove that entry
 
-            #GPA: number btwn 0 and 4
-            #major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
-            #interests_categories = ['AI', 'ML', 'Robotics', 'Circuits', 'Signal Processing', 'Thermodynamics', 'Fluid Mechanics']
-            #skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'AutoCAD']
-            #solution 1 to find similary: use of vectors of dimention 7, sum all vectors for a student and compare euclidean distances to other students
-            #solution 2: use embedding from transformers #TODO
+            
+            #when group not full (if group size is 2, do not enter thhe loop)
+            while len(group) < group_size:
 
+                #Initialize
+                closest_student = None
+                closest_student_dist = float('inf')
 
-            # Greedy approach to find the group with the smallest sum of personality score distances
-            for _ in range(group_size):
-                if not group:
-                    first_index = remaining_indices.pop(0)
-                    group.append(first_index)
-                else:
-                    last_index = group[-1]
-                    last_score = data.iloc[last_index]['personality_scores']
-                    next_index = min(remaining_indices, key=lambda idx: np.linalg.norm(np.array(last_score) - np.array(data.iloc[idx]['personality_scores'])))
-                    remaining_indices.remove(next_index)
-                    group.append(next_index)
-                data.loc[group, 'group'] = groups_num
+                #calculate the average point of all student embeddigns in the group
+                embedding_average = np.mean(student_embeddings[group], axis = 0) #axis 0 for mean for all features across all students (consider axis 1?)
+                
+                for student in remaining_indices:
+                    #euclidian distnace between eaxh student and the mean of embeddings alrdy in the group
+                    distance = np.linalg.norm(student_embeddings[student] - embedding_average)
+                    
+                    #find the student with the smallest distance
+                    if distance < closest_student_dist:
+                        closest_student_dist = distance
+                        closest_student = student
+                
+                #add closest student to the group and remove from indices
+                if closest_student is not None:
+                    group.append(closest_student)
+                    remaining_indices.remove(closest_student)
 
-            # ***    
+                #remove all the other entries containing the student pair you added to the group
+                #don't need this, will be updated in next iteration
+                #sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
+                
+
+            for student in group: #assigning group numbers to students
+                data.loc[student, 'group'] = groups_num
 
             groups_num += 1
-        if (len(remaining_indices)):
-            data.loc[remaining_indices, 'group'] = groups_num
-            groups_num += 1
+
+            #update remaining indices
+            remaining_indices = [index for index in remaining_indices if index not in group]
+
+        if remaining_indices: #to deal with remaining students if can't fill the last group
+            for student in remaining_indices:
+                data.loc[student, 'group'] = groups_num
+            groups_num += 1 #this might not be necessary
 
     print("preffered traits grouped")
-    data['group'] = data['group'].astype(int)
+    data['group'] = data['group'].astype(int) #visualize groups
+
+    return data
 
 
 def find_best_k(X, clustering_features, k_range):
@@ -211,6 +248,16 @@ dealbreakers_preprocessor = ColumnTransformer(
         ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
         ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
         ('freq', MinMaxScaler(), ['meeting_freq']),
+    ])
+
+
+preffered_traits_preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', MinMaxScaler(), ['GPA']),
+        ('major', EmbeddingTransformer(), 'major'),
+        ('minor', EmbeddingTransformer(), 'minor'),
+        ('courses', CustomMultiLabelEmbeddingTransformer(), 'courses_taken'),
+        ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
     ])
 
 start_time = time.time()
