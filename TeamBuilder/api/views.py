@@ -29,6 +29,7 @@ def register_user(request):
         user = get_user_model().objects.get(username=request.data['username'])
         user.set_password(request.data['password']) #hashes user password
         user.save()
+        user.update_user(request.data) #updates Program of study, GPA, expectedGrad
 
         return Response({
                 "user": serializer.data,
@@ -44,22 +45,66 @@ def getRoutes(request):
         '/api/token/refresh',
         '/api/register',
         '/api/getUser',
+        '/api/getSelf',
         '/api/createCourse',
         '/api/updateProfile',
-        '/api/update_profile',
         # add more routes...
     ]
     return Response(routes)
 
 #Protected Endpoints----------------------------
+@api_view(['POST'])
+def updateSelf(request):
+    user = get_user_model().objects.get(username=request.user.username)
+
+    user.update_user(request.data)
+
+    return Response({
+        "user": user.username,
+        "message": "User updated successfully!"
+    }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getUser(request):
+    if request.user.email:
+        user = get_user_model().objects.get(email__iexact=request.data['email'])
+    elif request.user.username:
+        user = get_user_model().objects.get(username=request.data['username'])
+    else:
+        return Response({"message": "request did not contain username or email"}, 
+                        status=status.HTTP_400_BAD_REQUEST)
+    response = Response({
+        "username": request.user.username,
+        "requested_user": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "pos": user.programOfStudy,
+        "grad_year": user.expectedGrad,
+        "GPA": user.GPA,
+        "minors": user.minors.all(),
+        "profiles": { 
+        }
+    })
+    for iProfile in user.profile.all():
+        serialized = ProfileSerializer(iProfile)
+        response.data['profiles'][iProfile.courseCode] = serialized.data
+    return response
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def getSelf(request):
     user = get_user_model().objects.get(username=request.user.username)
     response = Response ({
         "username": user.get_username(),
         "name": user.get_full_name(),
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "pos": user.programOfStudy,
+        "grad_year": user.expectedGrad,
+        "GPA": user.GPA,
+        "minors": user.minors.all(),
         "profiles": {
         }
     })
@@ -68,6 +113,7 @@ def getUser(request):
         response.data['profiles'][iProfile.courseCode] = serialized.data
     return response
 
+#------------------------------------------------
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -121,25 +167,30 @@ def updateProfile(request):
         "message": "User profile updated successfully!"
     }, status=status.HTTP_200_OK)
 
+#------------------------------------------------
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createCourse(request):
     user = get_user_model().objects.get(username=request.user.username)
-    if not user or not request.data['courseInfo']['courseName']:
+    if not request.data['courseInfo']['courseCode']:
         return Response(
             {
                 "user": request.user.username,
-                "message": "User not found."
+                "message": "Course code not included"
             }, status=status.HTTP_400_BAD_REQUEST)
-    course = Course(courseName=request.data['courseInfo']['courseName'])
+    course = Course(courseCode=request.data['courseInfo']['courseCode'])
     course.is_active = True
     course.update_course(request.data['courseInfo'], user)
     course.save()
 
     return Response({
         "user": user.username,
-        "courseCode": course.courseName,
-        "courseName": course.courseName,
+        "courseInfo":
+        {
+            "courseCode": course.courseCode,
+            "courseName": course.courseName,
+        },
         "message": "Created course successfully"
     }, status=status.HTTP_200_OK)
 

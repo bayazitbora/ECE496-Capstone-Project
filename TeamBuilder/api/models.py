@@ -18,51 +18,82 @@ class AvailableTimes(models.Model):
     saturday        = models.ManyToManyField(HoursFree, related_name='saturday')
     sunday          = models.ManyToManyField(HoursFree, related_name='sunday')
 
-class Skill(models.Model):
-    skillName       = models.CharField(max_length=100, default="None")
+class Interest(models.Model):
+    interest        = models.CharField(max_length=100)
     
+    def __str__(self):
+        return str(self.interest)
+
+class Skill(models.Model):
+    skill           = models.CharField(max_length=100, default="None")
+
+    def __str__(self):
+        return str(self.skill)
+
+class Minor(models.Model):
+    minor           = models.CharField(max_length=100, default="None")
+
+    def __str__(self):
+        return str(self.minor)
+
 #Profile contains the user information that can be used to form teams
 class Profile(models.Model):
-    courseCode    = models.CharField(max_length=100)
-    minor           = models.CharField(max_length=100)
-    major           = models.CharField(max_length=100)
+    courseCode      = models.CharField(max_length=100)
+    interests       = models.ManyToManyField(Interest, blank=True)
     skills          = models.ManyToManyField(Skill, blank=True)
     hoursToCommit   = models.IntegerField(default=0)
+
+    #not implemented
     availableTimes  = models.ManyToManyField(AvailableTimes)
 
     class Meta:
         ordering = ["courseCode"]
 
     def __str__(self):
-        #change this so we can index Profile by course
-        #Profile(courseCode="ECE467") for example
-        return (str(self.courseCode) + ", " 
-                + str(self.major) + ", "
-                + str(self.minor) + ", "
-                + str(self.hoursToCommit)) 
+        message = (str(self.courseCode) 
+                   + ", " 
+                   + str(self.interests.all()) 
+                   + ", "
+                   + str(self.skills.all())
+                   + ", "
+                   + str(self.hoursToCommit)
+                   )
+        return message
     
-    def update_skills(self, listOfSkills):
-        for skill in listOfSkills:
-            skillToAdd = Skill(name=skill)
-            self.profile.skills.add(skillToAdd)
-    def update_profile(self, profile):
-        status = True
-        self.major          = profile['major'] 
-        self.minor          = profile['minor']
-        self.hoursToCommit  = profile['hoursToCommit']
-        #status = self.availableTimes.update_available_times(profile['availableTimes'])
-        #status = self.skills
+    def update_interests(self, listOfInterests):
+        for interest in listOfInterests:
+            #interestToAdd = Interest(interest=interest)
+            self.interests.create(interest=interest)
 
-        return self
+    def update_skills(self, listOfskills):
+        for skill in listOfskills:
+            #skillToAdd = Skill(skill=skill)
+            self.skills.create(skill=skill)
+
+    def update_profile(self, profile):
+        if profile['interests']:
+            self.update_interests(profile['interests'])
+
+        if profile['skills']:
+            self.update_skills(profile['skills'])
+
+        self.hoursToCommit  = profile['hoursToCommit']
+
+        self.save()
+
 #MyUser contains administrative details that effect the user experience on the site
 class MyUser(AbstractUser):
     is_teacher      = models.BooleanField(default=False)
-    USER_TYPE_CHOICES = ( (('student', 'Student'), ('teacher', 'Teacher'), ('teaching assistant','Teaching Assistant')))
+    USER_TYPE_CHOICES = ( (('student', 'Student'), ('teacher', 'Teacher')))
     user_type       = models.CharField(max_length=20, choices=USER_TYPE_CHOICES)
     profile         = models.ManyToManyField(Profile) #many to many because may have multiple profiles per course
     email_verified  = models.BooleanField(default=False)
     first_name      = models.CharField(max_length=50)
     last_name       = models.CharField(max_length=50)
+    programOfStudy  = models.CharField(max_length=200, default="N/A")
+    minors          = models.ManyToManyField(Minor)
+    expectedGrad    = models.IntegerField(default=0)
+    GPA             = models.FloatField(default=0)
 
     def __str__(self):
         return self.email
@@ -73,9 +104,32 @@ class MyUser(AbstractUser):
     def get_profile(self):
         return self.profile
     
-    def update_user(self, user):
-        status = 0
-        return status
+    def update_minors(self, listOfMinors):
+        for minor in listOfMinors:
+            if not self.minors.filter(minor=minor):
+                self.minors.create(minor=minor)
+
+    def update_user(self, request):
+        if request['first_name']:
+            self.first_name = request['first_name']
+        
+        if request['last_name']:
+            self.last_name = request['last_name']
+
+        if request['pos']:
+            self.programOfStudy = request['pos']
+        
+        if request['minors']:
+            self.update_minors(request['minors'])
+
+        if request['grad_year']:
+            self.expectedGrad = request['grad_year']
+
+        if request['gpa']:
+            self.GPA = request['gpa']
+
+        self.save()
+        
 class Course(models.Model):
     is_active       = models.BooleanField()
     courseCode      = models.CharField(max_length=50)

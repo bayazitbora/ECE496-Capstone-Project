@@ -12,11 +12,15 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "newUser",
+    "username": "JohnDoe1234",
     "password": "Thisisatest",
-    "email": "Something@gmail.com",
-    "first_name": "new",
-    "last_name": "user"
+    "email": "John.Doe@nothing.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "pos": "Computer Engineering",
+    "gpa": "3.8",
+    "grad_year": "2025",
+    "minors": ["AI"]
 }
 
 ###
@@ -25,7 +29,7 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "newUser",
+    "username": "JohnDoe1234",
     "password": "Thisisatest"
 }
 
@@ -38,15 +42,38 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "Something@gmail.com",
+    "email": "John.Doe@nothing.com",
     "profile": {
-        "courseCode": "Civ220",
-        "major": "ECE",
-        "minor": "Business",
-        "hoursToCommit": "9"
+        "courseCode": "CIV220",
+        "hoursToCommit": "9",
+        "interests": ["Ecology", "Social Justice", "Swimming"],
+        "skills": ["C++", "Talking", "Programming"]
     }
 }
+###
 
+###
+POST http://127.0.0.1:8000/api/updateSelf/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "first_name": "John",
+    "last_name": "Doette",
+    "pos": "Software Engineering",
+    "gpa": "4.0",
+    "grad_year": "2025",
+    "minors": ["AI", "AI 2"]
+}
+
+###
+POST http://127.0.0.1:8000/api/getSelf/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "email": "John.Doe@nothing.com"
+}
 
 ###
 POST http://127.0.0.1:8000/api/getUser/
@@ -54,5 +81,5 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "email": "Something@gmail.com"
+    "requested_user": "Something@gmail.com"
 }
