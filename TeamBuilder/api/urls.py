@@ -22,7 +22,7 @@ urlpatterns = [
     #updateSelf: returns the user information of the authenticated user
     path('updateSelf/', views.updateSelf, name="updateSelf"),
 
-    #updateProfile: creates or updates a profile for a given courseCode
+    #updateProfile: updates user information such as: first, last name, gpa, etc
     path('updateProfile/', views.updateProfile, name="updateProfile"),
 
     #createCourse: creates a course object, !!not impl fully!!
