@@ -1,27 +1,20 @@
 import styles from "./Question.module.css";
 import {
-  Question0,
-  Question1,
-  Question2,
-  Question3,
-  Question4,
-  Question5,
-  Question6,
-  Question7,
-  Question8,
-  Question9,
-  Question10,
-  Question11,
-} from "./Questions";
+  RoleQ,
+  NameQ,
+  AccountQ,
+  MajorQ,
+  MinorQ,
+  GPAQ,
+  MessageQ,
+} from "./AccountQuestions";
 
-function QuestionTemplate({
+function AccountCreationTemplate({
   currentStep,
   nextStep,
   prevStep,
   signUpState,
-  formState,
   handleSignUpInputChange,
-  handleFormInputChange,
   handleSubmit,
   totalSteps,
 }) {
@@ -29,92 +22,63 @@ function QuestionTemplate({
     switch (currentStep) {
       case 1:
         return (
-          <Question0
+          <RoleQ
             formState={signUpState}
             handleInputChange={handleSignUpInputChange}
           />
         );
       case 2:
         return (
-          <Question1
+          <NameQ
             formState={signUpState}
             handleInputChange={handleSignUpInputChange}
           />
         );
       case 3:
         return (
-          <Question2
+          <AccountQ
             formState={signUpState}
             handleInputChange={handleSignUpInputChange}
           />
         );
       case 4:
-        return <Question3 />;
+        return (
+          <MajorQ
+            formState={signUpState}
+            handleInputChange={handleSignUpInputChange}
+          />
+        );
       case 5:
         return (
-          <Question4
-            formState={formState}
-            handleInputChange={handleFormInputChange}
+          <MinorQ
+            formState={signUpState}
+            handleInputChange={handleSignUpInputChange}
           />
         );
       case 6:
         return (
-          <Question5
-            formState={formState}
-            handleInputChange={handleFormInputChange}
+          <GPAQ
+            formState={signUpState}
+            handleInputChange={handleSignUpInputChange}
           />
         );
       case 7:
         return (
-          <Question6
-            formState={formState}
-            handleInputChange={handleFormInputChange}
-          />
-        );
-      case 8:
-        return (
-          <Question7
-            formState={formState}
-            handleInputChange={handleFormInputChange}
-          />
-        );
-      case 9:
-        return (
-          <Question8
-            formState={formState}
-            handleInputChange={handleFormInputChange}
-          />
-        );
-      case 10:
-        return (
-          <Question9
-            formState={formState}
-            handleInputChange={handleFormInputChange}
-          />
-        );
-      case 11:
-        return (
-          <Question10
-            formState={formState}
-            handleInputChange={handleFormInputChange}
-          />
-        );
-      case 12:
-        return (
-          <Question11
-            formState={formState}
-            handleInputChange={handleFormInputChange}
+          <MessageQ
+            formState={signUpState}
+            handleInputChange={handleSignUpInputChange}
           />
         );
       default:
         return (
-          <Question0
-            formState={formState}
-            handleInputChange={handleFormInputChange}
+          <RoleQ
+            formState={signUpState}
+            handleInputChange={handleSignUpInputChange}
           />
         );
     }
   };
+
   const goBackButton = (currentStep, prevStep) => {
     if (currentStep == 1) {
       return;
@@ -155,4 +119,4 @@ function QuestionTemplate({
   );
 }
 
-export default QuestionTemplate;
+export default AccountCreationTemplate;

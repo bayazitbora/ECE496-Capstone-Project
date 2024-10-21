@@ -1,34 +1,36 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Questionnaire.module.css";
+import styles from "./AccountCreation.module.css";
 
 import ProgressBar from "../../components/AccountCreation/ProgressBar";
 import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
 import { SignUpContext } from "../../context/SignUpContext";
 
-function Questionnaire() {
+function AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
   const [signUpState, setSignUpState] = useState({
-    profile_type: "", // stu or instr profiles
+    role: "", // student or instructor
     first_name: "",
     last_name: "",
     username: "",
     email: "",
     password: "",
+    pos: "", // prgm of study
+    grad_year: "", // expected grad year
+    minors: [], // array of minors
+    gpa: 0, // 0-4
   });
+
   const [formState, setFormState] = useState({
+    course: "",
     project_interests: [],
     availability: [],
     meeting_frequency: "",
-    gpa_range: "",
-    major: "",
-    minors: [],
-    courses_taken: [],
     skills: [],
   });
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 12;
+  const totalSteps = 7;
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
@@ -74,13 +76,11 @@ function Questionnaire() {
         nextStep={nextStep}
         prevStep={prevStep}
         signUpState={signUpState}
-        formState={formState}
         handleSignUpInputChange={handleSignUpInputChange}
-        handleFormInputChange={handleFormInputChange}
         handleSubmit={handleSubmit}
       />
     </div>
   );
 }
 
-export default Questionnaire;
+export default AccountCreation;
