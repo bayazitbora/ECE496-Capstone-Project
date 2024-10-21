@@ -2,9 +2,9 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Questionnaire.module.css";
 
-import ProgressBar from "../../components/AccountCreation/ProgressBar";
-import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
-import { SignUpContext } from "../../context/SignUpContext";
+import ProgressBar from "../components/AccountCreation/ProgressBar";
+import QuestionTemplate from "../components/AccountCreation/AccountCreationTemplate";
+import { SignUpContext } from "../context/SignUpContext";
 
 function Questionnaire() {
   const { setFormData } = useContext(SignUpContext);

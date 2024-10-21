@@ -1,10 +1,11 @@
-import { Form, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import LogIn from "./pages/LogIn";
-// import About from "./pages/About";
-// import Contact from "./pages/Contact";
 import AccountCreation from "./pages/AccountCreation/AccountCreation";
 import Profile from "./pages/Profile";
 import Start from "./components/Start";
+import Courses from "./pages/Courses";
+import Contacts from "./pages/Contacts";
+import Settings from "./pages/Settings";
 import { SignUpProvider } from "./context/SignUpContext";
 import { FormProvider } from "./context/FormContext";
 import "./App.css";
@@ -14,6 +15,9 @@ const router = createBrowserRouter([
   { path: "/sign-up", element: <AccountCreation /> },
   { path: "/log-in", element: <LogIn /> },
   { path: "/profile", element: <Profile /> },
+  { path: "/courses", element: <Courses /> },
+  { path: "/contacts", element: <Contacts /> },
+  { path: "/settings", element: <Settings /> },
   { path: "*", element: <h1>Not Found</h1> },
 ]);
 
