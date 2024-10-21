@@ -23,9 +23,6 @@ function Profile() {
             <strong>Email:</strong> {userProfile.email}
           </p>
           <p>
-            <strong>Password:</strong> {userProfile.password}
-          </p>
-          <p>
             <strong>Program of Study:</strong> {userProfile.pos}
           </p>
           <p>

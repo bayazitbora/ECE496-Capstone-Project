@@ -21,13 +21,6 @@ function AccountCreation() {
     gpa: 0, // 0-4
   });
 
-  const [formState, setFormState] = useState({
-    course: "",
-    project_interests: [],
-    availability: [],
-    meeting_frequency: "",
-    skills: [],
-  });
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 7;
@@ -46,22 +39,14 @@ function AccountCreation() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("Submit button clicked");
-    setFormData(formState);
-    console.log(formState);
+    setFormData(signUpState);
+    console.log(signUpState);
     navigate("/profile");
   };
 
   const handleSignUpInputChange = (event) => {
     const { name, value } = event.target;
     setSignUpState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleFormInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormState((prevState) => ({
       ...prevState,
       [name]: value,
     }));

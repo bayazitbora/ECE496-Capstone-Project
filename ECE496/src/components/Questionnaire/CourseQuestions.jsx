@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Button, TextField } from "@mui/material";
 
+// const [formState, setFormState] = useState({
+//   course: "",
+//   project_interests: [],
+//   availability: [],
+//   meeting_frequency: "",
+//   skills: [],
+// });
+
 export function Question3() {
   return (
     <div>

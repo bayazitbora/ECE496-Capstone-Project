@@ -72,7 +72,7 @@ export function NameQ({ formState, handleInputChange }) {
   );
 }
 
-export function AccountQ(formState, handleInputChange) {
+export function AccountQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>Create your account</h2>
@@ -133,7 +133,15 @@ export function MajorQ({ formState, handleInputChange }) {
   ];
 
   const handleMajorChange = (event) => {
-    handleInputChange({ target: { name: "major", value: event.target.value } });
+    handleInputChange({
+      target: { name: "pos", value: event.target.value },
+    });
+  };
+
+  const handleGradYearChange = (event) => {
+    handleInputChange({
+      target: { name: "grad_year", value: event.target.value },
+    });
   };
 
   return (
@@ -143,7 +151,7 @@ export function MajorQ({ formState, handleInputChange }) {
       <RadioGroup
         aria-label="major"
         name="major"
-        value={formState.major || ""}
+        value={formState.pos || ""}
         onChange={handleMajorChange}
       >
         {majors.map((major, index) => (
@@ -155,6 +163,20 @@ export function MajorQ({ formState, handleInputChange }) {
           />
         ))}
       </RadioGroup>
+
+      <div style={{ marginTop: "20px" }}>
+        <TextField
+          label="Expected Graduation Year"
+          name="grad_year"
+          value={formState.grad_year || ""}
+          onChange={handleGradYearChange}
+          fullWidth
+          type="number"
+          InputProps={{
+            inputProps: { min: 2024, max: 2030 },
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -223,7 +245,7 @@ export function GPAQ({ formState, handleInputChange }) {
         onChange={handleInputChange}
         fullWidth
         inputProps={{
-          step: "0.01", // Allows the user to input with two decimal precision
+          step: "0.01",
           min: 0,
           max: 4,
         }}
