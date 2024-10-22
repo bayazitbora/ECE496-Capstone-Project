@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AccountCreation.module.css";
+import { registerUser } from "../../api/api";
 
 import ProgressBar from "../../components/AccountCreation/ProgressBar";
 import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
@@ -40,7 +41,12 @@ function AccountCreation() {
     event.preventDefault();
     console.log("Submit button clicked");
     setFormData(signUpState);
-    console.log(signUpState);
+    try {
+      const response = await registerUser(signUpState);
+      console.log("User registered:", response);
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
     navigate("/profile");
   };
 

@@ -1,14 +1,25 @@
 // API functions for the frontend
 
+// curl -X POST http://localhost:8000/api/register/ \
+//   -H "Content-Type: application/json" \
+//   -d '{"first_name": "Adrien", "last_name": "Mery", "username": "test12", "email": "test@example.com", "password": "password123", "pos": "ECE", "minors": "minor", "grad_year": "2025", "gpa": 3.0}'
+
 export const registerUser = async (formData) => {
-  const url = "http://142.116.182.108:2003/api/register/";
+  const url = "http://localhost:8000/api/register/";
+
+  // Ensure gpa is a number, not a string in formData
+  const cleanedFormData = {
+    ...formData,
+    gpa: parseFloat(formData.gpa), // Convert gpa to a number
+  };
+
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(cleanedFormData),
     });
 
     if (!response.ok) {
@@ -23,7 +34,7 @@ export const registerUser = async (formData) => {
   }
 };
 
-// Get the routes
+// // Get the routes
 // const getRoutes = async () => {
 //   try {
 //     const response = await fetch("http://localhost:8000/api/");
