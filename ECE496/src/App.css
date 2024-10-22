@@ -10,3 +10,10 @@ body {
   height: 100%;
   width: 100%;
 }
+
+.Container {
+  text-align: center;
+  margin: 50px auto;
+  width: 1200px;
+  padding: 20px;
+}

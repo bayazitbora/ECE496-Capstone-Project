@@ -1,21 +1,20 @@
 import {
-  RoleQ,
-  NameQ,
-  AccountQ,
-  MajorQ,
-  MinorQ,
-  GPAQ,
-  MessageQ,
-} from "./AccountQuestions";
+  CourseNameQ,
+  InterestsQ,
+  FrequencyQ,
+  SkillsQ,
+  ThankYouQ,
+} from "./AddCourseQuestions";
+import AvailabilityQ from "./AvailabilityQ";
 
-import styles from "./AccountCreationTemplate.module.css";
+import styles from "./AddCourseTemplate.module.css";
 
-function AccountCreationTemplate({
+function AddCourseTemplate({
   currentStep,
   nextStep,
   prevStep,
-  signUpState,
-  handleSignUpInputChange,
+  formState,
+  handleFormInputChange,
   handleSubmit,
   totalSteps,
 }) {
@@ -23,58 +22,46 @@ function AccountCreationTemplate({
     switch (currentStep) {
       case 1:
         return (
-          <RoleQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
+          <CourseNameQ
+            formState={formState}
+            handleInputChange={handleFormInputChange}
           />
         );
       case 2:
         return (
-          <NameQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
+          <InterestsQ
+            formState={formState}
+            handleInputChange={handleFormInputChange}
           />
         );
       case 3:
         return (
-          <AccountQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
+          <AvailabilityQ
+            formState={formState}
+            handleInputChange={handleFormInputChange}
           />
         );
       case 4:
         return (
-          <MajorQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
+          <FrequencyQ
+            formState={formState}
+            handleInputChange={handleFormInputChange}
           />
         );
       case 5:
         return (
-          <MinorQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
+          <SkillsQ
+            formState={formState}
+            handleInputChange={handleFormInputChange}
           />
         );
       case 6:
-        return (
-          <GPAQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
-          />
-        );
-      case 7:
-        return (
-          <MessageQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
-          />
-        );
+        return <ThankYouQ />;
       default:
         return (
-          <RoleQ
-            formState={signUpState}
-            handleInputChange={handleSignUpInputChange}
+          <CourseNameQ
+            formState={formState}
+            handleInputChange={handleFormInputChange}
           />
         );
     }
@@ -120,4 +107,4 @@ function AccountCreationTemplate({
   );
 }
 
-export default AccountCreationTemplate;
+export default AddCourseTemplate;

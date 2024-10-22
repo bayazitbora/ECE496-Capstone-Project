@@ -1,6 +1,7 @@
 import { useContext } from "react";
-import Navbar from "../components/Navbar/Navbar";
-import { SignUpContext } from "../context/SignUpContext"; // Import the context
+import Navbar from "../../components/Navbar/Navbar";
+import { SignUpContext } from "../../context/SignUpContext";
+import styles from "./Profile.module.css";
 
 function Profile() {
   const { state: userProfile } = useContext(SignUpContext); // Access user profile data
@@ -8,7 +9,7 @@ function Profile() {
   return (
     <>
       <Navbar />
-      <div style={{ padding: "20px" }}>
+      <div className={styles.Container}>
         <h1>
           {userProfile.first_name} {userProfile.last_name}
         </h1>

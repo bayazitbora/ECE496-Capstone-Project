@@ -1,9 +1,9 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import LogIn from "./pages/LogIn";
 import AccountCreation from "./pages/AccountCreation/AccountCreation";
-import Profile from "./pages/Profile";
+import Profile from "./pages/Profile/Profile";
 import Start from "./components/Start";
-import Courses from "./pages/Courses";
+import Courses from "./pages/Courses/Courses";
 import Contacts from "./pages/Contacts";
 import Settings from "./pages/Settings";
 import { SignUpProvider } from "./context/SignUpContext";
