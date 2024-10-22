@@ -4,6 +4,7 @@ import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
+import Navbar from "../../components/Navbar/Navbar";
 
 function Courses() {
   const [open, setOpen] = useState(false);
@@ -50,36 +51,39 @@ function Courses() {
   const handleClose = () => setOpen(false);
 
   return (
-    <div className={styles.Container}>
-      <h1>Courses</h1>
-      <p>Add courses by pressing on the Add (+) button.</p>
+    <>
+      <Navbar />
+      <div className={styles.Container}>
+        <h1>Courses</h1>
+        <p>Add courses by pressing on the Add (+) button.</p>
 
-      {/* Floating Action Button */}
-      <Fab
-        color="primary"
-        aria-label="add"
-        style={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-        }}
-        onClick={handleOpen}
-      >
-        <AddIcon />
-      </Fab>
+        {/* Floating Action Button */}
+        <Fab
+          color="primary"
+          aria-label="add"
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+          }}
+          onClick={handleOpen}
+        >
+          <AddIcon />
+        </Fab>
 
-      <AddCourseModal
-        currentStep={currentStep}
-        handleOpen={open}
-        handleClose={handleClose}
-        nextStep={nextStep}
-        prevStep={prevStep}
-        formState={formState}
-        handleInputChange={handleFormInputChange}
-        handleSubmit={handleSubmit}
-        totalSteps={totalSteps}
-      />
-    </div>
+        <AddCourseModal
+          currentStep={currentStep}
+          handleOpen={open}
+          handleClose={handleClose}
+          nextStep={nextStep}
+          prevStep={prevStep}
+          formState={formState}
+          handleInputChange={handleFormInputChange}
+          handleSubmit={handleSubmit}
+          totalSteps={totalSteps}
+        />
+      </div>
+    </>
   );
 }
 

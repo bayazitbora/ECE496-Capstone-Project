@@ -1,8 +1,13 @@
+import Navbar from "../components/Navbar/Navbar";
+
 function Contacts() {
   return (
-    <div>
-      <h1>Contacts</h1>
-    </div>
+    <>
+      <Navbar />
+      <div>
+        <h1>Contacts</h1>
+      </div>
+    </>
   );
 }
 

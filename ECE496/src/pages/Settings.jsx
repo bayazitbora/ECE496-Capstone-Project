@@ -1,8 +1,13 @@
+import Navbar from "../components/Navbar/Navbar";
+
 function Settings() {
   return (
-    <div>
-      <h1>Settings</h1>
-    </div>
+    <>
+      <Navbar />
+      <div>
+        <h1>Settings</h1>
+      </div>
+    </>
   );
 }
 

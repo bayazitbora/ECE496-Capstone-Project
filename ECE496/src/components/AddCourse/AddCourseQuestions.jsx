@@ -1,6 +1,14 @@
 import QuestionOptions from "./../AccountCreation/QuestionOptions";
 
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 
 export function CourseNameQ({ formState, handleInputChange }) {
   const courses = [
@@ -14,9 +22,8 @@ export function CourseNameQ({ formState, handleInputChange }) {
   ];
 
   const handleCourseChange = (event) => {
-    handleInputChange({
-      target: { name: "course", value: event.target.value },
-    });
+    console.log("Selected course:", event.target.value); // Log the selected course
+    handleInputChange(event);
   };
 
   return (
@@ -57,21 +64,47 @@ export function InterestsQ({ formState, handleInputChange }) {
     { label: "Software" },
   ];
 
+  const handleInterestChange = (event) => {
+    const { value, checked } = event.target;
+    let updatedInterests = [...formState.interests];
+
+    if (checked) {
+      updatedInterests.push(value);
+    } else {
+      updatedInterests = updatedInterests.filter(
+        (interest) => interest !== value
+      );
+    }
+
+    handleInputChange({
+      target: { name: "interests", value: updatedInterests },
+    });
+  };
+
   return (
     <div>
       <h2>What are your Project Interests?</h2>
-      <p>Choose 1 or 2 interests.</p>
-      <QuestionOptions
-        choices={interests}
-        selectedValues={formState.interests || []}
-        fieldName={"interests"}
-        handleInputChange={handleInputChange}
-      />
+      <p>Choose your interests from the list:</p>
+      <FormGroup>
+        {interests.map((interest, index) => (
+          <FormControlLabel
+            key={index}
+            control={
+              <Checkbox
+                value={interest.label}
+                checked={formState.interests.includes(interest.label)}
+                onChange={handleInterestChange}
+              />
+            }
+            label={interest.label}
+          />
+        ))}
+      </FormGroup>
     </div>
   );
 }
 
-export function FrequencyQ(formState, handleInputChange) {
+export function FrequencyQ({ formState, handleInputChange }) {
   const frequency_pref = [
     { label: "1 hours" },
     { label: "2 hours" },
@@ -94,7 +127,7 @@ export function FrequencyQ(formState, handleInputChange) {
   );
 }
 
-export function SkillsQ(formState, handleInputChange) {
+export function SkillsQ({ formState, handleInputChange }) {
   const skills = [
     { label: "Communication" },
     { label: "Leadership" },
@@ -104,7 +137,6 @@ export function SkillsQ(formState, handleInputChange) {
     { label: "Ethical Perspective" },
     { label: "Teamwork" },
   ];
-  // TODO: Update formState
   return (
     <div>
       <h2>What are your skills? </h2>
