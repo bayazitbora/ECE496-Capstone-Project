@@ -100,6 +100,7 @@ def visualize_clusters(X, labels):
 def student_similarity(emb1, emb2):
     return np.linalg.norm(emb1-emb2) #smaller number means more similar
 
+#TODO add exeption cases
 # Changed the below method to form groups using Greedy approach based on the remaining attributes (preffered traits)
 def form_groups_greedy(data, group_size):
     groups_num = 0
