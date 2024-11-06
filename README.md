@@ -1,4 +1,7 @@
-# ECE496 Capstone - React Frontend
+# ECE496 Capstone
+
+
+## React Frontend
 
 To connect to the frontend on your browser you can
 
@@ -7,7 +10,7 @@ To connect to the frontend on your browser you can
    - See [Starting the frontend section](#running-the-frontend-in-browser)
 2. Connect to ... (Work in progress)
 
-## Frontend set Up
+### Frontend set Up
 
 1. Install Python and clone this repository
 2. go into the "ECE496" folder using
@@ -15,12 +18,13 @@ To connect to the frontend on your browser you can
 3. download the latest packages for the frontend automatically using
    `npm install`
 
-## Running the frontend in browser
+### Running the frontend in browser
 
 1. Use the command
    `npm run dev`
 2. Click on the localhost link that appears in your terminal to see the frontend in browser
 
-## Frontend Prototype
+### Frontend Prototype
 
 [Figma File](https://www.figma.com/design/9oaN7h15Nrf5LuskqgqAzx/Teammate-Finder?node-id=0-1&t=JQP5XCBwL9L3vNPV-1)
+
