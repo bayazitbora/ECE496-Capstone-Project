@@ -1,4 +1,4 @@
-import QuestionOptions from "./../AccountCreation/QuestionOptions";
+import QuestionOptions from "../AccountCreation/QuestionOptions";
 
 import {
   FormControl,
