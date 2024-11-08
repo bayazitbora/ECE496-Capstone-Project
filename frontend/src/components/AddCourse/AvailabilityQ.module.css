@@ -1,0 +1,37 @@
+.timetableContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timetable {
+  border-collapse: collapse;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.timetable th,
+.timetable td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.timeBlock {
+  background-color: white;
+}
+
+.timeBlock.selected {
+  background-color: #4caf50; /* Color when selected */
+  color: white;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin: 5px 0;
+}
