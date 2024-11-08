@@ -98,7 +98,7 @@ class MyUser(AbstractUser):
     def __str__(self):
         return self.email
 
-    def is_teacher(self):
+    def get_is_teacher(self):
         return self.is_teacher
 
     def get_profile(self):
@@ -115,18 +115,25 @@ class MyUser(AbstractUser):
         
         if request['last_name']:
             self.last_name = request['last_name']
-
-        if request['pos']:
-            self.programOfStudy = request['pos']
+        if 'pos' in request:
+            if request['pos']:
+                self.programOfStudy = request['pos']
         
-        if request['minors']:
-            self.update_minors(request['minors'])
+        if 'minor' in request:
+            if request['minors']:
+                self.update_minors(request['minors'])
+        if 'grad_year' in request:
+            if request['grad_year']:
+                self.expectedGrad = request['grad_year']
+        if 'gpa' in request:
+            if request['gpa']:
+                self.GPA = request['gpa']
 
-        if request['grad_year']:
-            self.expectedGrad = request['grad_year']
-
-        if request['gpa']:
-            self.GPA = request['gpa']
+        self.is_teacher = False
+        if 'teacher' in request:
+            if request['teacher'] == "True":
+                self.is_teacher = True
+                self.user_type = 'teacher'
 
         self.save()
         

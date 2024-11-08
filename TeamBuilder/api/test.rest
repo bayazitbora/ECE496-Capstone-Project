@@ -83,3 +83,12 @@ Authorization: Bearer {{jwtoken}}
 {
     "requested_user": "Something@gmail.com"
 }
+
+###
+POST http://127.0.0.1:8000/api/matchTeams/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseCode": "ECE496"
+}

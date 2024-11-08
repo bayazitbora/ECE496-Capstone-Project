@@ -12,9 +12,9 @@ from rest_framework import status
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth import get_user_model
-from .models import Course
+from .models import Course, MyUser
 
-from .serializers import UserSerializer, ProfileSerializer
+from .serializers import UserSerializer, ProfileSerializer, MinorSerializer
 
 @api_view(['GET'])
 def getStatus(request):
@@ -34,7 +34,7 @@ def register_user(request):
         return Response({
                 "user": serializer.data,
                 "message": "User Created Successfully.  Now perform Login to get your token",
-            })
+            }, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -54,9 +54,40 @@ def getRoutes(request):
 
 #Protected Endpoints----------------------------
 @api_view(['POST'])
+#@permission_classes([IsAuthenticated])
+def matchTeams(request):
+    user = get_user_model().objects.get(username=request.user.username)
+    if 'courseCode' in request.data:
+        students = MyUser.objects.filter(is_teacher=False)
+        print(students)
+        #filtered = students.values('username','email', 'first_name','last_name','programOfStudy','minors','GPA')
+        
+        # for entry in filtered:
+        #     currUser = get_user_model().objects.get(entry['username'])
+        #     profile = currUser.profiles.filter(request.data['courseCode'])
+        #     print(profile)
+        #     print(currUser)
+        # print(filtered)
+
+        #df = pd.DataFrame(filtered)
+
+        return Response({
+        "user": user.username,
+        "message": "Matched User!"
+        }, status=status.HTTP_200_OK)
+    else:
+         return Response({
+        "user": user.username,
+        "message": "Missing courseCode in request."
+    }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def updateSelf(request):
     user = get_user_model().objects.get(username=request.user.username)
-
     user.update_user(request.data)
 
     return Response({
@@ -81,8 +112,7 @@ def getUser(request):
         "last_name": user.last_name,
         "pos": user.programOfStudy,
         "grad_year": user.expectedGrad,
-        "GPA": user.GPA,
-        "minors": user.minors.all(),
+        "minors": user.minors.values_list('minor', flat=True),
         "profiles": { 
         }
     })
@@ -101,10 +131,11 @@ def getSelf(request):
         "name": user.get_full_name(),
         "first_name": user.first_name,
         "last_name": user.last_name,
+        "teacher": str(user.is_teacher),
         "pos": user.programOfStudy,
         "grad_year": user.expectedGrad,
         "GPA": user.GPA,
-        "minors": user.minors.all(),
+        "minors": user.minors.values_list('minor', flat=True),
         "profiles": {
         }
     })
@@ -173,12 +204,21 @@ def updateProfile(request):
 @permission_classes([IsAuthenticated])
 def createCourse(request):
     user = get_user_model().objects.get(username=request.user.username)
-    if not request.data['courseInfo']['courseCode']:
+    if not ('courseInfo' in request) or ('courseCode' in request):
+        if not request.data['courseInfo']['courseCode']:
+            return Response(
+                {
+                    "user": request.user.username,
+                    "message": "Course code not included"
+                }, status=status.HTTP_400_BAD_REQUEST)
+    
+    if (not user.is_teacher):
         return Response(
-            {
-                "user": request.user.username,
-                "message": "Course code not included"
-            }, status=status.HTTP_400_BAD_REQUEST)
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions."
+                }, status=status.HTTP_401_UNAUTHORIZED)
+    
     course = Course(courseCode=request.data['courseInfo']['courseCode'])
     course.is_active = True
     course.update_course(request.data['courseInfo'], user)

@@ -28,6 +28,9 @@ urlpatterns = [
     #createCourse: creates a course object, !!not impl fully!!
     path('createCourse/', views.createCourse, name="createCourse"),
 
+    #temporary url to match teams
+    path('matchTeams/', views.matchTeams, name="matchTeams"),
+
     #register: registers a user with a username and password
     path('register/', views.register_user, name='registerUser'),
     
