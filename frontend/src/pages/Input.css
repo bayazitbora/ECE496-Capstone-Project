@@ -1,0 +1,15 @@
+#standard-input {
+  width: 350px;
+}
+
+#name-input {
+  width: 160px;
+  /* TODO: Fix this padding issue */
+  /* padding-right: 10px;  */
+  /* padding-left: 10px; */
+}
+
+#standard-button {
+  width: 130px;
+  margin-top: 12px;
+}
