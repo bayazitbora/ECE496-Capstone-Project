@@ -1,0 +1,94 @@
+POST http://127.0.0.1:8000/
+content-type: application/json
+
+{
+    "username": "Josh",
+    "time": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+
+###
+
+POST http://127.0.0.1:8000/api/register/
+content-type: application/json
+
+{
+    "username": "JohnDoe1234",
+    "password": "Thisisatest",
+    "email": "John.Doe@nothing.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "pos": "Computer Engineering",
+    "gpa": "3.8",
+    "grad_year": "2025",
+    "minors": ["AI"]
+}
+
+###
+# @name login
+POST http://127.0.0.1:8000/api/token/
+content-type: application/json
+
+{
+    "username": "JohnDoe1234",
+    "password": "Thisisatest"
+}
+
+###
+@jwtoken = {{login.response.body.$.access}}
+
+###
+POST http://127.0.0.1:8000/api/updateProfile/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+    "email": "John.Doe@nothing.com",
+    "profile": {
+        "courseCode": "CIV220",
+        "hoursToCommit": "9",
+        "interests": ["Ecology", "Social Justice", "Swimming"],
+        "skills": ["C++", "Talking", "Programming"]
+    }
+}
+###
+
+###
+POST http://127.0.0.1:8000/api/updateSelf/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "first_name": "John",
+    "last_name": "Doette",
+    "pos": "Software Engineering",
+    "gpa": "4.0",
+    "grad_year": "2025",
+    "minors": ["AI", "AI 2"]
+}
+
+###
+POST http://127.0.0.1:8000/api/getSelf/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "email": "John.Doe@nothing.com"
+}
+
+###
+POST http://127.0.0.1:8000/api/getUser/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "requested_user": "Something@gmail.com"
+}
+
+###
+POST http://127.0.0.1:8000/api/matchTeams/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseCode": "ECE496"
+}
