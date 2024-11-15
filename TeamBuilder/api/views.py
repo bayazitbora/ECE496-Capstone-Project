@@ -16,6 +16,8 @@ from .models import Course, MyUser
 
 from .serializers import UserSerializer, ProfileSerializer, MinorSerializer
 
+import pandas as pd
+
 @api_view(['GET'])
 def getStatus(request):
     return HttpResponse(1)
@@ -59,17 +61,37 @@ def matchTeams(request):
     user = get_user_model().objects.get(username=request.user.username)
     if 'courseCode' in request.data:
         students = MyUser.objects.filter(is_teacher=False)
-        print(students)
-        #filtered = students.values('username','email', 'first_name','last_name','programOfStudy','minors','GPA')
-        
-        # for entry in filtered:
-        #     currUser = get_user_model().objects.get(entry['username'])
-        #     profile = currUser.profiles.filter(request.data['courseCode'])
-        #     print(profile)
-        #     print(currUser)
-        # print(filtered)
+        #------------------------
+        listOfDictOfStudentInfo = []
+        for currUser in students:
+            if (currUser.profile.filter(courseCode=request.data['courseCode'])):
+                dictOfStudentInfo = {}
+                #MyUser Info-------
+                dictOfStudentInfo['username'] = currUser.username
+                dictOfStudentInfo['GPA'] = currUser.GPA
+                dictOfStudentInfo['major'] = currUser.programOfStudy
+                dictOfStudentInfo['minors'] = []
 
-        #df = pd.DataFrame(filtered)
+                currUserMinors = currUser.minors.all()
+                for minor in currUserMinors:
+                    dictOfStudentInfo['minors'].append(minor.minor)
+                
+                #Profile Info-------
+                profileToAdd = currUser.profile.filter(courseCode=request.data['courseCode'])
+                dictOfStudentInfo['interests'] = []
+                for interest in profileToAdd.get().interests.all():
+                    dictOfStudentInfo['interests'].append(interest.interest)
+                
+                dictOfStudentInfo['skills'] = []
+                for skill in profileToAdd.get().skills.all():
+                    dictOfStudentInfo['skills'].append(skill.skill)
+                listOfDictOfStudentInfo.append(dictOfStudentInfo)    
+        #--------------------------    
+        df = pd.DataFrame(listOfDictOfStudentInfo)
+        print(df)
+        #matched_students = match_students(df)
+        
+        
 
         return Response({
         "user": user.username,
@@ -174,7 +196,7 @@ def updateProfile(request):
                 profile = user.profile.get(courseCode=request.data['profile']['courseCode'])
                 profile.update_profile(request.data['profile'])
                 profile.save()
-                print(profile)
+                # print(profile)
 
                 #add student to course list
                 # course.students.add(user.username)
@@ -185,14 +207,14 @@ def updateProfile(request):
                 profile = user.profile.get(courseCode=request.data['profile']['courseCode'])
                 profile.update_profile(request.data['profile'])
                 profile.save()
-                print(profile)
+                # print(profile)
                 
             else:
                 #user has more than one profile, this is a bug, throw error for now
                 return Response({"message": "User has more than one profile for a given course"}, 
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    print(user.profile.all())
+    # print(user.profile.all())
     return Response({
         "user": user.username,
         "message": "User profile updated successfully!"

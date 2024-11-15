@@ -12,15 +12,15 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
+    "username": "TarekTheGoat",
     "password": "Thisisatest",
-    "email": "John.Doe@nothing.com",
-    "first_name": "John",
-    "last_name": "Doe",
+    "email": "TarekGoat@nothing.com",
+    "first_name": "Tarek",
+    "last_name": "Goat",
     "pos": "Computer Engineering",
-    "gpa": "3.8",
-    "grad_year": "2025",
-    "minors": ["AI"]
+    "gpa": "4.0",
+    "grad_year": "2023",
+    "minors": ["Compilers", "Interpreter"]
 }
 
 ###
@@ -30,6 +30,15 @@ content-type: application/json
 
 {
     "username": "JohnDoe1234",
+    "password": "Thisisatest"
+}
+###
+# @name login
+POST http://127.0.0.1:8000/api/token/
+content-type: application/json
+
+{
+    "username": "TarekTheGoat",
     "password": "Thisisatest"
 }
 
@@ -42,12 +51,12 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "John.Doe@nothing.com",
+    "email": "TarekGoat@nothing.com",
     "profile": {
         "courseCode": "CIV220",
-        "hoursToCommit": "9",
-        "interests": ["Ecology", "Social Justice", "Swimming"],
-        "skills": ["C++", "Talking", "Programming"]
+        "hoursToCommit": "10",
+        "interests": ["Compilers", "Astrology", "Picking on tired students"],
+        "skills": ["C++", "Compilers", "Programming"]
     }
 }
 ###
@@ -90,5 +99,5 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "courseCode": "ECE496"
+    "courseCode": "CIV220"
 }
