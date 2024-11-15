@@ -1,4 +1,5 @@
-# ECE496 Capstone - Django Backend
+# ECE496 Capstone 
+## Django Backend
 To connect to the backend on your browser you can either:
 1. Run the server locally, and connect via [http://localhost:8000/api/](http://localhost:8000/api/) or [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/)
     - Do the [Set up](#set-up)
@@ -64,3 +65,31 @@ To deactivate the virtual environment type:\
 In the admin site you can view all models in the database, as well as any objects created.
 To access the site you need to have created a super user (See the [Set up](#set-up))
 Then go to: http://127.0.0.1:8000/admin/ and login.
+
+## React Frontend
+
+To connect to the frontend on your browser you can
+
+1. Run the server locally, and connect via localhost
+   - Do the [Set Up](#frontend-set-up)
+   - See [Starting the frontend section](#running-the-frontend-in-browser)
+2. Connect to ... (Work in progress)
+
+### Frontend set Up
+
+1. Install Python and clone this repository
+2. go into the "ECE496" folder using
+   `cd ECE496`
+3. download the latest packages for the frontend automatically using
+   `npm install`
+
+### Running the frontend in browser
+
+1. Use the command
+   `npm run dev`
+2. Click on the localhost link that appears in your terminal to see the frontend in browser
+
+### Frontend Prototype
+
+[Figma File](https://www.figma.com/design/9oaN7h15Nrf5LuskqgqAzx/Teammate-Finder?node-id=0-1&t=JQP5XCBwL9L3vNPV-1)
+
