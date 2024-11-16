@@ -95,7 +95,7 @@ hours = [f"{hour:02d}:00" for hour in range(9, 22)]
 schedule_categories = [f"{day}_{hour}" for day, hour in itertools.product(days, hours)]
 
 # Example usage:
-n = 400  # Number of students to generate
+n = 300  # Number of students to generate
 group_size = 4 # Number of students per group
 data = generate_students(n)
 # Save the student data to a CSV file
@@ -137,7 +137,7 @@ dealbreakers = normalize(dealbreakers, norm='l2')
 # Run the algorithm
 start_time = time.time()
 
-cluster_and_match_students(data, schedule_categories, group_size)
+cluster_and_match_students(data, group_size)
 
 end_time = time.time()
 runtime = end_time - start_time
