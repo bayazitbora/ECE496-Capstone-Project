@@ -1,4 +1,4 @@
-from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_greedy, find_best_k
+from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_greedy, find_best_k, cluster_and_match_students
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer, normalize
 from sklearn.compose import ColumnTransformer
@@ -19,9 +19,11 @@ import itertools
 
 def evaluate_groups(X, data):
     similarities = []
+    total = 0
     for group in data['group'].unique():
         group_data = data[data['group'] == group]
         group_indices = list(group_data.index)
+        total += len(group_indices)
         group_vectors = X[group_indices]
         if len(group_vectors) < 2:  # If the group has fewer than 2 members, skip
             similarities.append(1.0)  # Consider it fully similar
@@ -33,6 +35,7 @@ def evaluate_groups(X, data):
         # Take the average of the upper triangle (excluding the diagonal)
         avg_similarity = np.mean(similarity_matrix[np.triu_indices(len(group_vectors), k=1)])
         similarities.append(avg_similarity)
+    print(f"Total: {total}")
     return np.mean(similarities)
 
 # Generate a list of 8 non-negative integers that add up to 10
@@ -91,9 +94,6 @@ hours = [f"{hour:02d}:00" for hour in range(9, 22)]
 # Create the schedule categories for each day and each hour
 schedule_categories = [f"{day}_{hour}" for day, hour in itertools.product(days, hours)]
 
-# Optionally, print to check the result
-print(schedule_categories)
-
 # Example usage:
 n = 400  # Number of students to generate
 group_size = 4 # Number of students per group
@@ -103,7 +103,6 @@ data.to_pickle('student_data.pkl')
 
 # Load the student data from the CSV file for later use
 #data = pd.read_pickle('student_data.pkl')
-#print(data)
 
 # Preprocessing pipeline
 preprocessor = ColumnTransformer(
@@ -126,46 +125,25 @@ dealbreakers_preprocessor = ColumnTransformer(
         ('freq', MinMaxScaler(), ['meeting_freq']),
     ])
 
-start_time = time.time()
-
 # Apply transformations and convert the dataframe into a list of embeddings, where each student is represented by a single embedding vector
-X = preprocessor.fit_transform(data)
-print(X[0])
+student_embeddings = preprocessor.fit_transform(data)
 
 # Select only certain columns (features) for clustering, also called 'dealbreakers'
 clustering_features = data[['areas_of_interest', 'major', 'schedule', 'meeting_freq']]
 # Convert into list of embeddings
 dealbreakers = dealbreakers_preprocessor.fit_transform(clustering_features)
 dealbreakers = normalize(dealbreakers, norm='l2')
-# Clustering
-# Create a KMeans model
-model = KMeans()
 
-# Use KElbowVisualizer to find the optimal k
-visualizer = KElbowVisualizer(model, k=(4, 12), metric='silhouette')  # Adjust the range as necessary
-visualizer.fit(dealbreakers)  # Fit the data to the visualizer
-visualizer.show()
+# Run the algorithm
+start_time = time.time()
 
-# Automatically obtain the optimal k value without human inspection
-optimal_k = visualizer.elbow_value_ if visualizer.elbow_value_ is not None else 5
-
-# Now, cluster the data using the optimal k
-kmeans = KMeans(n_clusters=optimal_k).fit(dealbreakers)
-
-# Label the dataframe
-data['cluster'] = kmeans.labels_
-
-
-# Form groups of 4 students within each cluster using Greedy approach
-form_groups_greedy(data, group_size)
-print(data)
+cluster_and_match_students(data, schedule_categories, group_size)
 
 end_time = time.time()
 runtime = end_time - start_time
 print(f"The algorithm took {runtime} seconds")
 
-#avg_similarity = evaluate_groups(X_combined, data)
-
-#print(f"Average similarity: {avg_similarity}")
+avg_similarity = evaluate_groups(student_embeddings, data)
+print(f"Average similarity: {avg_similarity}")
 
 visualize_clusters(dealbreakers, data['cluster'])

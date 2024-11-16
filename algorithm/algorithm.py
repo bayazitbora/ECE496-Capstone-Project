@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans
 import spacy
 import numpy as np
 from sklearn.metrics import silhouette_score
+from yellowbrick.cluster import KElbowVisualizer
 import time
 
 # Load the spacy model
@@ -92,32 +93,28 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
 
 #TODO add exeption cases
 # Changed the below method to form groups using Greedy approach based on the remaining attributes (preffered traits)
-def form_groups_greedy(data, group_size):
+def form_groups_greedy(data, group_size, student_embeddings):
     groups_num = 0
 
     for cluster in data['cluster'].unique(): #iterate through clusters
         cluster_data = data[data['cluster'] == cluster]
         remaining_indices = list(cluster_data.index)
         
-        #put all student info in transformer and have embeddigns for all students 
-        student_embeddings = preffered_traits_preprocessor.fit_transform(cluster_data)
+        similarity_array = []
+        for student1 in range(len(remaining_indices)):
+            for student2 in range(student1 + 1 , len(remaining_indices)):
+                #compare the similarity of student embeddings
+                sim = np.linalg.norm(student_embeddings[remaining_indices[student1]] - student_embeddings[remaining_indices[student2]])
+                similarity_array.append([remaining_indices[student1], remaining_indices[student2], sim]) #collect all similarity scores in an array for each student
+                
+        sorted_sim_array = sorted(similarity_array, key=lambda x: x[2]) #array in ascending order according to score
 
         while len(remaining_indices) >= group_size:
             group = []
-
-            similarity_array = []
-            for student1 in range(len(remaining_indices)):
-                for student2 in range(student1 + 1 , len(remaining_indices)):
-                    #compare the similarity of student embeddings
-                    sim = student_similarity(student_embeddings[remaining_indices[student1]],student_embeddings[remaining_indices[student2]])
-                    similarity_array.append(remaining_indices[student1], remaining_indices[student2], sim) #collect all similarity scores in an array for each student
-                    
-            sorted_sim_array = sorted(similarity_array, key=lambda x: x[2]) #array in ascending order according to score
             
             first = sorted_sim_array[0] #take lowest score (closest students)
             group.extend(first[:2]) #put those two students in the group
             #update indeces, take out the 2 students just added.
-            #remaining_indices = [index for index in remaining_indices if index not in group] #this takes too much time
             remaining_indices.remove(first[0])
             remaining_indices.remove(first[1])
             sorted_sim_array.pop(0) #remove that entry
@@ -148,8 +145,7 @@ def form_groups_greedy(data, group_size):
                     remaining_indices.remove(closest_student)
 
                 #remove all the other entries containing the student pair you added to the group
-                #don't need this, will be updated in next iteration
-                #sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
+                sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
                 
 
             for student in group: #assigning group numbers to students
@@ -225,12 +221,12 @@ def cluster_and_match_students(data, schedule_categories, group_size):
             ('freq', MinMaxScaler(), ['meeting_freq']),
         ])
 
-    # Apply transformations and convert the dataframe into a list of embeddings, where each student is represented by a single embedding vector
-    X = preprocessor.fit_transform(data)
-
+    # Obtain student embeddings
+    student_embeddings = preprocessor.fit_transform(data)
+    
     # Select only certain columns (features) for clustering, also called 'dealbreakers'
     clustering_features = data[['areas_of_interest', 'major', 'schedule', 'meeting_freq']]
-    # Convert into list of embeddings
+    # Convert into list of normalized embeddings
     dealbreakers = dealbreakers_preprocessor.fit_transform(clustering_features)
     dealbreakers = normalize(dealbreakers, norm='l2')
 
@@ -249,4 +245,4 @@ def cluster_and_match_students(data, schedule_categories, group_size):
     data['cluster'] = kmeans.labels_
 
     # Form groups of 'group_size' students within each cluster using Greedy approach
-    form_groups_greedy(data, group_size)
+    form_groups_greedy(data, group_size, student_embeddings)
