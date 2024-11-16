@@ -9,7 +9,7 @@ import { SignUpContext } from "../context/SignUpContext";
 function Questionnaire() {
   const { setFormData } = useContext(SignUpContext);
   const [signUpState, setSignUpState] = useState({
-    profile_type: "", // stu or instr profiles
+    profile_type: "",
     first_name: "",
     last_name: "",
     username: "",

@@ -1,4 +1,7 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Navbar from "./components/Navbar/Navbar";
+
 import LogIn from "./pages/LogIn";
 import AccountCreation from "./pages/AccountCreation/AccountCreation";
 import Profile from "./pages/Profile/Profile";
@@ -8,7 +11,6 @@ import Contacts from "./pages/Contacts";
 import Settings from "./pages/Settings";
 import { SignUpProvider } from "./context/SignUpContext";
 import { FormProvider } from "./context/FormContext";
-import "./App.css";
 
 const router = createBrowserRouter([
   { path: "/", element: <Start /> },
@@ -26,6 +28,7 @@ function App() {
     <main style={{ height: "100vh", width: "100vw", margin: 0 }}>
       <SignUpProvider>
         <FormProvider>
+          <Navbar />
           <RouterProvider router={router} />
         </FormProvider>
       </SignUpProvider>
