@@ -157,7 +157,7 @@ data['cluster'] = kmeans.labels_
 
 
 # Form groups of 4 students within each cluster using Greedy approach
-#form_groups_greedy(data, group_size)
+form_groups_greedy(data, group_size)
 print(data)
 
 end_time = time.time()
