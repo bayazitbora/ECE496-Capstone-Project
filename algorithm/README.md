@@ -4,7 +4,7 @@ This branch contains the algorithm that clusters students and forms optimal grou
 
 ## Usage
 
-The dependencies in requirements.txt are necessary for running the algorithm. They are compatible with Python <= 3.11.10 and not with newer Python versions
+The dependencies in requirements.txt are necessary for running the algorithm. They are compatible with Python 3.12.7
 To use the algorithm, the backend should import `algorithm.py` and call the function `cluster_and_match_students`. The following input parameters are required:
 
 - **data**: A DataFrame containing student data with attributes. Each row corresponds to a student, and each column corresponds to an attribute.
