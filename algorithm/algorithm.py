@@ -183,7 +183,7 @@ def find_best_k(X: np.ndarray, clustering_features: np.ndarray, k_range: range) 
     best_index: int = np.argmax(silhouette_scores)
     return k_range[best_index], labels[best_index]
 
-def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_categories: Optional[List[str]] = None,) -> None:
+def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_categories: Optional[List[str]] = None) -> None:
     """
     Clusters students based on multiple attributes and forms groups using a greedy approach.
 
@@ -216,7 +216,7 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
             ('courses', CustomMultiLabelEmbeddingTransformer(), 'courses_taken'),
             ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
             ('skills', CustomMultiLabelEmbeddingTransformer(), 'technical_skills'),
-            ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+        #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
             ('freq', MinMaxScaler(), ['meeting_freq']),
         ])
 
@@ -224,7 +224,7 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
         transformers=[
             ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
             ('major', EmbeddingTransformer(), 'major'),
-            ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+        #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
             ('freq', MinMaxScaler(), ['meeting_freq']),
         ])
 
@@ -232,7 +232,8 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
     student_embeddings: np.ndarray = preprocessor.fit_transform(data)
     
     # Select only certain columns (features) for clustering, also called 'dealbreakers'
-    clustering_features = data[['areas_of_interest', 'major', 'schedule', 'meeting_freq']]
+    #TODO: Add schedule column
+    clustering_features = data[['areas_of_interest', 'major', 'meeting_freq']]
     # Convert into list of normalized embeddings
     dealbreakers: np.ndarray = dealbreakers_preprocessor.fit_transform(clustering_features)
     dealbreakers = normalize(dealbreakers, norm='l2')

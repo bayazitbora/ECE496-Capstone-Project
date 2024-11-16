@@ -58,7 +58,7 @@ def generate_random_student():
         'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
         'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
         'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
-        'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        #'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
         'meeting_freq': meeting_freq # change according to questionnaire
     }
 
@@ -113,7 +113,7 @@ preprocessor = ColumnTransformer(
         ('courses', CustomMultiLabelEmbeddingTransformer(), 'courses_taken'),
         ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
         ('skills', CustomMultiLabelEmbeddingTransformer(), 'technical_skills'),
-        ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+    #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
         ('freq', MinMaxScaler(), ['meeting_freq']),
     ])
 
@@ -121,7 +121,7 @@ dealbreakers_preprocessor = ColumnTransformer(
     transformers=[
         ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
         ('major', EmbeddingTransformer(), 'major'),
-        ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+    #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
         ('freq', MinMaxScaler(), ['meeting_freq']),
     ])
 
@@ -129,7 +129,8 @@ dealbreakers_preprocessor = ColumnTransformer(
 student_embeddings = preprocessor.fit_transform(data)
 
 # Select only certain columns (features) for clustering, also called 'dealbreakers'
-clustering_features = data[['areas_of_interest', 'major', 'schedule', 'meeting_freq']]
+#TODO: Add schedule
+clustering_features = data[['areas_of_interest', 'major', 'meeting_freq']]
 # Convert into list of embeddings
 dealbreakers = dealbreakers_preprocessor.fit_transform(clustering_features)
 dealbreakers = normalize(dealbreakers, norm='l2')
