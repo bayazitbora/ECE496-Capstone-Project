@@ -1,14 +1,10 @@
 import QuestionOptions from "../AccountCreation/QuestionOptions";
-
 import {
-  FormControl,
+  Form,
   FormGroup,
-  FormControlLabel,
-  Checkbox,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
+  Label,
+  Input,
+} from "reactstrap";
 
 export function CourseNameQ({ formState, handleInputChange }) {
   const courses = [
@@ -29,22 +25,24 @@ export function CourseNameQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>What course are you registered in?</h2>
-      <FormControl fullWidth variant="outlined" margin="normal">
-        <InputLabel id="course-label">Course</InputLabel>
-        <Select
-          labelId="course-label"
-          id="course-select"
-          value={formState.course || ""}
-          onChange={handleCourseChange}
-          label="Course"
-        >
-          {courses.map((course, index) => (
-            <MenuItem key={index} value={course}>
-              {course}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Form>
+        <FormGroup>
+          <Label for="course-select">Course</Label>
+          <Input
+            type="select"
+            name="course"
+            id="course-select"
+            value={formState.course || ""}
+            onChange={handleCourseChange}
+          >
+            {courses.map((course, index) => (
+              <option key={index} value={course}>
+                {course}
+              </option>
+            ))}
+          </Input>
+        </FormGroup>
+      </Form>
     </div>
   );
 }
@@ -87,17 +85,17 @@ export function InterestsQ({ formState, handleInputChange }) {
       <p>Choose your interests from the list:</p>
       <FormGroup>
         {interests.map((interest, index) => (
-          <FormControlLabel
-            key={index}
-            control={
-              <Checkbox
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="checkbox"
                 value={interest.label}
                 checked={formState.interests.includes(interest.label)}
                 onChange={handleInterestChange}
               />
-            }
-            label={interest.label}
-          />
+              {interest.label}
+            </Label>
+          </FormGroup>
         ))}
       </FormGroup>
     </div>
@@ -116,7 +114,7 @@ export function FrequencyQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>How often would you like to meet your team? </h2>
-      <text>Preferred number of meeting hours per week:</text>
+      <p>Preferred number of meeting hours per week:</p>
       <QuestionOptions
         choices={frequency_pref}
         selectedValues={formState.frequency || ""}
@@ -140,7 +138,7 @@ export function SkillsQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>What are your skills? </h2>
-      <text>Choose from the list of relevant skills:</text>
+      <p>Choose from the list of relevant skills:</p>
       <QuestionOptions
         choices={skills}
         selectedValues={formState.skills || []}
@@ -155,7 +153,7 @@ export function ThankYouQ() {
   return (
     <div>
       <h2>Thank you for your help!</h2>
-      <text>We will take it over from here.</text>
+      <p>We will take it over from here.</p>
     </div>
   );
 }

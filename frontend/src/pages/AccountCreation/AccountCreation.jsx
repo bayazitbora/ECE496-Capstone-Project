@@ -7,7 +7,7 @@ import ProgressBar from "../../components/AccountCreation/ProgressBar";
 import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
 import { SignUpContext } from "../../context/SignUpContext";
 
-function AccountCreation() {
+function  AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
   const [signUpState, setSignUpState] = useState({
     role: "", // student or instructor
