@@ -34,6 +34,43 @@ export const registerUser = async (formData) => {
   }
 };
 
+
+// curl -X POST http://localhost:8000/api/token/ \
+//   -H "Content-Type: application/json" \
+//   -d '{
+//     "username": "guest",
+//     "email": "adrien.mery@mail.utoronto.ca",
+//     "password": "12345"
+//   }'
+
+export const loginUser = async (credentials) => {
+  const url = "http://localhost:8000/api/token/";
+  console.log("loginUser called with credentials:", credentials); // Debugging statement
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to log in:", errorText); // Debugging statement
+      throw new Error("Failed to log in");
+    }
+
+    const data = await response.json();
+    console.log("loginUser response data:", data); // Debugging statement
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
 // // Get the routes
 // const getRoutes = async () => {
 //   try {
