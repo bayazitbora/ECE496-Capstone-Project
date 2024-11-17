@@ -1,4 +1,4 @@
-import { TextField, Button } from "@mui/material";
+import { Input, Button, Form, FormGroup, Label } from "reactstrap";
 import "./Input.css";
 
 function LogIn() {
@@ -9,31 +9,32 @@ function LogIn() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh", // to remove later
-        width: "100vw", // to remove later>
       }}
     >
       <h2>Log In to your Account</h2>
-      <TextField
-        id="standard-input"
-        label="E-mail address"
-        variant="outlined"
-        margin="normal"
-      />
-      <TextField
-        id="standard-input"
-        label="Password"
-        variant="outlined"
-        margin="normal"
-      />
-      <Button
-        id="standard-button"
-        variant="outlined"
-        size="large"
-        // onClick={}
-      >
-        Log In
-      </Button>
+      <Form>
+        <FormGroup>
+          <Label for="email">E-mail address</Label>
+          <Input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label for="password">Password</Label>
+          <Input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter your password"
+          />
+        </FormGroup>
+        <Button color="primary" size="lg">
+          Log In
+        </Button>
+      </Form>
     </div>
   );
 }

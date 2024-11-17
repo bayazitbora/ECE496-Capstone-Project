@@ -1,7 +1,10 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {Container} from "reactstrap";
+import initFontAwesome from "./utils/initFontAwesome";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from "./components/Navbar/Navbar";
+initFontAwesome();
 
+import Navbar from "./components/Navbar/Navbar";
 import LogIn from "./pages/LogIn";
 import AccountCreation from "./pages/AccountCreation/AccountCreation";
 import Profile from "./pages/Profile/Profile";
@@ -29,7 +32,9 @@ function App() {
       <SignUpProvider>
         <FormProvider>
           <Navbar />
+          <Container>
           <RouterProvider router={router} />
+          </Container>
         </FormProvider>
       </SignUpProvider>
     </main>
