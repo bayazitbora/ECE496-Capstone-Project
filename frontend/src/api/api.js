@@ -9,19 +9,13 @@ import Cookies from "js-cookie";
 export const registerUser = async (formData) => {
   const url = "http://localhost:8000/api/register/";
 
-  // Ensure gpa is a number, not a string in formData
-  const cleanedFormData = {
-    ...formData,
-    gpa: parseFloat(formData.gpa),
-  };
-
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(cleanedFormData),
+      body: JSON.stringify(formData),
     });
 
     if (!response.ok) {
