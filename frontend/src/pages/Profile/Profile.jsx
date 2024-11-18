@@ -3,7 +3,7 @@ import { SignUpContext } from "../../context/SignUpContext";
 import styles from "./Profile.module.css";
 
 function Profile() {
-  const { state: userProfile } = useContext(SignUpContext); // Access user profile data
+  const { state: userProfile } = useContext(SignUpContext);
 
   return (
     <>
