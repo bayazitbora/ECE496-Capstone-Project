@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 initFontAwesome();
 
 import Navbar from "./components/Navbar/Navbar";
-import LogIn from "./pages/LogIn";
+import LogIn from "./pages/LogIn/LogIn";
 import AccountCreation from "./pages/AccountCreation/AccountCreation";
 import Profile from "./pages/Profile/Profile";
 import Start from "./components/Start";

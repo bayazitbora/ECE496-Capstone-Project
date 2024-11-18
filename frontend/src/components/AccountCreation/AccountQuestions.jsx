@@ -162,7 +162,7 @@ export function MajorQ({ formState, handleInputChange }) {
           type="number"
           name="grad_year"
           id="grad_year"
-          value={formState.grad_year || ""}
+          value={formState.grad_year || 2024}
           onChange={handleGradYearChange}
           min={2024}
           max={2030}
@@ -233,7 +233,7 @@ export function GPAQ({ formState, handleInputChange }) {
           type="number"
           name="gpa"
           id="gpa"
-          value={formState.gpa || ""}
+          value={formState.gpa || 0}
           onChange={handleInputChange}
           step="0.01"
           min={0}

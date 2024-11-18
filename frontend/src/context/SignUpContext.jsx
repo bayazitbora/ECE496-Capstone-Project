@@ -1,12 +1,11 @@
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useEffect } from "react";
 
-const initialState = {
+const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
   role: "", // student or instructor
   first_name: "",
   last_name: "",
   username: "",
   email: "",
-  password: "",
   pos: "", // prgm of study
   grad_year: "", // expected grad year
   minors: [], // array of minors
@@ -31,9 +30,15 @@ export const SignUpContext = createContext();
 
 export const SignUpProvider = ({ children }) => {
   const [state, dispatch] = useReducer(signUpReducer, initialState);
+
+  useEffect(() => {
+    localStorage.setItem("userProfile", JSON.stringify(state));
+  }, [state]);
+
   const setFormData = (formData) => {
     dispatch({ type: UPDATE_FORM, payload: formData });
   };
+
   return (
     <SignUpContext.Provider value={{ state, setFormData }}>
       {children}
