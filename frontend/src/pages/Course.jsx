@@ -1,12 +1,26 @@
 import { useParams } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SignUpContext } from "../context/SignUpContext";
+import TeammateCard from "../components/Course/TeammateCard";
+import { getUser } from "../api/api";
 
 function Course(){
     const { courseCode } = useParams();
     const { state: signUpState } = useContext(SignUpContext);
     const { profiles } = signUpState;
     const profile = profiles ? profiles[courseCode] : null;
+    const [teammates, setTeammates] = useState([]);
+
+    useEffect(() => {
+        // TODO: remove this and fetch team from backend later
+        const sampleEmails = ["jfhafdsa@gmail.com", "afsajhflaksjdhf@gmail.com", "adfasdfa@gmail.com", "afafsfdddddf@gmail.com"];
+        const fetchTeammates = async () => {
+            const users = await Promise.all(sampleEmails.map(email => getUser({ email })));
+            setTeammates(users);
+            console.log("Teammates:", users);
+        };
+        fetchTeammates();
+    }, []);
 
     return(
         <div>
@@ -21,6 +35,16 @@ function Course(){
             ) : (
                 <p>No profile data available.</p>
             )}
+            <div>
+                <h2>Teammates</h2>
+                {teammates.length > 0 ? (
+                    teammates.map(member => (
+                        <TeammateCard key={member.requested_user} member={member} />
+                    ))
+                ) : (
+                    <p>No teammates available.</p>
+                )}
+            </div>
             {/* for debugging purposes */}
             {/* <pre>{JSON.stringify(signUpState, null, 2)}</pre> */}
         </div>
