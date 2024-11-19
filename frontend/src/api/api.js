@@ -101,8 +101,7 @@ export const getSelf = async ({username}) => {
   const access_token = Cookies.get("access");
 
   console.log("getSelf");
-  console.log("Token:", access_token);
-  console.log("Email:", username);
+  console.log("Username:", username);
 
   try {
     const response = await fetch(url, {

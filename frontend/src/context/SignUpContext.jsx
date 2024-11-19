@@ -10,6 +10,7 @@ const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
   grad_year: "", // expected grad year
   minors: [], // array of minors
   gpa: 0, // 0-4
+  profiles: [], 
 };
 
 const UPDATE_FORM = "UPDATE_FORM";

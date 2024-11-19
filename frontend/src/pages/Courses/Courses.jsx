@@ -1,10 +1,10 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
-import { createProfile } from "../../api/api";
+import { createProfile, getSelf } from "../../api/api";
 import { SignUpContext } from "../../context/SignUpContext";
 
 function Courses() {
@@ -16,10 +16,29 @@ function Courses() {
     hoursToCommit: 0,
     skills: [],
   });
-
-  const { username } = useContext(SignUpContext);
+  const { state: signUpState } = useContext(SignUpContext);
+  const { username, profiles: initialProfiles } = signUpState;
+  const [profiles, setProfiles] = useState(initialProfiles || {});
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
+
+  useEffect(() => {
+      if (initialProfiles) {
+        setProfiles(initialProfiles);
+      } else {
+        const fetchProfiles = async () => {
+          try {
+            const response = await getSelf({ username });
+            setProfiles(response.profiles);
+            console.log("User profiles:", response.profiles);
+          } catch (error) {
+            console.error("Error fetching profiles:", error);
+          }
+        };
+
+        fetchProfiles();
+      }
+  }, [username, initialProfiles]);
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
@@ -41,6 +60,18 @@ function Courses() {
     try {
       const response = await createProfile(username, formState);
       console.log("Profile created successfully:", response);
+
+      const updatedProfiles = await getSelf({ username });
+      setProfiles(updatedProfiles.profiles);
+      console.log("Updated profiles:", updatedProfiles.profiles);
+
+      setFormState({
+        courseCode: "",
+        interests: [],
+        availableTimes: [],
+        hoursToCommit: 0,
+        skills: [],
+      });
     } catch (error) {
       console.error("Error creating profile:", error);
     }
@@ -64,6 +95,22 @@ function Courses() {
       <div className={styles.Container}>
         <h1>Courses</h1>
         <p>Add courses by pressing on the Add (+) button.</p>
+
+        {/* Display user profiles */}
+        <div>
+          <h2>User Profiles</h2>
+          {Object.keys(profiles).length > 0 ? (
+            <ul>
+              {Object.keys(profiles).map((courseCode) => (
+                <li key={courseCode}>
+                  <strong>{courseCode}:</strong> {JSON.stringify(profiles[courseCode])}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No profiles found.</p>
+          )}
+        </div>
 
         {/* Floating Action Button */}
         <Button
