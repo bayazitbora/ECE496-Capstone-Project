@@ -3,7 +3,7 @@ import styles from "./AvailabilityQ.module.css";
 
 function AvailabilityQ({ formState, handleInputChange }) {
   const [selectedBlocks, setSelectedBlocks] = useState(
-    formState.availability || []
+    formState.availableTimes || []
   );
 
   const days = [
@@ -35,7 +35,7 @@ function AvailabilityQ({ formState, handleInputChange }) {
 
     handleInputChange({
       target: {
-        name: "availability",
+        name: "availableTimes",
         value: updatedBlocks,
       },
     });

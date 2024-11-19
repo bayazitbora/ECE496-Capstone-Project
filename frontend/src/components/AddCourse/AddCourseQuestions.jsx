@@ -17,8 +17,11 @@ export function CourseNameQ({ formState, handleInputChange }) {
   ];
 
   const handleCourseChange = (event) => {
-    
-    handleInputChange(event);
+    const { value } = event.target;
+    handleInputChange({
+      target: { name: "courseCode", value: value },
+    });
+    console.log("Selected courseCode:", value);
   };
 
   return (
@@ -29,9 +32,9 @@ export function CourseNameQ({ formState, handleInputChange }) {
           <Label for="course-select">Course</Label>
           <Input
             type="select"
-            name="course"
+            name="courseCode"
             id="course-select"
-            value={formState.course || ""}
+            value={formState.courseCode || ""}
             onChange={handleCourseChange}
           >
             {courses.map((course, index) => (
@@ -103,18 +106,17 @@ export function InterestsQ({ formState, handleInputChange }) {
 
 export function FrequencyQ({ formState, handleInputChange }) {
   const frequency_pref = [
-    { label: "1 hour" },
-    { label: "2 hours" },
-    { label: "3 hours" },
-    { label: "4 hours" },
-    { label: "5 hours" },
-    { label: "+ 5 hours" },
+    { label: "1 hour", value: 1 },
+    { label: "2 hours", value: 2 },
+    { label: "3 hours", value: 3 },
+    { label: "4 hours", value: 4 },
+    { label: "5 hours", value: 5 },
   ];
 
   const handleFrequencyChange = (event) => {
     const { value } = event.target;
     handleInputChange({
-      target: { name: "frequency", value: value },
+      target: { name: "hoursToCommit", value: parseInt(value, 10) },
     });
   };
 
@@ -128,9 +130,9 @@ export function FrequencyQ({ formState, handleInputChange }) {
             <Label check>
               <Input
                 type="radio"
-                name="frequency"
-                value={frequency.label}
-                checked={formState.frequency === frequency.label}
+                name="hoursToCommit"
+                value={frequency.value}
+                checked={formState.hoursToCommit === frequency.value}
                 onChange={handleFrequencyChange}
               />
               {frequency.label}

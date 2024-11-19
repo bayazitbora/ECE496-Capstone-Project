@@ -1,20 +1,23 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
+import { createProfile } from "../../api/api";
+import { SignUpContext } from "../../context/SignUpContext";
 
 function Courses() {
   const [open, setOpen] = useState(false);
   const [formState, setFormState] = useState({
-    course: "",
+    courseCode: "",
     interests: [],
-    availability: [],
-    frequency: "",
+    availableTimes: [],
+    hoursToCommit: 0,
     skills: [],
   });
 
+  const { username } = useContext(SignUpContext);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
 
@@ -34,6 +37,14 @@ function Courses() {
     console.log("Submit button clicked");
     setFormState(formState);
     console.log(formState);
+
+    try {
+      const response = await createProfile(username, formState);
+      console.log("Profile created successfully:", response);
+    } catch (error) {
+      console.error("Error creating profile:", error);
+    }
+
     handleClose();
   };
 

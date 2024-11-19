@@ -128,6 +128,37 @@ export const getSelf = async ({username}) => {
   }
 };
 
+export const createProfile = async (username, formState) => {
+  const url = "http://localhost:8000/api/updateProfile/";
+  const access_token = Cookies.get("access");
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({
+        username,
+        profile: formState,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to create profile:", errorText);
+      throw new Error("Failed to create profile");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
 // // Get the routes
 // const getRoutes = async () => {
 //   try {
