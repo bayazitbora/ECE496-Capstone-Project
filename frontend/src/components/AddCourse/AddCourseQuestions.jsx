@@ -1,20 +1,24 @@
-import {
-  Form,
-  FormGroup,
-  Label,
-  Input,
-} from "reactstrap";
+import { useEffect } from "react";
+import { Form, FormGroup, Label, Input } from "reactstrap";
 
 export function CourseNameQ({ formState, handleInputChange }) {
   const courses = [
     "ECE496",
     "ECE490",
     "ECE297",
-    "CSCS343",
+    "CSC343",
     "ECE444",
     "ECE421",
     "APS360",
   ];
+
+  useEffect(() => {
+    if (!formState.courseCode) {
+      handleInputChange({
+        target: { name: "courseCode", value: courses[0] },
+      });
+    }
+  }, [formState.courseCode, handleInputChange]);
 
   const handleCourseChange = (event) => {
     const { value } = event.target;
@@ -34,7 +38,7 @@ export function CourseNameQ({ formState, handleInputChange }) {
             type="select"
             name="courseCode"
             id="course-select"
-            value={formState.courseCode || ""}
+            value={formState.courseCode}
             onChange={handleCourseChange}
           >
             {courses.map((course, index) => (

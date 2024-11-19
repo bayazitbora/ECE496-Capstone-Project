@@ -1,11 +1,12 @@
 import { useState, useContext, useEffect } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
 import { createProfile, getSelf } from "../../api/api";
 import { SignUpContext } from "../../context/SignUpContext";
+import CourseCard from "../../components/Courses/CourseCard";
 
 function Courses() {
   const [open, setOpen] = useState(false);
@@ -22,6 +23,7 @@ function Courses() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
 
+  // TODO: correct becase the api should not be called every time
   useEffect(() => {
       if (initialProfiles) {
         setProfiles(initialProfiles);
@@ -72,6 +74,8 @@ function Courses() {
         hoursToCommit: 0,
         skills: [],
       });
+      setCurrentStep(1);
+      
     } catch (error) {
       console.error("Error creating profile:", error);
     }
@@ -94,19 +98,21 @@ function Courses() {
     <>
       <div className={styles.Container}>
         <h1>Courses</h1>
-        <p>Add courses by pressing on the Add (+) button.</p>
-
-        {/* Display user profiles */}
+        {Object.keys(profiles).length === 0 && (
+          <p>Add courses by pressing on the Add (+) button.</p>
+        )}
         <div>
-          <h2>User Profiles</h2>
           {Object.keys(profiles).length > 0 ? (
-            <ul>
+            <Row>
               {Object.keys(profiles).map((courseCode) => (
-                <li key={courseCode}>
-                  <strong>{courseCode}:</strong> {JSON.stringify(profiles[courseCode])}
-                </li>
+                <Col sm="4" key={courseCode}>
+                  <CourseCard 
+                    courseCode={courseCode} 
+                    profile={profiles[courseCode]} 
+                  />
+                </Col>
               ))}
-            </ul>
+            </Row>
           ) : (
             <p>No profiles found.</p>
           )}
