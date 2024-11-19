@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const NavbarComponent = () => {
   return (
     <div className='nav-container'>
-    <Navbar color="dark" dark expand="md" container={false}>
+    <Navbar color="light" expand="md" container={false}>
       <Container>
         <NavbarBrand href="/profile">Groupify</NavbarBrand>
         <Nav className="mr-auto" navbar>

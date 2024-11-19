@@ -14,7 +14,7 @@ function AddCourseTemplate({
   nextStep,
   prevStep,
   formState,
-  handleFormInputChange,
+  handleInputChange,
   handleSubmit,
   totalSteps,
 }) {
@@ -24,35 +24,35 @@ function AddCourseTemplate({
         return (
           <CourseNameQ
             formState={formState}
-            handleInputChange={handleFormInputChange}
+            handleInputChange={handleInputChange} 
           />
         );
       case 2:
         return (
           <InterestsQ
             formState={formState}
-            handleInputChange={handleFormInputChange}
+            handleInputChange={handleInputChange} 
           />
         );
       case 3:
         return (
           <AvailabilityQ
             formState={formState}
-            handleInputChange={handleFormInputChange}
+            handleInputChange={handleInputChange}
           />
         );
       case 4:
         return (
           <FrequencyQ
             formState={formState}
-            handleInputChange={handleFormInputChange}
+            handleInputChange={handleInputChange}
           />
         );
       case 5:
         return (
           <SkillsQ
             formState={formState}
-            handleInputChange={handleFormInputChange}
+            handleInputChange={handleInputChange}
           />
         );
       case 6:
@@ -61,7 +61,7 @@ function AddCourseTemplate({
         return (
           <CourseNameQ
             formState={formState}
-            handleInputChange={handleFormInputChange}
+            handleInputChange={handleInputChange}
           />
         );
     }
