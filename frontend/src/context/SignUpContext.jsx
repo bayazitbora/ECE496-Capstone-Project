@@ -14,6 +14,7 @@ const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
 };
 
 const UPDATE_FORM = "UPDATE_FORM";
+const SET_PROFILES = "SET_PROFILES";
 
 function signUpReducer(state, action) {
   switch (action.type) {
@@ -21,6 +22,11 @@ function signUpReducer(state, action) {
       return {
         ...state,
         ...action.payload,
+      };
+    case SET_PROFILES:
+      return {
+        ...state,
+        profiles: action.profiles,
       };
     default:
       return state;
@@ -41,7 +47,7 @@ export const SignUpProvider = ({ children }) => {
   };
 
   return (
-    <SignUpContext.Provider value={{ state, setFormData }}>
+    <SignUpContext.Provider value={{ state, dispatch, setFormData }}>
       {children}
     </SignUpContext.Provider>
   );
