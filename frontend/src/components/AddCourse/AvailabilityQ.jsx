@@ -2,7 +2,6 @@ import { useState } from "react";
 import styles from "./AvailabilityQ.module.css";
 
 function AvailabilityQ({ formState, handleInputChange }) {
-  // Initialize with selected blocks if already in formState
   const [selectedBlocks, setSelectedBlocks] = useState(
     formState.availability || []
   );
@@ -27,16 +26,13 @@ function AvailabilityQ({ formState, handleInputChange }) {
     let updatedBlocks;
 
     if (isSelected) {
-      // Remove block if already selected
       updatedBlocks = selectedBlocks.filter((b) => b !== block);
     } else {
-      // Add block if not selected
       updatedBlocks = [...selectedBlocks, block];
     }
 
     setSelectedBlocks(updatedBlocks);
 
-    // Update formState availability field
     handleInputChange({
       target: {
         name: "availability",

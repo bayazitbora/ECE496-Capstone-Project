@@ -1,4 +1,3 @@
-import QuestionOptions from "../AccountCreation/QuestionOptions";
 import {
   Form,
   FormGroup,
@@ -18,7 +17,7 @@ export function CourseNameQ({ formState, handleInputChange }) {
   ];
 
   const handleCourseChange = (event) => {
-    console.log("Selected course:", event.target.value); // Log the selected course
+    
     handleInputChange(event);
   };
 
@@ -104,23 +103,41 @@ export function InterestsQ({ formState, handleInputChange }) {
 
 export function FrequencyQ({ formState, handleInputChange }) {
   const frequency_pref = [
-    { label: "1 hours" },
+    { label: "1 hour" },
     { label: "2 hours" },
     { label: "3 hours" },
     { label: "4 hours" },
     { label: "5 hours" },
     { label: "+ 5 hours" },
   ];
+
+  const handleFrequencyChange = (event) => {
+    const { value } = event.target;
+    handleInputChange({
+      target: { name: "frequency", value: value },
+    });
+  };
+
   return (
     <div>
-      <h2>How often would you like to meet your team? </h2>
+      <h2>How often would you like to meet your team?</h2>
       <p>Preferred number of meeting hours per week:</p>
-      <QuestionOptions
-        choices={frequency_pref}
-        selectedValues={formState.frequency || ""}
-        fieldName={"meeting_frequency"}
-        handleInputChange={handleInputChange}
-      />
+      <FormGroup>
+        {frequency_pref.map((frequency, index) => (
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="radio"
+                name="frequency"
+                value={frequency.label}
+                checked={formState.frequency === frequency.label}
+                onChange={handleFrequencyChange}
+              />
+              {frequency.label}
+            </Label>
+          </FormGroup>
+        ))}
+      </FormGroup>
     </div>
   );
 }
@@ -135,16 +152,43 @@ export function SkillsQ({ formState, handleInputChange }) {
     { label: "Ethical Perspective" },
     { label: "Teamwork" },
   ];
+
+  const handleSkillsChange = (event) => {
+    const { value, checked } = event.target;
+    let updatedSkills = [...formState.skills];
+
+    if (checked) {
+      updatedSkills.push(value);
+    } else {
+      updatedSkills = updatedSkills.filter(
+        (skill) => skill !== value
+      );
+    }
+
+    handleInputChange({
+      target: { name: "skills", value: updatedSkills },
+    });
+  };
+
   return (
     <div>
-      <h2>What are your skills? </h2>
+      <h2>What are your skills?</h2>
       <p>Choose from the list of relevant skills:</p>
-      <QuestionOptions
-        choices={skills}
-        selectedValues={formState.skills || []}
-        fieldName={"skills"}
-        handleInputChange={handleInputChange}
-      />
+      <FormGroup>
+        {skills.map((skill, index) => (
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="checkbox"
+                value={skill.label}
+                checked={formState.skills.includes(skill.label)}
+                onChange={handleSkillsChange}
+              />
+              {skill.label}
+            </Label>
+          </FormGroup>
+        ))}
+      </FormGroup>
     </div>
   );
 }

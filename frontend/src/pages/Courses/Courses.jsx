@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -16,7 +15,6 @@ function Courses() {
     skills: [],
   });
 
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
 
@@ -36,10 +34,10 @@ function Courses() {
     console.log("Submit button clicked");
     setFormState(formState);
     console.log(formState);
-    navigate("/courses");
+    handleClose();
   };
 
-  const handleFormInputChange = (event) => {
+  const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormState((prevState) => ({
       ...prevState,
@@ -79,7 +77,7 @@ function Courses() {
               nextStep={nextStep}
               prevStep={prevStep}
               formState={formState}
-              handleInputChange={handleFormInputChange}
+              handleInputChange={handleInputChange}
               handleSubmit={handleSubmit}
               totalSteps={totalSteps}
             />
