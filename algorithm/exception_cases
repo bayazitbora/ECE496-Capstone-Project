@@ -1,0 +1,44 @@
+Exception cases to be added to stage 2 algo:
+
+Step 0: End of stage 1 clustering consider user preference for teammates to be considered
+    a. say they can shoose 1 person (artibrary for now), take the preference from backend as input
+        (note that the students and their preffered teammate are already in the input cluster of stage 2)
+*** to be added to the algo, after clustering decision for second stage
+
+Step 1: change stage 2 to k-clustering
+
+Step 2: Run 1.stage k-clustering
+    a. check if number of students in the cluster for all clusters is divisible by group size
+        a.i. if so run the greedy (note: the last if for dealing with remaining indices can be taken out)
+        a.ii. if not divisible in all groups
+            .for each bigger cluster:
+                - run stage 2 k-clustering
+                . for each smaller cluster:
+                    - if more than group size:
+                        . find how many students are more
+                        . take the students farthest from the smaller cluster's mean
+                        . append the students to students_to_be_regrouped 
+                    - if less than group size:
+                        . append all the students in this cluster to students_to_be_regrouped
+                (note that we are still in the bigger cluster)
+                - find number of students in students_to_be_regrouped is divisible by group size 
+                    . if divisible by group size: hard code group them using their ave euc dist
+                    . if not divisible:
+                        - find the number of students that will be left out
+                        - take the students that are farthest to the bigger cluster's mean
+                        - append these students to left_out_students
+                        - hard code group the rest of the students using their ave euc dist
+            (note that now we are outside the bigger cluster)
+            !!!
+            the other way:
+            - find if the left_out_students is divisible by group size
+                . if so hard code group the students using their ave uec dist
+                (note, even though violates dealbreaker preferencesm it is not so bad because these students were selected from the edge of the cluster)
+                . if not divisible:
+                    - hard code group the students according to their ave euc dist
+                    - add the rest of the students to the closest group (using means->this might need to be stored everytime a group forms), no two students go to the same group
+
+            !!! something to consider, these edge cases might violate the constraint of "no group breaks more than one deal-breaker preference"
+            -> one way to improve could be instead of grouping the final left out students together (even if divisible by group size), we make them join one of the (closest) teams in their cluster even if more than necessary teams have students more than the number of group size
+
+

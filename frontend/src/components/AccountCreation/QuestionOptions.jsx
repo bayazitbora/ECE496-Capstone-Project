@@ -1,4 +1,4 @@
-import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+import { FormGroup, Label, Input } from "reactstrap";
 import { useEffect } from "react";
 
 function QuestionOptions({
@@ -33,18 +33,18 @@ function QuestionOptions({
   return (
     <FormGroup>
       {choices.map((choice, index) => (
-        <FormControlLabel
-          key={index}
-          control={
-            <Checkbox
+        <div key={index} className="form-check">
+          <Label check>
+            <Input
+              type="checkbox"
               checked={selectedValues.includes(choice.label)} // Check if the label is already selected
               onChange={handleCheckboxChange} // Handle checkbox state changes
               name={fieldName} // Name is the field in the form (e.g., "interests")
               value={choice.label} // Value is the individual interest label
             />
-          }
-          label={choice.label}
-        />
+            {choice.label}
+          </Label>
+        </div>
       ))}
     </FormGroup>
   );

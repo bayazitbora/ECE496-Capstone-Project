@@ -7,7 +7,7 @@ import {
   GPAQ,
   MessageQ,
 } from "./AccountQuestions";
-
+import { Button } from 'reactstrap';
 import styles from "./AccountCreationTemplate.module.css";
 
 function AccountCreationTemplate({
@@ -85,9 +85,9 @@ function AccountCreationTemplate({
       return;
     } else {
       return (
-        <button onClick={prevStep} className={styles.cancelButton}>
+        <Button onClick={prevStep} className={styles.cancelButton}>
           Go Back
-        </button>
+        </Button>
       );
     }
   };
@@ -95,15 +95,15 @@ function AccountCreationTemplate({
   const confirmButton = (currentStep, totalSteps, nextStep, handleSubmit) => {
     if (currentStep == totalSteps) {
       return (
-        <button onClick={handleSubmit} className={styles.confirmButton}>
+        <Button onClick={handleSubmit} className={styles.confirmButton}>
           Confirm
-        </button>
+        </Button>
       );
     }
     return (
-      <button onClick={nextStep} className={styles.confirmButton}>
+      <Button onClick={nextStep} className={styles.confirmButton}>
         Confirm
-      </button>
+      </Button>
     );
   };
 

@@ -1,25 +1,26 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import styles from "./AccountCreation.module.css";
-import { registerUser } from "../../api/api";
+import { registerUser, loginUser, getSelf } from "../../api/api";
 
 import ProgressBar from "../../components/AccountCreation/ProgressBar";
 import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
 import { SignUpContext } from "../../context/SignUpContext";
 
-function AccountCreation() {
+function  AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
   const [signUpState, setSignUpState] = useState({
     role: "", // student or instructor
     first_name: "",
     last_name: "",
     username: "",
-    email: "",
     password: "",
+    email: "",
     pos: "", // prgm of study
-    grad_year: "", // expected grad year
+    grad_year: 2024, // expected grad year
     minors: [], // array of minors
-    gpa: 0, // 0-4
+    gpa: 0.0, // 0-4
   });
 
   const navigate = useNavigate();
@@ -39,15 +40,38 @@ function AccountCreation() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Submit button clicked");
-    setFormData(signUpState);
+    console.log("form data:", signUpState);
     try {
       const response = await registerUser(signUpState);
       console.log("User registered:", response);
+
+      const loginData = await loginUser({
+        email: signUpState.email,
+        username: signUpState.username,
+        password: signUpState.password,
+      });
+
+      Cookies.set("refresh", loginData.refresh, { path: '/' });
+      Cookies.set("access", loginData.access, { path: '/' });
+
+      const userData = await getSelf({ username: signUpState.username });
+      setFormData({
+        role: userData.teacher ? "instructor" : "student",
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        username: userData.username,
+        email: signUpState.email,
+        pos: userData.pos,
+        grad_year: userData.grad_year,
+        minors: userData.minors,
+        gpa: userData.GPA,
+      });
+      console.log("User data:", userData);
+
+      navigate("/profile");
     } catch (error) {
       console.error("Registration failed:", error);
     }
-    navigate("/profile");
   };
 
   const handleSignUpInputChange = (event) => {

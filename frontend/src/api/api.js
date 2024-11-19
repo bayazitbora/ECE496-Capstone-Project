@@ -1,3 +1,5 @@
+import Cookies from "js-cookie";
+
 // API functions for the frontend
 
 // curl -X POST http://localhost:8000/api/register/ \
@@ -7,23 +9,115 @@
 export const registerUser = async (formData) => {
   const url = "http://localhost:8000/api/register/";
 
-  // Ensure gpa is a number, not a string in formData
-  const cleanedFormData = {
-    ...formData,
-    gpa: parseFloat(formData.gpa), // Convert gpa to a number
-  };
-
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(cleanedFormData),
+      body: JSON.stringify(formData),
     });
 
     if (!response.ok) {
       throw new Error("Failed to register user");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
+
+// curl -X POST http://localhost:8000/api/token/ \
+//   -H "Content-Type: application/json" \
+//   -d '{
+//     "username": "guest",
+//     "email": "adrien.mery@mail.utoronto.ca",
+//     "password": "12345"
+//   }'
+
+export const loginUser = async (credentials) => {
+  const url = "http://localhost:8000/api/token/";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to log in:", errorText); // Debugging statement
+      throw new Error("Failed to log in");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
+export const getUser = async ({ username }) => {
+  const url = "http://localhost:8000/api/getUser/";
+  const access_token = Cookies.get("access");
+
+  console.log("getUser");
+  console.log("Token:", access_token);
+  console.log("Email:", username);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({ username }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to fetch user details:", errorText);
+      throw new Error("Failed to fetch user details");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
+export const getSelf = async ({username}) => {
+  const url = "http://localhost:8000/api/getSelf/";
+  const access_token = Cookies.get("access");
+
+  console.log("getSelf");
+  console.log("Token:", access_token);
+  console.log("Email:", username);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({username}),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to fetch self details:", errorText);
+      throw new Error("Failed to fetch self details");
     }
 
     const data = await response.json();

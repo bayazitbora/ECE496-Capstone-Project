@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Fab } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
-import Navbar from "../../components/Navbar/Navbar";
 
 function Courses() {
   const [open, setOpen] = useState(false);
@@ -52,15 +52,13 @@ function Courses() {
 
   return (
     <>
-      <Navbar />
       <div className={styles.Container}>
         <h1>Courses</h1>
         <p>Add courses by pressing on the Add (+) button.</p>
 
         {/* Floating Action Button */}
-        <Fab
+        <Button
           color="primary"
-          aria-label="add"
           style={{
             position: "fixed",
             bottom: 24,
@@ -68,20 +66,28 @@ function Courses() {
           }}
           onClick={handleOpen}
         >
-          <AddIcon />
-        </Fab>
+          <FontAwesomeIcon icon={faPlus} />
+        </Button>
 
-        <AddCourseModal
-          currentStep={currentStep}
-          handleOpen={open}
-          handleClose={handleClose}
-          nextStep={nextStep}
-          prevStep={prevStep}
-          formState={formState}
-          handleInputChange={handleFormInputChange}
-          handleSubmit={handleSubmit}
-          totalSteps={totalSteps}
-        />
+        <Modal isOpen={open} toggle={handleClose}>
+          <ModalHeader toggle={handleClose}>Add Course</ModalHeader>
+          <ModalBody>
+            <AddCourseModal
+              currentStep={currentStep}
+              handleOpen={open}
+              handleClose={handleClose}
+              nextStep={nextStep}
+              prevStep={prevStep}
+              formState={formState}
+              handleInputChange={handleFormInputChange}
+              handleSubmit={handleSubmit}
+              totalSteps={totalSteps}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={handleClose}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     </>
   );
