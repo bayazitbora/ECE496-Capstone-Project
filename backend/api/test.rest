@@ -46,7 +46,7 @@ Authorization: Bearer {{jwtoken}}
     "profile": {
         "courseCode": "CIV220",
         "hoursToCommit": "9",
-        "interests": ["Ecology", "Social Justice", "Swimming"],
+        "interests": ["NoEcology", "Social Justice", "Swimming"],
         "skills": ["C++", "Talking", "Programming"]
     }
 }
@@ -81,7 +81,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "requested_user": "Something@gmail.com"
+    "requested_user": "JohnDoe1234"
 }
 
 ###
