@@ -7,8 +7,9 @@ from sklearn.cluster import KMeans
 import spacy
 import numpy as np
 from sklearn.metrics import silhouette_score
-from yellowbrick.cluster import KElbowVisualizer
+# from yellowbrick.cluster import KElbowVisualizer
 import itertools
+from typing import List, Dict, Optional
 
 # Load the spacy model
 nlp = spacy.load('en_core_web_lg')
@@ -95,6 +96,7 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
 # TODO add exception cases
 # Changed the below method to form groups using Greedy approach based on the remaining attributes (preferred traits)
 def form_groups_greedy(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray) -> None:
+    groups_dict: Dict[int, List[int]] = {} #dict to store by group number ex: 0: [1,2,10]
     groups_num: int = 0
 
     for cluster in data['cluster'].unique():  # iterate through clusters
@@ -147,15 +149,21 @@ def form_groups_greedy(data: pd.DataFrame, group_size: int, student_embeddings: 
                 # remove all the other entries containing the student pair you added to the group
                 sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
                 
-            for student in group:  # assigning group numbers to students
-                data.loc[student, 'group'] = groups_num
+            # for student in group:  # assigning group numbers to students
+            #     data.loc[student, 'group'] = groups_num
+
+            groups_dict[groups_num] = group 
 
             groups_num += 1
 
+        # if remaining_indices:  # to deal with remaining students if can't fill the last group
+        #     for student in remaining_indices:
+        #         data.loc[student, 'group'] = groups_num
+        #     groups_num += 1
+
         if remaining_indices:  # to deal with remaining students if can't fill the last group
-            for student in remaining_indices:
-                data.loc[student, 'group'] = groups_num
-            groups_num += 1  # this might not be necessary
+            groups_dict[groups_num] = remaining_indices
+            groups_num += 1
 
     data['group'] = data['group'].astype(int)  # visualize groups
 
