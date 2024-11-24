@@ -1,50 +1,54 @@
-import QuestionOptions from "../AccountCreation/QuestionOptions";
-
-import {
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import { useEffect } from "react";
+import { Form, FormGroup, Label, Input } from "reactstrap";
 
 export function CourseNameQ({ formState, handleInputChange }) {
   const courses = [
     "ECE496",
     "ECE490",
     "ECE297",
-    "CSCS343",
+    "CSC343",
     "ECE444",
     "ECE421",
     "APS360",
   ];
 
+  useEffect(() => {
+    if (!formState.courseCode) {
+      handleInputChange({
+        target: { name: "courseCode", value: courses[0] },
+      });
+    }
+  }, [formState.courseCode, handleInputChange]);
+
   const handleCourseChange = (event) => {
-    console.log("Selected course:", event.target.value); // Log the selected course
-    handleInputChange(event);
+    const { value } = event.target;
+    handleInputChange({
+      target: { name: "courseCode", value: value },
+    });
+    console.log("Selected courseCode:", value);
   };
 
   return (
     <div>
       <h2>What course are you registered in?</h2>
-      <FormControl fullWidth variant="outlined" margin="normal">
-        <InputLabel id="course-label">Course</InputLabel>
-        <Select
-          labelId="course-label"
-          id="course-select"
-          value={formState.course || ""}
-          onChange={handleCourseChange}
-          label="Course"
-        >
-          {courses.map((course, index) => (
-            <MenuItem key={index} value={course}>
-              {course}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Form>
+        <FormGroup>
+          <Label for="course-select">Course</Label>
+          <Input
+            type="select"
+            name="courseCode"
+            id="course-select"
+            value={formState.courseCode}
+            onChange={handleCourseChange}
+          >
+            {courses.map((course, index) => (
+              <option key={index} value={course}>
+                {course}
+              </option>
+            ))}
+          </Input>
+        </FormGroup>
+      </Form>
     </div>
   );
 }
@@ -87,17 +91,17 @@ export function InterestsQ({ formState, handleInputChange }) {
       <p>Choose your interests from the list:</p>
       <FormGroup>
         {interests.map((interest, index) => (
-          <FormControlLabel
-            key={index}
-            control={
-              <Checkbox
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="checkbox"
                 value={interest.label}
                 checked={formState.interests.includes(interest.label)}
                 onChange={handleInterestChange}
               />
-            }
-            label={interest.label}
-          />
+              {interest.label}
+            </Label>
+          </FormGroup>
         ))}
       </FormGroup>
     </div>
@@ -106,23 +110,40 @@ export function InterestsQ({ formState, handleInputChange }) {
 
 export function FrequencyQ({ formState, handleInputChange }) {
   const frequency_pref = [
-    { label: "1 hours" },
-    { label: "2 hours" },
-    { label: "3 hours" },
-    { label: "4 hours" },
-    { label: "5 hours" },
-    { label: "+ 5 hours" },
+    { label: "1 hour", value: 1 },
+    { label: "2 hours", value: 2 },
+    { label: "3 hours", value: 3 },
+    { label: "4 hours", value: 4 },
+    { label: "5 hours", value: 5 },
   ];
+
+  const handleFrequencyChange = (event) => {
+    const { value } = event.target;
+    handleInputChange({
+      target: { name: "hoursToCommit", value: parseInt(value, 10) },
+    });
+  };
+
   return (
     <div>
-      <h2>How often would you like to meet your team? </h2>
-      <text>Preferred number of meeting hours per week:</text>
-      <QuestionOptions
-        choices={frequency_pref}
-        selectedValues={formState.frequency || ""}
-        fieldName={"meeting_frequency"}
-        handleInputChange={handleInputChange}
-      />
+      <h2>How often would you like to meet your team?</h2>
+      <p>Preferred number of meeting hours per week:</p>
+      <FormGroup>
+        {frequency_pref.map((frequency, index) => (
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="radio"
+                name="hoursToCommit"
+                value={frequency.value}
+                checked={formState.hoursToCommit === frequency.value}
+                onChange={handleFrequencyChange}
+              />
+              {frequency.label}
+            </Label>
+          </FormGroup>
+        ))}
+      </FormGroup>
     </div>
   );
 }
@@ -137,16 +158,43 @@ export function SkillsQ({ formState, handleInputChange }) {
     { label: "Ethical Perspective" },
     { label: "Teamwork" },
   ];
+
+  const handleSkillsChange = (event) => {
+    const { value, checked } = event.target;
+    let updatedSkills = [...formState.skills];
+
+    if (checked) {
+      updatedSkills.push(value);
+    } else {
+      updatedSkills = updatedSkills.filter(
+        (skill) => skill !== value
+      );
+    }
+
+    handleInputChange({
+      target: { name: "skills", value: updatedSkills },
+    });
+  };
+
   return (
     <div>
-      <h2>What are your skills? </h2>
-      <text>Choose from the list of relevant skills:</text>
-      <QuestionOptions
-        choices={skills}
-        selectedValues={formState.skills || []}
-        fieldName={"skills"}
-        handleInputChange={handleInputChange}
-      />
+      <h2>What are your skills?</h2>
+      <p>Choose from the list of relevant skills:</p>
+      <FormGroup>
+        {skills.map((skill, index) => (
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="checkbox"
+                value={skill.label}
+                checked={formState.skills.includes(skill.label)}
+                onChange={handleSkillsChange}
+              />
+              {skill.label}
+            </Label>
+          </FormGroup>
+        ))}
+      </FormGroup>
     </div>
   );
 }
@@ -155,7 +203,7 @@ export function ThankYouQ() {
   return (
     <div>
       <h2>Thank you for your help!</h2>
-      <text>We will take it over from here.</text>
+      <p>We will take it over from here.</p>
     </div>
   );
 }
