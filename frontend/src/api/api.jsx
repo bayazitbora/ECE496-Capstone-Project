@@ -1,5 +1,3 @@
-import Cookies from "js-cookie";
-
 // API functions for the frontend
 
 // curl -X POST http://localhost:8000/api/register/ \
@@ -52,8 +50,7 @@ export const loginUser = async (credentials) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Failed to log in:", errorText); // Debugging statement
-      throw new Error("Failed to log in");
+      throw new Error("Failed to log in", errorText);
     }
 
     const data = await response.json();
@@ -64,12 +61,11 @@ export const loginUser = async (credentials) => {
   }
 };
 
-export const getUser = async ({ email }) => {
+export const getUser = async ({ email }, token) => {
   const url = "http://localhost:8000/api/getUser/";
-  const access_token = Cookies.get("access");
 
   console.log("getUser");
-  console.log("Token:", access_token);
+  console.log("Token:", token);
   console.log("Username:", email);
 
   try {
@@ -77,7 +73,7 @@ export const getUser = async ({ email }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${access_token}`,
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({ email }),
     });
@@ -96,11 +92,11 @@ export const getUser = async ({ email }) => {
   }
 };
 
-export const getSelf = async ({username}) => {
+export const getSelf = async ({ username }, token) => {
   const url = "http://localhost:8000/api/getSelf/";
-  const access_token = Cookies.get("access");
 
-  console.log("getSelf");
+  console.log("getSelf called");
+  console.log("Token:", token);
   console.log("Username:", username);
 
   try {
@@ -108,9 +104,9 @@ export const getSelf = async ({username}) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${access_token}`,
+        "Authorization": `Bearer ${token}`,
       },
-      body: JSON.stringify({username}),
+      body: JSON.stringify({ username }),
     });
 
     if (!response.ok) {
@@ -127,16 +123,15 @@ export const getSelf = async ({username}) => {
   }
 };
 
-export const createProfile = async (username, formState) => {
+export const createProfile = async (username, formState, token) => {
   const url = "http://localhost:8000/api/updateProfile/";
-  const access_token = Cookies.get("access");
 
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${access_token}`,
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify({
         username,
