@@ -64,13 +64,13 @@ export const loginUser = async (credentials) => {
   }
 };
 
-export const getUser = async ({ email }) => {
+export const getUser = async ({ username }) => {
   const url = "http://localhost:8000/api/getUser/";
   const access_token = Cookies.get("access");
 
   console.log("getUser");
   console.log("Token:", access_token);
-  console.log("Username:", email);
+  console.log("Username:", username);
 
   try {
     const response = await fetch(url, {
@@ -79,7 +79,7 @@ export const getUser = async ({ email }) => {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${access_token}`,
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ username }),
     });
 
     if (!response.ok) {
