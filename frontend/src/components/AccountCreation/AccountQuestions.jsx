@@ -20,6 +20,7 @@ export function RoleQ({ formState, handleInputChange }) {
         <Button
           color={formState.role === "Student" ? "primary" : "secondary"}
           onClick={() => handleRoleSelection("Student")}
+          style={{ marginRight: "10px" }}
         >
           Student
         </Button>
@@ -40,31 +41,31 @@ export function NameQ({ formState, handleInputChange }) {
       <h2>How should we call you?</h2>
       <Form>
         <FormGroup>
-          <Label for="first_name">First Name</Label>
           <Input
             type="text"
             name="first_name"
             id="first_name"
+            placeholder="First Name"
             value={formState.first_name}
             onChange={handleInputChange}
           />
         </FormGroup>
         <FormGroup>
-          <Label for="last_name">Last Name</Label>
           <Input
             type="text"
             name="last_name"
             id="last_name"
+            placeholder="Last Name"
             value={formState.last_name}
             onChange={handleInputChange}
           />
         </FormGroup>
         <FormGroup>
-          <Label for="username">Username</Label>
           <Input
             type="text"
             name="username"
             id="username"
+            placeholder="Username"
             value={formState.username}
             onChange={handleInputChange}
           />
@@ -80,32 +81,30 @@ export function AccountQ({ formState, handleInputChange }) {
       <h2>Create your account</h2>
       <Form>
         <FormGroup>
-          <Label for="email">E-mail address</Label>
           <Input
             type="email"
             name="email"
             id="email"
+            placeholder="E-mail address"å
             value={formState.email}
             onChange={handleInputChange}
           />
         </FormGroup>
         <FormGroup>
-          <Label for="confirmEmail">Re-type your e-mail address</Label>
-          <Input type="email" name="confirmEmail" id="confirmEmail" />
+          <Input type="email" name="confirmEmail" id="confirmEmail" placeholder="Re-type your e-mail address" />
         </FormGroup>
         <FormGroup>
-          <Label for="password">Password</Label>
           <Input
             type="password"
             name="password"
             id="password"
+            placeholder="Password"
             value={formState.password}
             onChange={handleInputChange}
           />
         </FormGroup>
         <FormGroup>
-          <Label for="confirmPassword">Re-type your password</Label>
-          <Input type="password" name="confirmPassword" id="confirmPassword" />
+          <Input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-type your password" />
         </FormGroup>
       </Form>
     </div>
@@ -141,31 +140,33 @@ export function MajorQ({ formState, handleInputChange }) {
       <h2>What is your Program of Study?</h2>
       <p>Choose your Engineering Major from the list:</p>
       <FormGroup>
-        {majors.map((major, index) => (
-          <FormGroup check key={index}>
-            <Label check>
-              <Input
-                type="radio"
-                name="major"
-                value={major.label}
-                checked={formState.pos === major.label}
-                onChange={handleMajorChange}
-              />
+        <Input
+          type="select"
+          name="major"
+          id="major"
+          value={formState.pos || ""}
+          onChange={handleMajorChange}
+        >
+          <option value="" disabled>
+            Choose Major...
+          </option>
+          {majors.map((major, index) => (
+            <option key={index} value={major.label}>
               {major.label}
-            </Label>
-          </FormGroup>
-        ))}
+            </option>
+          ))}
+        </Input>
       </FormGroup>
       <FormGroup>
-        <Label for="grad_year">Expected Graduation Year</Label>
         <Input
           type="number"
           name="grad_year"
           id="grad_year"
-          value={formState.grad_year || 2024}
+          value={formState.grad_year}
           onChange={handleGradYearChange}
           min={2024}
           max={2030}
+          placeholder="Choose Graduation Year..."
         />
       </FormGroup>
     </div>
@@ -188,15 +189,15 @@ export function MinorQ({ formState, handleInputChange }) {
   ];
 
   const handleMinorChange = (event) => {
-    const { value, checked } = event.target;
-    let updatedMinors = [...formState.minors];
-
-    if (checked) {
-      updatedMinors.push(value);
-    } else {
-      updatedMinors = updatedMinors.filter((minor) => minor !== value);
+    const { value } = event.target;
+    if (!formState.minors.includes(value)) {
+      const updatedMinors = [...formState.minors, value];
+      handleInputChange({ target: { name: "minors", value: updatedMinors } });
     }
+  };
 
+  const handleMinorRemove = (minor) => {
+    const updatedMinors = formState.minors.filter((m) => m !== minor);
     handleInputChange({ target: { name: "minors", value: updatedMinors } });
   };
 
@@ -205,20 +206,29 @@ export function MinorQ({ formState, handleInputChange }) {
       <h2>Are you pursuing any Minor(s)?</h2>
       <p>Choose your Engineering Minor(s) from the list:</p>
       <FormGroup>
-        {minors.map((minor, index) => (
-          <FormGroup check key={index}>
-            <Label check>
-              <Input
-                type="checkbox"
-                value={minor.label}
-                checked={formState.minors.includes(minor.label)}
-                onChange={handleMinorChange}
-              />
+        <Input type="select" name="minor" id="minor" onChange={handleMinorChange}>
+          <option value="" disabled>
+            Choose Minor...
+          </option>
+          {minors.map((minor, index) => (
+            <option key={index} value={minor.label}>
               {minor.label}
-            </Label>
-          </FormGroup>
-        ))}
+            </option>
+          ))}
+        </Input>
       </FormGroup>
+      <div>
+        {formState.minors.map((minor, index) => (
+          <Button
+            key={index}
+            color="outline"
+            onClick={() => handleMinorRemove(minor)}
+            style={{ marginRight: "10px", marginBottom: "10px" }}
+          >
+            {minor} &times;
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }
