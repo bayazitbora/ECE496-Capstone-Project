@@ -17,30 +17,30 @@ function Courses() {
     hoursToCommit: 0,
     skills: [],
   });
-  const { state: signUpState } = useContext(SignUpContext);
+  const { state: signUpState, dispatch } = useContext(SignUpContext);
   const { username, profiles: initialProfiles } = signUpState;
   const [profiles, setProfiles] = useState(initialProfiles || {});
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
 
-  // TODO: correct becase the api should not be called every time
   useEffect(() => {
-      if (initialProfiles) {
-        setProfiles(initialProfiles);
-      } else {
-        const fetchProfiles = async () => {
-          try {
-            const response = await getSelf({ username });
-            setProfiles(response.profiles);
-            console.log("User profiles:", response.profiles);
-          } catch (error) {
-            console.error("Error fetching profiles:", error);
-          }
-        };
+    if (initialProfiles && Object.keys(initialProfiles).length > 0) {
+      setProfiles(initialProfiles);
+    } else {
+      const fetchProfiles = async () => {
+        try {
+          const response = await getSelf({ username });
+          setProfiles(response.profiles);
+          dispatch({ type: "SET_PROFILES", profiles: response.profiles });
+          console.log("User profiles:", response.profiles);
+        } catch (error) {
+          console.error("Error fetching profiles:", error);
+        }
+      };
 
-        fetchProfiles();
-      }
-  }, [username, initialProfiles]);
+      fetchProfiles();
+    }
+  }, [username, initialProfiles, dispatch]);
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
