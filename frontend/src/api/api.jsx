@@ -142,8 +142,7 @@ export const createProfile = async (username, formState, token) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Failed to create profile:", errorText);
-      throw new Error("Failed to create profile");
+      throw new Error("Failed to create profile", errorText);
     }
 
     const data = await response.json();
