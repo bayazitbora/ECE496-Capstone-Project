@@ -13,9 +13,9 @@ function Course(){
 
     useEffect(() => {
         // TODO: remove this and fetch team from backend later
-        const sampleEmails = ["jfhafdsa@gmail.com", "afsajhflaksjdhf@gmail.com", "adfasdfa@gmail.com", "afafsfdddddf@gmail.com"];
+        const sampleUsernames = ["user1", "user2", "user3", "user4"];
         const fetchTeammates = async () => {
-            const users = await Promise.all(sampleEmails.map(email => getUser({ email })));
+            const users = await Promise.all(sampleUsernames.map(requested_user => getUser({ requested_user })));
             setTeammates(users);
             console.log("Teammates:", users);
         };
@@ -39,7 +39,7 @@ function Course(){
                 <h2>Teammates</h2>
                 {teammates.length > 0 ? (
                     teammates.map(member => (
-                        <TeammateCard key={member.requested_user} member={member} />
+                        <TeammateCard key={member.username} member={member} />
                     ))
                 ) : (
                     <p>No teammates available.</p>

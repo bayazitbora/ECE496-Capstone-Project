@@ -61,12 +61,13 @@ export const loginUser = async (credentials) => {
   }
 };
 
-export const getUser = async ({ email }, token) => {
+
+export const getUser = async ({ requested_user }, token) => {
   const url = "http://localhost:8000/api/getUser/";
 
   console.log("getUser");
   console.log("Token:", token);
-  console.log("Username:", email);
+  console.log("Username:", requested_user);
 
   try {
     const response = await fetch(url, {
@@ -75,7 +76,7 @@ export const getUser = async ({ email }, token) => {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ requested_user }),
     });
 
     if (!response.ok) {
