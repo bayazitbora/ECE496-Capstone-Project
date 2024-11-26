@@ -64,13 +64,13 @@ export const loginUser = async (credentials) => {
   }
 };
 
-export const getUser = async ({ username }) => {
+export const getUser = async ({ email }) => {
   const url = "http://localhost:8000/api/getUser/";
   const access_token = Cookies.get("access");
 
   console.log("getUser");
   console.log("Token:", access_token);
-  console.log("Email:", username);
+  console.log("Username:", email);
 
   try {
     const response = await fetch(url, {
@@ -79,7 +79,7 @@ export const getUser = async ({ username }) => {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${access_token}`,
       },
-      body: JSON.stringify({ username }),
+      body: JSON.stringify({ email }),
     });
 
     if (!response.ok) {
@@ -101,8 +101,7 @@ export const getSelf = async ({username}) => {
   const access_token = Cookies.get("access");
 
   console.log("getSelf");
-  console.log("Token:", access_token);
-  console.log("Email:", username);
+  console.log("Username:", username);
 
   try {
     const response = await fetch(url, {
@@ -118,6 +117,37 @@ export const getSelf = async ({username}) => {
       const errorText = await response.text();
       console.error("Failed to fetch self details:", errorText);
       throw new Error("Failed to fetch self details");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
+
+export const createProfile = async (username, formState) => {
+  const url = "http://localhost:8000/api/updateProfile/";
+  const access_token = Cookies.get("access");
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({
+        username,
+        profile: formState,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to create profile:", errorText);
+      throw new Error("Failed to create profile");
     }
 
     const data = await response.json();
