@@ -10,6 +10,8 @@ from sklearn.metrics import silhouette_score
 # from yellowbrick.cluster import KElbowVisualizer
 import itertools
 from typing import List, Dict, Optional
+from sklearn.mixture import GaussianMixture
+
 
 # Load the spacy model
 nlp = spacy.load('en_core_web_lg')
@@ -95,77 +97,121 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
 
 # TODO add exception cases
 # Changed the below method to form groups using Greedy approach based on the remaining attributes (preferred traits)
-def form_groups_greedy(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray) -> None:
-    groups_dict: Dict[int, List[int]] = {} #dict to store by group number ex: 0: [1,2,10]
+# def form_groups_greedy(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray) -> None:
+#     groups_dict: Dict[int, List[int]] = {} #dict to store by group number ex: 0: [1,2,10]
+#     groups_num: int = 0
+
+#     for cluster in data['cluster'].unique():  # iterate through clusters
+#         cluster_data: pd.DataFrame = data[data['cluster'] == cluster]
+#         remaining_indices: List[int] = list(cluster_data.index)
+        
+#         similarity_array: List[List[float]] = []
+#         for student1 in range(len(remaining_indices)):
+#             for student2 in range(student1 + 1, len(remaining_indices)):
+#                 # compare the similarity of student embeddings
+#                 sim: float = np.linalg.norm(student_embeddings[remaining_indices[student1]] - student_embeddings[remaining_indices[student2]])
+#                 similarity_array.append([remaining_indices[student1], remaining_indices[student2], sim])  # collect all similarity scores in an array for each student
+                
+#         sorted_sim_array: List[List[float]] = sorted(similarity_array, key=lambda x: x[2])  # array in ascending order according to score
+
+#         while len(remaining_indices) >= group_size:
+#             group: List[int] = []
+            
+#             first: List[float] = sorted_sim_array[0]  # take lowest score (closest students)
+#             group.extend(first[:2])  # put those two students in the group
+#             # update indices, take out the 2 students just added.
+#             remaining_indices.remove(first[0])
+#             remaining_indices.remove(first[1])
+#             sorted_sim_array.pop(0)  # remove that entry
+
+#             # when group not full (if group size is 2, do not enter the loop)
+#             while len(group) < group_size:
+
+#                 # Initialize
+#                 closest_student: Optional[int] = None
+#                 closest_student_dist: float = float('inf')
+
+#                 # calculate the average point of all student embeddings in the group
+#                 embedding_average: np.ndarray = np.mean(student_embeddings[group], axis=0)  # axis 0 for mean for all features across all students
+                
+#                 for student in remaining_indices:
+#                     # Euclidean distance between each student and the mean of embeddings already in the group
+#                     distance: float = np.linalg.norm(student_embeddings[student] - embedding_average)
+                    
+#                     # find the student with the smallest distance
+#                     if distance < closest_student_dist:
+#                         closest_student_dist = distance
+#                         closest_student = student
+                
+#                 # add closest student to the group and remove from indices
+#                 if closest_student is not None:
+#                     group.append(closest_student)
+#                     remaining_indices.remove(closest_student)
+
+#                 # remove all the other entries containing the student pair you added to the group
+#                 sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
+                
+#             # for student in group:  # assigning group numbers to students
+#             #     data.loc[student, 'group'] = groups_num
+
+#             groups_dict[groups_num] = group 
+
+#             groups_num += 1
+
+#         # if remaining_indices:  # to deal with remaining students if can't fill the last group
+#         #     for student in remaining_indices:
+#         #         data.loc[student, 'group'] = groups_num
+#         #     groups_num += 1
+
+#         if remaining_indices:  # to deal with remaining students if can't fill the last group
+#             groups_dict[groups_num] = remaining_indices
+#             groups_num += 1
+
+#     data['group'] = data['group'].astype(int)  # visualize groups
+
+#MIX of GAUSSIANS TODO
+def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray) -> None:
+    # Initialize groups dictionary to store student indices by group
+    groups_dict: Dict[int, List[int]] = {} 
     groups_num: int = 0
 
-    for cluster in data['cluster'].unique():  # iterate through clusters
+    # Loop through clusters in the data
+    for cluster in data['cluster'].unique():
         cluster_data: pd.DataFrame = data[data['cluster'] == cluster]
-        remaining_indices: List[int] = list(cluster_data.index)
+        cluster_indices: List[int] = list(cluster_data.index)  # Indices of students in this cluster
         
-        similarity_array: List[List[float]] = []
-        for student1 in range(len(remaining_indices)):
-            for student2 in range(student1 + 1, len(remaining_indices)):
-                # compare the similarity of student embeddings
-                sim: float = np.linalg.norm(student_embeddings[remaining_indices[student1]] - student_embeddings[remaining_indices[student2]])
-                similarity_array.append([remaining_indices[student1], remaining_indices[student2], sim])  # collect all similarity scores in an array for each student
-                
-        sorted_sim_array: List[List[float]] = sorted(similarity_array, key=lambda x: x[2])  # array in ascending order according to score
+        # Get the corresponding embeddings of the students in this cluster
+        cluster_embeddings: np.ndarray = student_embeddings[cluster_indices]
+        
+        # Fit the Gaussian Mixture Model on the student embeddings
+        gmm = GaussianMixture(n_components=len(cluster_indices) // group_size + 1, random_state=42)
+        gmm.fit(cluster_embeddings)
+        
+        # Predict group assignments for each student based on GMM
+        group_assignments = gmm.predict(cluster_embeddings)
 
-        while len(remaining_indices) >= group_size:
-            group: List[int] = []
+        # Group students based on GMM clusters, taking care to respect group_size
+        for group_id in range(max(group_assignments) + 1):
+            group_indices = [cluster_indices[i] for i in range(len(group_assignments)) if group_assignments[i] == group_id]
             
-            first: List[float] = sorted_sim_array[0]  # take lowest score (closest students)
-            group.extend(first[:2])  # put those two students in the group
-            # update indices, take out the 2 students just added.
-            remaining_indices.remove(first[0])
-            remaining_indices.remove(first[1])
-            sorted_sim_array.pop(0)  # remove that entry
-
-            # when group not full (if group size is 2, do not enter the loop)
-            while len(group) < group_size:
-
-                # Initialize
-                closest_student: Optional[int] = None
-                closest_student_dist: float = float('inf')
-
-                # calculate the average point of all student embeddings in the group
-                embedding_average: np.ndarray = np.mean(student_embeddings[group], axis=0)  # axis 0 for mean for all features across all students
+            # If the group exceeds the group size, we split it into multiple groups
+            while len(group_indices) > group_size:
+                new_group = group_indices[:group_size]
+                groups_dict[groups_num] = new_group
+                groups_num += 1
+                group_indices = group_indices[group_size:]
                 
-                for student in remaining_indices:
-                    # Euclidean distance between each student and the mean of embeddings already in the group
-                    distance: float = np.linalg.norm(student_embeddings[student] - embedding_average)
-                    
-                    # find the student with the smallest distance
-                    if distance < closest_student_dist:
-                        closest_student_dist = distance
-                        closest_student = student
-                
-                # add closest student to the group and remove from indices
-                if closest_student is not None:
-                    group.append(closest_student)
-                    remaining_indices.remove(closest_student)
+            # Add the remaining group if any
+            if group_indices:
+                groups_dict[groups_num] = group_indices
+                groups_num += 1
 
-                # remove all the other entries containing the student pair you added to the group
-                sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
-                
-            # for student in group:  # assigning group numbers to students
-            #     data.loc[student, 'group'] = groups_num
-
-            groups_dict[groups_num] = group 
-
-            groups_num += 1
-
-        # if remaining_indices:  # to deal with remaining students if can't fill the last group
-        #     for student in remaining_indices:
-        #         data.loc[student, 'group'] = groups_num
-        #     groups_num += 1
-
-        if remaining_indices:  # to deal with remaining students if can't fill the last group
-            groups_dict[groups_num] = remaining_indices
-            groups_num += 1
-
-    data['group'] = data['group'].astype(int)  # visualize groups
+    # Assign the calculated group to the 'group' column in the data
+    data['group'] = -1  # Initialize all groups to -1
+    for group_id, group in groups_dict.items():
+        data.loc[group, 'group'] = group_id
+    
+    data['group'] = data['group'].astype(int)  # Ensure group column is of integer type
 
 
 def find_best_k(X: np.ndarray, clustering_features: np.ndarray, k_range: range) -> Tuple[int, np.ndarray]:
