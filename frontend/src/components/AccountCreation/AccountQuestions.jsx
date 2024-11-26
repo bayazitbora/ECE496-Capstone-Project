@@ -85,7 +85,7 @@ export function AccountQ({ formState, handleInputChange }) {
             type="email"
             name="email"
             id="email"
-            placeholder="E-mail address"å
+            placeholder="E-mail address"
             value={formState.email}
             onChange={handleInputChange}
           />
@@ -162,7 +162,7 @@ export function MajorQ({ formState, handleInputChange }) {
           type="number"
           name="grad_year"
           id="grad_year"
-          value={formState.grad_year}
+          value={formState.grad_year || ""}
           onChange={handleGradYearChange}
           min={2024}
           max={2030}
@@ -206,7 +206,7 @@ export function MinorQ({ formState, handleInputChange }) {
       <h2>Are you pursuing any Minor(s)?</h2>
       <p>Choose your Engineering Minor(s) from the list:</p>
       <FormGroup>
-        <Input type="select" name="minor" id="minor" onChange={handleMinorChange}>
+        <Input type="select" name="minor" id="minor" value="" onChange={handleMinorChange}>
           <option value="" disabled>
             Choose Minor...
           </option>
@@ -243,7 +243,7 @@ export function GPAQ({ formState, handleInputChange }) {
           type="number"
           name="gpa"
           id="gpa"
-          value={formState.gpa || 0}
+          value={formState.gpa || ""}
           onChange={handleInputChange}
           step="0.01"
           min={0}
