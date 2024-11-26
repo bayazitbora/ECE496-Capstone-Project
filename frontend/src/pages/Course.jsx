@@ -13,7 +13,7 @@ function Course(){
 
     useEffect(() => {
         // TODO: remove this and fetch team from backend later
-        const sampleUsernames = ["user1", "user2", "user3", "user4"];
+        const sampleUsernames = ["user1", "user2", "user3", "test1111"];
         const fetchTeammates = async () => {
             const users = await Promise.all(sampleUsernames.map(requested_user => getUser({ requested_user })));
             setTeammates(users);
