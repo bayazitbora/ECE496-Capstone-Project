@@ -119,7 +119,7 @@ class MyUser(AbstractUser):
             if request['pos']:
                 self.programOfStudy = request['pos']
         
-        if 'minor' in request:
+        if 'minors' in request:
             if request['minors']:
                 self.update_minors(request['minors'])
         if 'grad_year' in request:
