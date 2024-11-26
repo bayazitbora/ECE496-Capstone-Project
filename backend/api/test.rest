@@ -54,9 +54,9 @@ Authorization: Bearer {{jwtoken}}
     "email": "TarekGoat@nothing.com",
     "profile": {
         "courseCode": "CIV220",
-        "hoursToCommit": "10",
-        "interests": ["Compilers", "Astrology", "Picking on tired students"],
-        "skills": ["C++", "Compilers", "Programming"]
+        "hoursToCommit": "9",
+        "interests": ["NoEcology", "Social Justice", "Swimming"],
+        "skills": ["C++", "Talking", "Programming"]
     }
 }
 ###
@@ -90,7 +90,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "requested_user": "Something@gmail.com"
+    "requested_user": "JohnDoe1234"
 }
 
 ###

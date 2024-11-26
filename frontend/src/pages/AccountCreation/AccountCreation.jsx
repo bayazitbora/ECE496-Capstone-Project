@@ -18,7 +18,7 @@ function  AccountCreation() {
     password: "",
     email: "",
     pos: "", // prgm of study
-    grad_year: 2024, // expected grad year
+    grad_year: null, // expected grad year
     minors: [], // array of minors
     gpa: 0.0, // 0-4
   });

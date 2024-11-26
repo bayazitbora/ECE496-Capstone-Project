@@ -138,17 +138,26 @@ def updateSelf(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getUser(request):
-    if 'username' in request.data:
-        user = get_user_model().objects.get(username=request.data['username'])
-    elif 'email' in request.data:
-        user = get_user_model().objects.get(email__iexact=request.data['email'])
+    if 'requested_user' in request.data:
+        userQS = get_user_model().objects.filter(username=request.data['requested_user'])
+    elif 'requested_email' in request.data:
+        userQS = get_user_model().objects.filter(email__iexact=request.data['requested_email'])
     else:
         return Response({"message": "request did not contain username or email"}, 
                         status=status.HTTP_400_BAD_REQUEST)
+    
+    if userQS.count() == 1:
+        user = userQS.first()
+    if userQS.count() > 1:
+        return Response({"message": "Username or email belongs to multiple users"}, 
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if userQS.count() < 1:
+        return Response({"message": "User not found."}, 
+                        status=status.HTTP_400_BAD_REQUEST)
+
     response = Response({
-        "username": request.user.username,
+        "username": user.username,
         "email": user.email,
-        "requested_user": user.username,
         "first_name": user.first_name,
         "last_name": user.last_name,
         "pos": user.programOfStudy,
@@ -169,6 +178,7 @@ def getSelf(request):
     user = get_user_model().objects.get(username=request.user.username)
     response = Response ({
         "username": user.get_username(),
+        "email": user.email,
         "name": user.get_full_name(),
         "first_name": user.first_name,
         "last_name": user.last_name,
@@ -195,10 +205,19 @@ def updateProfile(request):
     elif request.user.username:
         user = get_user_model().objects.get(username=request.user.username)
     else:
-        return Response({"message": "request did not contain username or email"}, 
+        return Response({"message": "Request did not contain username or email"}, 
                         status=status.HTTP_400_BAD_REQUEST)
     
     if 'profile' in request.data:
+        if (not request.data['profile']['courseCode'] 
+            or not request.data['profile']['hoursToCommit'] 
+            or not request.data['profile']['interests']
+            or not request.data['profile']['skills']
+            ):
+            
+            return Response({"message": "Request contained malformed or empty information"}, 
+                        status=status.HTTP_400_BAD_REQUEST)
+        else:
             #check if profile exists for user
             profile_QuerySet = user.profile.filter(courseCode=request.data['profile']['courseCode'])
             
@@ -215,7 +234,6 @@ def updateProfile(request):
                 profile = user.profile.get(courseCode=request.data['profile']['courseCode'])
                 profile.update_profile(request.data['profile'])
                 profile.save()
-                # print(profile)
 
                 #add student to course list
                 # course.students.add(user.username)
@@ -226,18 +244,20 @@ def updateProfile(request):
                 profile = user.profile.get(courseCode=request.data['profile']['courseCode'])
                 profile.update_profile(request.data['profile'])
                 profile.save()
-                # print(profile)
                 
             else:
                 #user has more than one profile, this is a bug, throw error for now
                 return Response({"message": "User has more than one profile for a given course"}, 
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # print(user.profile.all())
-    return Response({
-        "user": user.username,
-        "message": "User profile updated successfully!"
-    }, status=status.HTTP_200_OK)
+        print(user.profile.all())
+        return Response({
+            "user": user.username,
+            "message": "User profile updated successfully!"
+        }, status=status.HTTP_200_OK)
+    else:
+        return Response({"message": "Request contained no Profile field"}, 
+                        status=status.HTTP_400_BAD_REQUEST)
 
 #------------------------------------------------
 

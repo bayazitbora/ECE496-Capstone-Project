@@ -10,23 +10,26 @@ function Start() {
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "flex-start",
+        height: "100vh",
+        paddingTop: "20vh",
       }}
     >
-        <Button
-          color="primary"
-          size="lg"
-          onClick={() => navigate("/sign-up")}
-        >
-          Sign Up
-        </Button>
-        <Button
-          color="secondary"
-          size="lg"
-          onClick={() => navigate("/log-in")}
-        >
-          Log In
-        </Button>
+      <Button
+        color="primary"
+        size="lg"
+        onClick={() => navigate("/sign-up")}
+        style={{ marginRight: "20px" }}
+      >
+        Sign Up
+      </Button>
+      <Button
+        color="secondary"
+        size="lg"
+        onClick={() => navigate("/log-in")}
+      >
+        Log In
+      </Button>
     </div>
   );
 }
