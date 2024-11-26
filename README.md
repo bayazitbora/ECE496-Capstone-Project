@@ -7,7 +7,7 @@ To connect to the backend on your browser you can either:
 2. to view examples of requests that can be made see the TeamBuilder\api\test.rest file.
 
 ## Set up
-1. install python
+1. install python 3.12.7
 2. install python virtual environments using
     - C:\\...\\Capstone> `pip install virtualenv`
 3. Create the virtual environment using:
