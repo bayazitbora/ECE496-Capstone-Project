@@ -1,12 +1,11 @@
 import {
   Button,
-  TextField,
-  Checkbox,
-  Radio,
-  RadioGroup,
+  Input,
   FormGroup,
-  FormControlLabel,
-} from "@mui/material";
+  Label,
+  Form,
+  FormText,
+} from "reactstrap";
 
 export function RoleQ({ formState, handleInputChange }) {
   const handleRoleSelection = (role) => {
@@ -19,13 +18,13 @@ export function RoleQ({ formState, handleInputChange }) {
       <p>Are you a student or an instructor?</p>
       <div>
         <Button
-          variant={formState.role === "Student" ? "contained" : "outlined"}
+          color={formState.role === "Student" ? "primary" : "secondary"}
           onClick={() => handleRoleSelection("Student")}
         >
           Student
         </Button>
         <Button
-          variant={formState.role === "Instructor" ? "contained" : "outlined"}
+          color={formState.role === "Instructor" ? "primary" : "secondary"}
           onClick={() => handleRoleSelection("Instructor")}
         >
           Instructor
@@ -39,35 +38,38 @@ export function NameQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>How should we call you?</h2>
-      <div>
-        <TextField
-          id="name-input"
-          label="First Name"
-          variant="outlined"
-          margin="normal"
-          name="first_name"
-          value={formState.first_name}
-          onChange={handleInputChange}
-        />
-        <TextField
-          id="name-input"
-          label="Last Name"
-          variant="outlined"
-          margin="normal"
-          name="last_name"
-          value={formState.last_name}
-          onChange={handleInputChange}
-        />
-      </div>
-      <TextField
-        id="standard-input"
-        label="Username"
-        variant="outlined"
-        margin="normal"
-        name="username"
-        value={formState.username}
-        onChange={handleInputChange}
-      />
+      <Form>
+        <FormGroup>
+          <Label for="first_name">First Name</Label>
+          <Input
+            type="text"
+            name="first_name"
+            id="first_name"
+            value={formState.first_name}
+            onChange={handleInputChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label for="last_name">Last Name</Label>
+          <Input
+            type="text"
+            name="last_name"
+            id="last_name"
+            value={formState.last_name}
+            onChange={handleInputChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label for="username">Username</Label>
+          <Input
+            type="text"
+            name="username"
+            id="username"
+            value={formState.username}
+            onChange={handleInputChange}
+          />
+        </FormGroup>
+      </Form>
     </div>
   );
 }
@@ -76,46 +78,36 @@ export function AccountQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>Create your account</h2>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <TextField
-          id="standard-input"
-          label="E-mail address"
-          variant="outlined"
-          margin="normal"
-          name="email"
-          value={formState.email}
-          onChange={handleInputChange}
-        />
-        <TextField
-          id="standard-input"
-          label="Re-type your e-mail address"
-          variant="outlined"
-          margin="normal"
-          name="confirmEmail"
-        />
-        <TextField
-          id="standard-input"
-          label="Password"
-          variant="outlined"
-          margin="normal"
-          name="password"
-          value={formState.password}
-          onChange={handleInputChange}
-        />
-        <TextField
-          id="standard-input"
-          label="Re-type your password"
-          variant="outlined"
-          margin="normal"
-          name="confirmPassword"
-        />
-      </div>
+      <Form>
+        <FormGroup>
+          <Label for="email">E-mail address</Label>
+          <Input
+            type="email"
+            name="email"
+            id="email"
+            value={formState.email}
+            onChange={handleInputChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label for="confirmEmail">Re-type your e-mail address</Label>
+          <Input type="email" name="confirmEmail" id="confirmEmail" />
+        </FormGroup>
+        <FormGroup>
+          <Label for="password">Password</Label>
+          <Input
+            type="password"
+            name="password"
+            id="password"
+            value={formState.password}
+            onChange={handleInputChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label for="confirmPassword">Re-type your password</Label>
+          <Input type="password" name="confirmPassword" id="confirmPassword" />
+        </FormGroup>
+      </Form>
     </div>
   );
 }
@@ -148,35 +140,34 @@ export function MajorQ({ formState, handleInputChange }) {
     <div>
       <h2>What is your Program of Study?</h2>
       <p>Choose your Engineering Major from the list:</p>
-      <RadioGroup
-        aria-label="major"
-        name="major"
-        value={formState.pos || ""}
-        onChange={handleMajorChange}
-      >
+      <FormGroup>
         {majors.map((major, index) => (
-          <FormControlLabel
-            key={index}
-            value={major.label}
-            control={<Radio />}
-            label={major.label}
-          />
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="radio"
+                name="major"
+                value={major.label}
+                checked={formState.pos === major.label}
+                onChange={handleMajorChange}
+              />
+              {major.label}
+            </Label>
+          </FormGroup>
         ))}
-      </RadioGroup>
-
-      <div style={{ marginTop: "20px" }}>
-        <TextField
-          label="Expected Graduation Year"
-          name="grad_year"
-          value={formState.grad_year || ""}
-          onChange={handleGradYearChange}
-          fullWidth
+      </FormGroup>
+      <FormGroup>
+        <Label for="grad_year">Expected Graduation Year</Label>
+        <Input
           type="number"
-          InputProps={{
-            inputProps: { min: 2024, max: 2030 },
-          }}
+          name="grad_year"
+          id="grad_year"
+          value={formState.grad_year || 2024}
+          onChange={handleGradYearChange}
+          min={2024}
+          max={2030}
         />
-      </div>
+      </FormGroup>
     </div>
   );
 }
@@ -215,17 +206,17 @@ export function MinorQ({ formState, handleInputChange }) {
       <p>Choose your Engineering Minor(s) from the list:</p>
       <FormGroup>
         {minors.map((minor, index) => (
-          <FormControlLabel
-            key={index}
-            control={
-              <Checkbox
+          <FormGroup check key={index}>
+            <Label check>
+              <Input
+                type="checkbox"
                 value={minor.label}
                 checked={formState.minors.includes(minor.label)}
                 onChange={handleMinorChange}
               />
-            }
-            label={minor.label}
-          />
+              {minor.label}
+            </Label>
+          </FormGroup>
         ))}
       </FormGroup>
     </div>
@@ -236,21 +227,20 @@ export function GPAQ({ formState, handleInputChange }) {
   return (
     <div>
       <h2>What is your GPA? </h2>
-      <TextField
-        label="Enter your GPA"
-        variant="outlined"
-        type="number"
-        name="gpa"
-        value={formState.gpa || ""}
-        onChange={handleInputChange}
-        fullWidth
-        inputProps={{
-          step: "0.01",
-          min: 0,
-          max: 4,
-        }}
-        helperText="Enter your GPA (0 - 4 scale)"
-      />
+      <FormGroup>
+        <Label for="gpa">Enter your GPA</Label>
+        <Input
+          type="number"
+          name="gpa"
+          id="gpa"
+          value={formState.gpa || 0}
+          onChange={handleInputChange}
+          step="0.01"
+          min={0}
+          max={4}
+        />
+        <FormText>Enter your GPA (0 - 4 scale)</FormText>
+      </FormGroup>
     </div>
   );
 }
@@ -259,9 +249,9 @@ export function MessageQ() {
   return (
     <div>
       <h2>Thank you for your help!</h2>
-      <text>We will take it over from here.</text>
+      <p>We will take it over from here.</p>
       <br />
-      <text>You can modify your answers in your Profile.</text>
+      <p>You can modify your answers in your Profile.</p>
     </div>
   );
 }

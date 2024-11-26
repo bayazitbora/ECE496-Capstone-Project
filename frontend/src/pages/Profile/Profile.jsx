@@ -1,14 +1,12 @@
 import { useContext } from "react";
-import Navbar from "../../components/Navbar/Navbar";
 import { SignUpContext } from "../../context/SignUpContext";
 import styles from "./Profile.module.css";
 
 function Profile() {
-  const { state: userProfile } = useContext(SignUpContext); // Access user profile data
+  const { state: userProfile } = useContext(SignUpContext);
 
   return (
     <>
-      <Navbar />
       <div className={styles.Container}>
         <h1>
           {userProfile.first_name} {userProfile.last_name}

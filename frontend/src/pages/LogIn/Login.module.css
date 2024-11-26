@@ -1,0 +1,24 @@
+#standard-input {
+  width: 350px;
+}
+
+#name-input {
+  width: 160px;
+  /* TODO: Fix this padding issue */
+  /* padding-right: 10px;  */
+  /* padding-left: 10px; */
+}
+
+#standard-button {
+  width: 130px;
+  margin-top: 12px;
+}
+
+.QuestionnaireContainer {
+  text-align: center;
+  margin: 50px auto;
+  width: 700px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}

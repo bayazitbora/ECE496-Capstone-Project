@@ -1,4 +1,4 @@
-import { Modal, Box } from "@mui/material";
+import { Modal, ModalBody } from "reactstrap";
 
 import AddCourseTemplate from "./AddCourseTemplate";
 
@@ -15,22 +15,20 @@ function AddCourseModal({
 }) {
   return (
     <Modal
-      open={handleOpen}
-      onClose={handleClose}
+      isOpen={handleOpen}
+      toggle={handleClose}
       aria-labelledby="add-course-modal"
       aria-describedby="modal-for-adding-course"
     >
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 700,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 2,
+      <ModalBody
+        style={{
+          position: "relative",
+          width: "700px",
+          margin: "auto",
+          backgroundColor: "white",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          padding: "16px",
+          borderRadius: "8px",
         }}
       >
         <AddCourseTemplate
@@ -42,7 +40,7 @@ function AddCourseModal({
           handleSubmit={handleSubmit}
           totalSteps={totalSteps}
         />
-      </Box>
+      </ModalBody>
     </Modal>
   );
 }
