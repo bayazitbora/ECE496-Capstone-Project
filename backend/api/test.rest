@@ -90,5 +90,5 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "courseCode": "CIV220"
+    "courseCode": "ECE496"
 }
