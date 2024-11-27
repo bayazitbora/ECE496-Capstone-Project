@@ -5,10 +5,12 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
 import { createProfile, getSelf } from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 import { SignUpContext } from "../../context/SignUpContext";
 import CourseCard from "../../components/Courses/CourseCard";
 
 function Courses() {
+  const { token } = useAuth();
   const [open, setOpen] = useState(false);
   const [formState, setFormState] = useState({
     courseCode: "",
@@ -56,10 +58,10 @@ function Courses() {
     console.log(formState);
 
     try {
-      const response = await createProfile(username, formState);
+      const response = await createProfile(username, formState, token);
       console.log("Profile created successfully:", response);
 
-      const updatedProfiles = await getSelf({ username });
+      const updatedProfiles = await getSelf({ username }, token);
       setProfiles(updatedProfiles.profiles);
       dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.profiles });
       console.log("Updated profiles:", updatedProfiles.profiles);
@@ -74,7 +76,7 @@ function Courses() {
       setCurrentStep(1);
       
     } catch (error) {
-      console.error("Error creating profile:", error);
+      console.error(error);
     }
 
     handleClose();

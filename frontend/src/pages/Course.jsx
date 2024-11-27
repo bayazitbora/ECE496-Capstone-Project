@@ -1,21 +1,29 @@
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { SignUpContext } from "../context/SignUpContext";
-import TeammateCard from "../components/Course/TeammateCard";
+// import TeammateCard from "../components/Course/TeammateCard";
 import { getUser } from "../api/api";
+import { Card, CardBody, CardTitle, CardText, Button, Row, Col } from 'reactstrap';
+import TeammateModal from '../components/Course/TeammateModal';
+import { useAuth } from "../context/AuthContext";
 
 function Course(){
+    const { token } = useAuth();
     const { courseCode } = useParams();
     const { state: signUpState } = useContext(SignUpContext);
     const { profiles } = signUpState;
     const profile = profiles ? profiles[courseCode] : null;
     const [teammates, setTeammates] = useState([]);
+    const [selectedTeammate, setSelectedTeammate] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const toggleModal = () => setModalOpen(!modalOpen);
 
     useEffect(() => {
         // TODO: remove this and fetch team from backend later
         const sampleUsernames = ["user1", "user2", "user3", "test1111"];
         const fetchTeammates = async () => {
-            const users = await Promise.all(sampleUsernames.map(requested_user => getUser({ requested_user })));
+            const users = await Promise.all(sampleUsernames.map(requested_user => getUser({ requested_user }, token)));
             setTeammates(users);
             console.log("Teammates:", users);
         };
@@ -39,12 +47,34 @@ function Course(){
                 <h2>Teammates</h2>
                 {teammates.length > 0 ? (
                     teammates.map(member => (
-                        <TeammateCard key={member.username} member={member} />
+                        <Card key={member.username} className="mb-3">
+                            <CardBody>
+                                <Row>
+                                    <Col>
+                                        <CardTitle tag="h5">{member.first_name} {member.last_name}</CardTitle>
+                                        <CardText>Major: {member.pos}</CardText>
+                                        <CardText>Graduation Year: {member.grad_year}</CardText>
+                                    </Col>
+                                    <Col className="d-flex justify-content-end align-items-center">
+                                        <Button onClick={() => { setSelectedTeammate(member); toggleModal(); }} color="primary">
+                                            More Info
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </CardBody>
+                        </Card>
                     ))
                 ) : (
                     <p>No teammates available.</p>
                 )}
             </div>
+            {selectedTeammate && (
+                <TeammateModal 
+                    isOpen={modalOpen} 
+                    toggle={toggleModal} 
+                    teammate={selectedTeammate} 
+                />
+            )}
             {/* for debugging purposes */}
             {/* <pre>{JSON.stringify(signUpState, null, 2)}</pre> */}
         </div>

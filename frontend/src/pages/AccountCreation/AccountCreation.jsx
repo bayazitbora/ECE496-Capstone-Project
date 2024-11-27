@@ -1,15 +1,16 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import styles from "./AccountCreation.module.css";
 import { registerUser, loginUser, getSelf } from "../../api/api";
 
 import ProgressBar from "../../components/AccountCreation/ProgressBar";
 import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
 import { SignUpContext } from "../../context/SignUpContext";
+import { useAuth } from "../../context/AuthContext"; 
 
-function  AccountCreation() {
+function AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
+  const { token, setToken } = useAuth(); 
   const [signUpState, setSignUpState] = useState({
     role: "", // student or instructor
     first_name: "",
@@ -51,10 +52,8 @@ function  AccountCreation() {
         password: signUpState.password,
       });
 
-      Cookies.set("refresh", loginData.refresh, { path: '/' });
-      Cookies.set("access", loginData.access, { path: '/' });
-
-      const userData = await getSelf({ username: signUpState.username });
+      setToken(loginData.access);
+      const userData = await getSelf({ username: signUpState.username }, token);
       setFormData({
         role: userData.teacher ? "instructor" : "student",
         first_name: userData.first_name,
