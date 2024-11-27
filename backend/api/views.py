@@ -124,28 +124,30 @@ def matchTeams(request):
         },
         status=status.HTTP_200_OK)
         
-        listofMatchIndexes = dictOfMatches[studentIndex[user.username]]
-        for ind in listofMatchIndexes:
-            if ind in studentIndex.values():
-                newDict = {}
-                dfmajor = new_df.loc[ind, 'major']
-                dfinterests = new_df.loc[ind, 'areas_of_interest']
-                dfskills = new_df.loc[ind, 'technical_skills']
-                newDict['matchID'] = list(studentIndex.keys())[ind]
-                newDict['major'] = dfmajor
-                newDict['interests'] = dfinterests
-                newDict['skills'] = dfskills
-                response.data['ActualUsers'].append(newDict)
-            else:
-                dfmajor = new_df.loc[ind, 'major']
-                dfinterests = new_df.loc[ind, 'areas_of_interest']
-                dfskills = new_df.loc[ind, 'technical_skills']
-                newDict = {}
-                newDict['matchID'] = ind
-                newDict['major'] = dfmajor
-                newDict['interests'] = dfinterests
-                newDict['skills'] = dfskills
-                response.data['generatedUsers'].append(newDict)
+        for groupID in dictOfMatches:
+            listofMatchIndexes = dictOfMatches[groupID]
+            if studentIndex[user.username] in listofMatchIndexes:
+                for ind in listofMatchIndexes:
+                    if ind in studentIndex.values() and ind != studentIndex[user.username]:
+                        newDict = {}
+                        dfmajor = new_df.loc[ind, 'major']
+                        dfinterests = new_df.loc[ind, 'areas_of_interest']
+                        dfskills = new_df.loc[ind, 'technical_skills']
+                        newDict['matchID'] = list(studentIndex.keys())[ind]
+                        newDict['major'] = dfmajor
+                        newDict['interests'] = dfinterests
+                        newDict['skills'] = dfskills
+                        response.data['ActualUsers'].append(newDict)
+                    elif (ind != studentIndex[user.username]):
+                        dfmajor = new_df.loc[ind, 'major']
+                        dfinterests = new_df.loc[ind, 'areas_of_interest']
+                        dfskills = new_df.loc[ind, 'technical_skills']
+                        newDict = {}
+                        newDict['matchID'] = ind
+                        newDict['major'] = dfmajor
+                        newDict['interests'] = dfinterests
+                        newDict['skills'] = dfskills
+                        response.data['generatedUsers'].append(newDict)
 
         return response
     else:
