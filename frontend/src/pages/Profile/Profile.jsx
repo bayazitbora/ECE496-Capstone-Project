@@ -13,7 +13,7 @@ function Profile() {
         </h1>
         <div style={{ marginBottom: "20px" }}>
           <p>
-            <strong>Role:</strong> {userProfile.role}
+            <strong>Role:</strong> {userProfile.teacher ? "Instructor" : "Student"}
           </p>
           <p>
             <strong>Username:</strong> {userProfile.username}

@@ -61,6 +61,27 @@ export const loginUser = async (credentials) => {
   }
 };
 
+export const refreshToken = async (refreshToken) => {
+  try {
+    const response = await fetch("http://localhost:8000/api/token/refresh/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to refresh token");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    throw error;
+  }
+};
 
 export const getUser = async ({ requested_user }, token) => {
   const url = "http://localhost:8000/api/getUser/";

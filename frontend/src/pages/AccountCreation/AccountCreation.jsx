@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AccountCreation.module.css";
-import { registerUser, loginUser, getSelf } from "../../api/api";
+import { registerUser, loginUser, getSelf, refreshToken } from "../../api/api";
 
 import ProgressBar from "../../components/AccountCreation/ProgressBar";
 import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
@@ -51,10 +51,29 @@ function AccountCreation() {
         password: signUpState.password,
       });
 
+      if (!loginData.access) {
+        throw new Error("Failed to receive access token");
+      }
+
       setToken(loginData.access);
-      const userData = await getSelf({ username: signUpState.username }, token);
+      let userData;
+      try {
+        userData = await getSelf({ username: signUpState.username }, loginData.access);
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          const newToken = await refreshToken(loginData.refresh);
+          if (!newToken.access) {
+            throw new Error("Failed to refresh access token");
+          }
+          setToken(newToken.access);
+          userData = await getSelf({ username: signUpState.username }, newToken.access);
+        } else {
+          throw error;
+        }
+      }
+
       setFormData({
-        role: userData.teacher ? "instructor" : "student",
+        role: userData.role,
         first_name: userData.first_name,
         last_name: userData.last_name,
         username: userData.username,
@@ -66,7 +85,7 @@ function AccountCreation() {
       });
       console.log("User data:", userData);
 
-      navigate("/profile");
+      navigate("/profile"); // Ensure navigation happens after setting user data
     } catch (error) {
       console.error("Registration failed:", error);
     }
