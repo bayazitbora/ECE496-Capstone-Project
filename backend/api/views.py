@@ -16,6 +16,14 @@ from .models import Course, MyUser
 
 from .serializers import UserSerializer, ProfileSerializer, MinorSerializer
 
+import pandas as pd
+
+from .algorithm.algorithm import cluster_and_match_students
+
+#temp
+import numpy as np
+import random
+
 @api_view(['GET'])
 def getStatus(request):
     return HttpResponse(1)
@@ -54,34 +62,99 @@ def getRoutes(request):
 
 #Protected Endpoints----------------------------
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def matchTeams(request):
     user = get_user_model().objects.get(username=request.user.username)
     if 'courseCode' in request.data:
         students = MyUser.objects.filter(is_teacher=False)
-        print(students)
-        #filtered = students.values('username','email', 'first_name','last_name','programOfStudy','minors','GPA')
+        #------------------------
+        listOfDictOfStudentInfo = []
+        studentIndex = {}
+        i = 0
+        for currUser in students:
+            if (currUser.profile.filter(courseCode=request.data['courseCode'])):
+                dictOfStudentInfo = {}
+                studentIndex[currUser.username] = i
+                #MyUser Info-------
+                #UNCOMMENT to add username to dataframe
+                # dictOfStudentInfo['username'] = currUser.username
+                dictOfStudentInfo['GPA'] = currUser.GPA
+                dictOfStudentInfo['major'] = currUser.programOfStudy
+                
+                #COMMENT after deciding how to handle courses taken
+                dictOfStudentInfo['courses_taken'] = []
+                dictOfStudentInfo['courses_taken'].append(request.data['courseCode'])
+
+                #UNCOMMENT for list of minors in dataframe
+                # dictOfStudentInfo['minors'] = []
+                # currUserMinors = currUser.minors.all()
+                # for minor in currUserMinors:
+                #     dictOfStudentInfo['minors'].append(minor.minor)
+                #COMMENT if doing the above
+                dictOfStudentInfo['minor'] = currUser.minors.all()[0].minor
+
+                #Profile Info-------
+                profileToAdd = currUser.profile.filter(courseCode=request.data['courseCode'])
+                dictOfStudentInfo['meeting_freq'] = profileToAdd.get().hoursToCommit
+
+                dictOfStudentInfo['areas_of_interest'] = []
+                for interest in profileToAdd.get().interests.all():
+                    dictOfStudentInfo['areas_of_interest'].append(interest.interest)
+                
+                dictOfStudentInfo['technical_skills'] = []
+                for skill in profileToAdd.get().skills.all():
+                    dictOfStudentInfo['technical_skills'].append(skill.skill)
+                listOfDictOfStudentInfo.append(dictOfStudentInfo) 
+                i = i + 1   
+        #--------------------------    
+        print(studentIndex)
+        df = pd.DataFrame(listOfDictOfStudentInfo)
+        #print(df)
+        df2 = generate_students(10) #generate random 10 students
+        new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
+        print(new_df)
+        dictOfMatches = cluster_and_match_students(new_df, 3) #call algorithm
+        print("Matches: ", dictOfMatches)
         
-        # for entry in filtered:
-        #     currUser = get_user_model().objects.get(entry['username'])
-        #     profile = currUser.profiles.filter(request.data['courseCode'])
-        #     print(profile)
-        #     print(currUser)
-        # print(filtered)
+        response = Response({
+            "user": user.username,
+            "ActualUsers": [],
+            "generatedUsers": []
 
-        #df = pd.DataFrame(filtered)
+        },
+        status=status.HTTP_200_OK)
+        
+        for groupID in dictOfMatches:
+            listofMatchIndexes = dictOfMatches[groupID]
+            if studentIndex[user.username] in listofMatchIndexes:
+                for ind in listofMatchIndexes:
+                    if ind in studentIndex.values() and ind != studentIndex[user.username]:
+                        newDict = {}
+                        dfmajor = new_df.loc[ind, 'major']
+                        dfinterests = new_df.loc[ind, 'areas_of_interest']
+                        dfskills = new_df.loc[ind, 'technical_skills']
+                        newDict['matchID'] = list(studentIndex.keys())[ind]
+                        newDict['major'] = dfmajor
+                        newDict['interests'] = dfinterests
+                        newDict['skills'] = dfskills
+                        response.data['ActualUsers'].append(newDict)
+                    elif (ind != studentIndex[user.username]):
+                        dfmajor = new_df.loc[ind, 'major']
+                        dfinterests = new_df.loc[ind, 'areas_of_interest']
+                        dfskills = new_df.loc[ind, 'technical_skills']
+                        newDict = {}
+                        newDict['matchID'] = ind
+                        newDict['major'] = dfmajor
+                        newDict['interests'] = dfinterests
+                        newDict['skills'] = dfskills
+                        response.data['generatedUsers'].append(newDict)
 
-        return Response({
-        "user": user.username,
-        "message": "Matched User!"
-        }, status=status.HTTP_200_OK)
+        return response
     else:
          return Response({
         "user": user.username,
         "message": "Missing courseCode in request."
     }, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 @api_view(['POST'])
@@ -270,3 +343,29 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+
+#cant import algo_test so copying these here
+def generate_random_student():
+    major_categories = ['Computer Science', 'Electrical Engineering', 'Mechanical Engineering', 'Computer Engineering', 'Industrial Engineering']
+    minor_categories = ['Math', 'Physics', 'Chem', 'Econ', 'Business', 'None']
+    courses_categories = ["Electric and Magnetic Fields", "Fields and Waves", "Dynamics", "Communication Systems", "Electric Drives", "Computer Systems Programming", "Physiological Control Systems", "Sensory Communication", "Introduction to Electronic Devices", "Mechanics"]
+    interests_categories = ['AI', 'ML', 'Robotics', 'Circuits', 'Signal Processing', 'Thermodynamics', 'Fluid Mechanics']
+    skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'AutoCAD']
+    # Generate random GPA
+    gpa = np.clip(np.random.normal(3, 1), 0, 4)  # Normal distribution centered at 3.0, clipped to [0, 4]
+    meeting_freq = random.randint(1, 15) 
+    return {
+        'GPA': round(gpa, 2),
+        'major': random.choice(major_categories),
+        'minor': random.choice(minor_categories),
+        'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
+        'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
+        'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
+        #'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        'meeting_freq': meeting_freq # change according to questionnaire
+    }
+
+def generate_students(n):
+    return pd.DataFrame([generate_random_student() for _ in range(n)])
