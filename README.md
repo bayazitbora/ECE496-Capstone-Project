@@ -9,29 +9,30 @@ To connect to the backend on your browser you can either:
 ## Set up
 1. install python
 2. install python virtual environments using
-    - C:\\...\\Capstone> `pip install virtualenv`
+    - C:\\...\\Backend> `pip install virtualenv`
 3. Create the virtual environment using:
-    - C:\\...\\Capstone> `python -m venv venv`
-    - Ensure the `venv` folder was created in the `Capstone` project folder
-4. Install Django: https://docs.djangoproject.com/en/5.1/howto/windows/
+    - C:\\...\\Backend> `python -m venv venv`
+    - Ensure the `venv` folder was created in the project folder
+4. Start the virtual environment: 
+    Run:\
+    C:\\...\\Backend> `./venv/scripts/activate`\
+5. Install Django: https://docs.djangoproject.com/en/5.1/howto/windows/
 
-5. if you are developing on the backend you will also need to install the package requirements from requirements.txt
-    - C:\\...\\Capstone> `pip install -r requirements.txt`
+6. if you are developing on the backend you will also need to install the package requirements from requirements.txt
+    - C:\\...\\Backend> `pip install -r requirements.txt`
     - You can also run (Windows only) `./runserver.bat` which installs packages as well.
-6. You will need to set up secret keys in /TeamBuilder/Settings.py (Do not push these keys to github) .\
+7. You will need to set up secret keys in /TeamBuilder/Settings.py (Do not push these keys to github) .\
     Change: `"SIGNING_KEY": os.environ["SECRET_KEY"]` to `"SIGNING_KEY": "ARandomSecretKey"`\
     Change: `SECRET_KEY = os.environ["SECRET_KEY"]` to `SECRET_KEY = "ARandomSecretKey"`
 
-7. To make the database you need to run:\
+8. To make the database you need to run:\
     Run:\
-    C:\\...\\Capstone> `./venv/scripts/activate`\
+    C:\\...\\Backend> `python /TeamBuilder/manage.py makemigrations`\
     Then:\
-    C:\\...\\Capstone> `python /TeamBuilder/manage.py makemigrations`\
-    Then:\
-    C:\\...\\Capstone> `python /TeamBuilder/manage.py migrate`
-8. Create a super user (admin user) so you can login to the admin site and view the database.\
+    C:\\...\\Backend> `python /TeamBuilder/manage.py migrate`
+9. Create a super user (admin user) so you can login to the admin site and view the database.\
     Type and fill in the prompts:\
-    C:\\...\\Capstone> `python /TeamBuilder/manage.py createsuperuser`
+    C:\\...\\Backend> `python /TeamBuilder/manage.py createsuperuser`
 
 ## Starting the development Server
 1. install python and python virtual environments if not already installed.
@@ -39,27 +40,27 @@ To connect to the backend on your browser you can either:
     -   This will launch the virtual environment, install packages, and then run the Django server on port 8000
 
 Type:\
-C:\\...\\Capstone> `.\runserver.bat`\
+C:\\...\\Backend> `.\runserver.bat`\
 or\
 Run:\
-C:\\...\\Capstone> `./venv/scripts/activate` \
+C:\\...\\Backend> `./venv/scripts/activate` \
     Then:\
-C:\\...\\Capstone> `pip install -r requirements.txt`\
+C:\\...\\Backend> `pip install -r requirements.txt`\
     Then the start command:\
-C:\\...\\Capstone> `python /TeamBuilder/manage.py runserver`
+C:\\...\\Backend> `python /TeamBuilder/manage.py runserver`
 
 ## Virtual Environments
 [!WARNING]\
 It is important when working in the backend to always install python packages in the virtual environment.
 
 To activate the virtual environment, type:\
-C:\\...\\Capstone> `./venv/scripts/activate`
+C:\\...\\Backend> `./venv/scripts/activate`
 
 To update the included packages in the git repo run the following **in the virtual environment**:\
-(venv) PS C:\\...\\Capstone> `pip freeze > requirements.txt`
+(venv) PS C:\\...\\Backend> `pip freeze > requirements.txt`
 
 To deactivate the virtual environment type:\
-(venv) PS C:\\...\\Capstone> `deactivate`
+(venv) PS C:\\...\\Backend> `deactivate`
 
 ## Accessing the admin site
 In the admin site you can view all models in the database, as well as any objects created.
@@ -77,9 +78,9 @@ To connect to the frontend on your browser you can
 
 ### Frontend set Up
 
-1. Install Python and clone this repository
-2. go into the "ECE496" folder using
-   `cd ECE496`
+1. Install Node.js and clone this repository
+2. go into the "frontend" folder using
+   `cd frontend`
 3. download the latest packages for the frontend automatically using
    `npm install`
 

@@ -1,44 +1,58 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, getSelf } from "../../api/api";
 import { Container, Button, Form, FormGroup, Input } from "reactstrap";
 import "./LogIn.module.css";
-import Cookies from "js-cookie";
 import { SignUpContext } from "../../context/SignUpContext";
+import { useAuth } from "../../context/AuthContext";
 
 function LogIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { setFormData } = useContext(SignUpContext);
+  const { token, setToken } = useAuth();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const data = await loginUser({ username, password });
-      Cookies.set("refresh", data.refresh, { path: '/' });
-      Cookies.set("access", data.access, { path: '/' });
-
-      const userData = await getSelf({ username });
-      setFormData({
-        role: userData.teacher ? "instructor" : "student",
-        first_name: userData.first_name,
-        last_name: userData.last_name,
-        username: userData.username,
-        email: userData.email,
-        pos: userData.pos,
-        grad_year: userData.grad_year,
-        minors: userData.minors,
-        gpa: userData.GPA,
-      });
-      console.log("User data:", userData);  
-
-      navigate("/profile");
+      console.log("Login successful, token received:", data.access);
+      setToken(data.access);
+      setIsLoggedIn(true);
     } catch (error) {
       console.error("Login failed:", error);
     }
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (isLoggedIn && token) {
+        try {
+          const userData = await getSelf({ username }, token);
+          console.log("Fetched user data:", userData);
+          setFormData({
+            role: userData.teacher ? "instructor" : "student",
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            username: userData.username,
+            email: userData.email,
+            pos: userData.pos,
+            grad_year: userData.grad_year,
+            minors: userData.minors,
+            gpa: userData.GPA,
+          });
+          navigate("/profile");
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [isLoggedIn, token, username, setFormData, navigate]);
 
   return (
     <Container>

@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import {Container} from "reactstrap";
+import { Container } from "reactstrap";
 import initFontAwesome from "./utils/initFontAwesome";
 import 'bootstrap/dist/css/bootstrap.min.css';
 initFontAwesome();
@@ -15,30 +15,47 @@ import Settings from "./pages/Settings";
 import Course from "./pages/Course";
 import { SignUpProvider } from "./context/SignUpContext";
 import { FormProvider } from "./context/FormContext";
+import { useAuth, AuthProvider } from "./context/AuthContext";
 
-const router = createBrowserRouter([
-  { path: "/", element: <Start /> },
-  { path: "/sign-up", element: <AccountCreation /> },
-  { path: "/log-in", element: <LogIn /> },
-  { path: "/profile", element: <Profile /> },
-  { path: "/courses", element: <Courses /> },
-  { path: "/contacts", element: <Contacts /> },
-  { path: "/settings", element: <Settings /> },
-  { path: "/course/:courseCode", element: <Course /> },
-  { path: "*", element: <h1>Not Found</h1> },
-]);
+const Routes = () => {
+  const { token } = useAuth();
+
+  const publicRoutes = [
+    { path: "/", element: <Start /> },
+    { path: "/sign-up", element: <AccountCreation /> },
+    { path: "/log-in", element: <LogIn /> },
+    { path: "*", element: <h2>Please Sign Up/In to access this page</h2> },
+  ];
+
+  const privateRoutes = [
+    { path: "/profile", element: <Profile /> },
+    { path: "/courses", element: <Courses /> },
+    { path: "/contacts", element: <Contacts /> },
+    { path: "/settings", element: <Settings /> },
+    { path: "/course/:courseCode", element: <Course /> },
+  ];
+
+  const router = createBrowserRouter([
+    ...publicRoutes,
+    ...(token ? privateRoutes : []),
+  ]);
+
+  return <RouterProvider router={router} />;
+};
 
 function App() {
   return (
     <main style={{ height: "100vh", width: "100vw", margin: 0 }}>
-      <SignUpProvider>
-        <FormProvider>
-          <Navbar />
-          <Container>
-          <RouterProvider router={router} />
-          </Container>
-        </FormProvider>
-      </SignUpProvider>
+      <AuthProvider>
+        <SignUpProvider>
+          <FormProvider>
+            <Navbar />
+            <Container>
+              <Routes />
+            </Container>
+          </FormProvider>
+        </SignUpProvider>
+      </AuthProvider>
     </main>
   );
 }

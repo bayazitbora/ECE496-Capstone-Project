@@ -247,12 +247,12 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
     model = KMeans()
 
     # Use KElbowVisualizer to find the optimal k
-    visualizer = KElbowVisualizer(model, k=(2, 12), metric='silhouette') 
-    visualizer.fit(dealbreakers)  
-    optimal_k = visualizer.elbow_value_ if visualizer.elbow_value_ is not None else 5
+    #visualizer = KElbowVisualizer(model, k=(2, 12), metric='silhouette') 
+    #visualizer.fit(dealbreakers)  
+    #optimal_k = visualizer.elbow_value_ if visualizer.elbow_value_ is not None else 5
 
     # Cluster the data using the optimal k
-    kmeans = KMeans(n_clusters=optimal_k).fit(dealbreakers)
+    kmeans = KMeans(n_clusters=6).fit(dealbreakers)
 
     # Label the dataframe
     data['cluster'] = kmeans.labels_
