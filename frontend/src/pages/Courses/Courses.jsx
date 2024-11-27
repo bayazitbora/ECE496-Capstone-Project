@@ -26,23 +26,19 @@ function Courses() {
   const totalSteps = 6;
 
   useEffect(() => {
-    if (initialProfiles && Object.keys(initialProfiles).length > 0) {
-      setProfiles(initialProfiles);
-    } else {
-      const fetchProfiles = async () => {
-        try {
-          const response = await getSelf({ username }, token);
-          setProfiles(response.profiles);
-          dispatch({ type: "SET_PROFILES", profiles: response.profiles });
-          console.log("User profiles:", response.profiles);
-        } catch (error) {
-          console.error("Error fetching profiles:", error);
-        }
-      };
+    const fetchProfiles = async () => {
+      try {
+        const response = await getSelf({ username });
+        setProfiles(response.profiles);
+        dispatch({ type: "SET_PROFILES", profiles: response.profiles });
+        console.log("User profiles:", response.profiles);
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      }
+    };
 
-      fetchProfiles();
-    }
-  }, [username, initialProfiles, dispatch]);
+    fetchProfiles();
+  }, [username, dispatch]);
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
@@ -67,6 +63,7 @@ function Courses() {
 
       const updatedProfiles = await getSelf({ username }, token);
       setProfiles(updatedProfiles.profiles);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.profiles });
       console.log("Updated profiles:", updatedProfiles.profiles);
 
       setFormState({
