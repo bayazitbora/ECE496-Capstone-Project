@@ -28,7 +28,7 @@ function Courses() {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await getSelf({ username });
+        const response = await getSelf({ username }, token);
         setProfiles(response.profiles);
         dispatch({ type: "SET_PROFILES", profiles: response.profiles });
         console.log("User profiles:", response.profiles);
