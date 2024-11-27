@@ -47,7 +47,6 @@ function AccountCreation() {
       console.log("User registered:", response);
 
       const loginData = await loginUser({
-        email: signUpState.email,
         username: signUpState.username,
         password: signUpState.password,
       });

@@ -7,7 +7,6 @@ import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
 
 function LogIn() {
-  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ function LogIn() {
     e.preventDefault();
 
     try {
-      const data = await loginUser({ email, username, password });
+      const data = await loginUser({ username, password });
       console.log("Login successful, token received:", data.access);
       setToken(data.access);
       setIsLoggedIn(true);
@@ -39,7 +38,7 @@ function LogIn() {
             first_name: userData.first_name,
             last_name: userData.last_name,
             username: userData.username,
-            email: email,
+            email: userData.email,
             pos: userData.pos,
             grad_year: userData.grad_year,
             minors: userData.minors,
@@ -53,7 +52,7 @@ function LogIn() {
     };
 
     fetchUserData();
-  }, [isLoggedIn, token, username, email, setFormData, navigate]);
+  }, [isLoggedIn, token, username, setFormData, navigate]);
 
   return (
     <Container>
@@ -67,16 +66,6 @@ function LogIn() {
       >
         <h2>Log In to your Account</h2>
         <Form onSubmit={(e) => handleSubmit(e)}>
-          <FormGroup>
-            <Input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </FormGroup>
           <FormGroup>
             <Input
               type="username"
