@@ -3,8 +3,10 @@ import { useContext, useEffect, useState } from "react";
 import { SignUpContext } from "../context/SignUpContext";
 import TeammateCard from "../components/Course/TeammateCard";
 import { getUser } from "../api/api";
+import { useAuth } from "../context/AuthContext";
 
 function Course(){
+    const { token } = useAuth();
     const { courseCode } = useParams();
     const { state: signUpState } = useContext(SignUpContext);
     const { profiles } = signUpState;
@@ -15,7 +17,7 @@ function Course(){
         // TODO: remove this and fetch team from backend later
         const sampleUsernames = ["user1", "user2", "user3", "test1111"];
         const fetchTeammates = async () => {
-            const users = await Promise.all(sampleUsernames.map(requested_user => getUser({ requested_user })));
+            const users = await Promise.all(sampleUsernames.map(requested_user => getUser({ requested_user }, token)));
             setTeammates(users);
             console.log("Teammates:", users);
         };
