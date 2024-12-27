@@ -1,88 +1,80 @@
+import axios from "axios";
+
 // API functions for the frontend
 
-// curl -X POST http://localhost:8000/api/register/ \
-//   -H "Content-Type: application/json" \
-//   -d '{"first_name": "Adrien", "last_name": "Mery", "username": "test12", "email": "test@example.com", "password": "password123", "pos": "ECE", "minors": "minor", "grad_year": "2025", "gpa": 3.0}'
-
+/**
+ * Registers a new user.
+ * @param {Object} formData - The registration data.
+ * @returns {Object} - The response data.
+ */
 export const registerUser = async (formData) => {
   const url = "http://localhost:8000/api/register/";
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
+    const response = await axios.post(url, formData, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to register user");
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 };
 
-
-// curl -X POST http://localhost:8000/api/token/ \
-//   -H "Content-Type: application/json" \
-//   -d '{
-//     "username": "guest",
-//     "email": "adrien.mery@mail.utoronto.ca",
-//     "password": "12345"
-//   }'
-
+/**
+ * Logs in a user.
+ * @param {Object} credentials - The login credentials.
+ * @returns {Object} - The response data.
+ */
 export const loginUser = async (credentials) => {
   const url = "http://localhost:8000/api/token/";
   try {
-    const response = await fetch(url, {
-      method: "POST",
+    const response = await axios.post(url, credentials, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(credentials),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error("Failed to log in", errorText);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 };
 
+/**
+ * Refreshes the authentication token.
+ * @param {string} refreshToken - The refresh token.
+ * @returns {Object} - The response data.
+ */
 export const refreshToken = async (refreshToken) => {
   try {
-    const response = await fetch("http://localhost:8000/api/token/refresh/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refresh: refreshToken }),
-    });
+    const response = await axios.post(
+      "http://localhost:8000/api/token/refresh/",
+      { refresh: refreshToken },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error("Failed to refresh token");
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error refreshing token:", error);
     throw error;
   }
 };
 
+/**
+ * Fetches user details.
+ * @param {Object} param0 - The requested user details.
+ * @param {string} token - The authentication token.
+ * @returns {Object} - The response data.
+ */
 export const getUser = async ({ requested_user }, token) => {
   const url = "http://localhost:8000/api/getUser/";
 
@@ -91,29 +83,30 @@ export const getUser = async ({ requested_user }, token) => {
   console.log("Username:", requested_user);
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ requested_user }),
-    });
+    const response = await axios.post(
+      url,
+      { requested_user },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Failed to fetch user details:", errorText);
-      throw new Error("Failed to fetch user details");
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 };
 
+/**
+ * Fetches self details.
+ * @param {Object} param0 - The username.
+ * @param {string} token - The authentication token.
+ * @returns {Object} - The response data.
+ */
 export const getSelf = async ({ username }, token) => {
   const url = "http://localhost:8000/api/getSelf/";
 
@@ -122,84 +115,76 @@ export const getSelf = async ({ username }, token) => {
   console.log("Username:", username);
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ username }),
-    });
+    const response = await axios.post(
+      url,
+      { username },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Failed to fetch self details:", errorText);
-      throw new Error("Failed to fetch self details");
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 };
 
+/**
+ * Creates or updates a user profile.
+ * @param {string} username - The username.
+ * @param {Object} formState - The profile data.
+ * @param {string} token - The authentication token.
+ * @returns {Object} - The response data.
+ */
 export const createProfile = async (username, formState, token) => {
   const url = "http://localhost:8000/api/updateProfile/";
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({
+    const response = await axios.post(
+      url,
+      {
         username,
         profile: formState,
-      }),
-    });
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error("Failed to create profile", errorText);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 };
 
-// // Get the routes
-// const getRoutes = async () => {
-//   try {
-//     const response = await fetch("http://localhost:8000/api/");
-//     if (!response.ok) {
-//       // Handle HTTP errors
-//       console.error(`Error: ${response.status} ${response.statusText}`);
-//       return;
-//     }
+/**
+ * Fetches the available routes.
+ */
+export const getRoutes = async () => {
+  try {
+    const response = await axios.get("http://localhost:8000/api/");
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error fetching routes:", error);
+  }
+};
 
-//     const data = await response.json();
-//     console.log(data);
-//   } catch (error) {
-//     console.error("Error fetching routes:", error);
-//   }
-// };
-
-// const getStatus = async () => {
-//   try {
-//     const response = await fetch("http://localhost:8000/api/getStatus/");
-//     const status = await response.text(); // Since this returns a number
-//     console.log("Status:", status);
-//   } catch (error) {
-//     console.error("Error fetching status:", error);
-//   }
-// };
-
-// getRoutes();
-// getStatus();
+/**
+ * Fetches the status.
+ */
+export const getStatus = async () => {
+  try {
+    const response = await axios.get("http://localhost:8000/api/getStatus/");
+    console.log("Status:", response.data);
+  } catch (error) {
+    console.error("Error fetching status:", error);
+  }
+};

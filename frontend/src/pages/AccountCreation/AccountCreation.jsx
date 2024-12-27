@@ -22,12 +22,12 @@ function AccountCreation() {
     minors: [], // array of minors
     gpa: 0.0, // 0-4
   });
-
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("form data:", signUpState);
+
     try {
       const response = await registerUser(signUpState);
       console.log("User registered:", response);
