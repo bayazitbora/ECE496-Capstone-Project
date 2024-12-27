@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import styles from "./AccountCreation.module.css";
 import { registerUser, loginUser, getSelf, refreshToken } from "../../api/api";
 
-import ProgressBar from "../../components/AccountCreation/ProgressBar";
-import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
+import AccountCreationForm from "../../components/AccountCreation/AccountCreationForm";
 import { SignUpContext } from "../../context/SignUpContext";
-import { useAuth } from "../../context/AuthContext"; 
+import { useAuth } from "../../context/AuthContext";
 
 function AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
-  const { token, setToken } = useAuth(); 
+  const { token, setToken } = useAuth();
   const [signUpState, setSignUpState] = useState({
     role: "", // student or instructor
     first_name: "",
@@ -25,19 +24,6 @@ function AccountCreation() {
   });
 
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 7;
-
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -58,7 +44,10 @@ function AccountCreation() {
       setToken(loginData.access);
       let userData;
       try {
-        userData = await getSelf({ username: signUpState.username }, loginData.access);
+        userData = await getSelf(
+          { username: signUpState.username },
+          loginData.access
+        );
       } catch (error) {
         if (error.response && error.response.status === 401) {
           const newToken = await refreshToken(loginData.refresh);
@@ -66,7 +55,10 @@ function AccountCreation() {
             throw new Error("Failed to refresh access token");
           }
           setToken(newToken.access);
-          userData = await getSelf({ username: signUpState.username }, newToken.access);
+          userData = await getSelf(
+            { username: signUpState.username },
+            newToken.access
+          );
         } else {
           throw error;
         }
@@ -85,10 +77,14 @@ function AccountCreation() {
       });
       console.log("User data:", userData);
 
-      navigate("/profile"); // Ensure navigation happens after setting user data
+      navigate("/profile");
     } catch (error) {
       console.error("Registration failed:", error);
     }
+  };
+
+  const handleCancel = () => {
+    navigate("/");
   };
 
   const handleSignUpInputChange = (event) => {
@@ -101,15 +97,11 @@ function AccountCreation() {
 
   return (
     <div className={styles.QuestionnaireContainer}>
-      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-      <QuestionTemplate
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        nextStep={nextStep}
-        prevStep={prevStep}
+      <AccountCreationForm
         signUpState={signUpState}
         handleSignUpInputChange={handleSignUpInputChange}
         handleSubmit={handleSubmit}
+        handleCancel={handleCancel}
       />
     </div>
   );
