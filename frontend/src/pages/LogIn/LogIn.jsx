@@ -11,7 +11,7 @@ function LogIn() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { setFormData } = useContext(SignUpContext);
-  const { token, setToken } = useAuth();
+  const { token, setToken, setRefreshToken } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -21,6 +21,7 @@ function LogIn() {
       const data = await loginUser({ username, password });
       console.log("Login successful, token received:", data.access);
       setToken(data.access);
+      setRefreshToken(data.refresh);
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Login failed:", error);
@@ -94,5 +95,3 @@ function LogIn() {
 }
 
 export default LogIn;
-
-
