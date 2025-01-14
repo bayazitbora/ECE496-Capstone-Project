@@ -1,8 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { refreshToken as fetchNewToken } from "../api/api";
+import { publicAxios } from "../api/api";
 
 const AuthContext = createContext();
 
+/**
+ * AuthProvider component provides authentication context to its children.
+ * It manages the authentication tokens and refreshes them periodically.
+ */
 export const AuthProvider = ({ children }) => {
   const [token, setToken_] = useState(localStorage.getItem("token"));
   const [refreshToken, setRefreshToken_] = useState(
@@ -17,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     setRefreshToken_(newRefreshToken);
   };
 
+  // Store token in localStorage
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
@@ -25,6 +30,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
+  // Store refresh token in localStorage
   useEffect(() => {
     if (refreshToken) {
       localStorage.setItem("refreshToken", refreshToken);
@@ -33,17 +39,15 @@ export const AuthProvider = ({ children }) => {
     }
   }, [refreshToken]);
 
+  // Refresh token periodically
   useEffect(() => {
-    // console.log(
-    //   "Effect triggered with token:",
-    //   token,
-    //   "and refreshToken:",
-    //   refreshToken
-    // );
     const interval = setInterval(async () => {
       if (token && refreshToken) {
         try {
-          const data = await fetchNewToken(refreshToken);
+          const response = await publicAxios.post("token/refresh/", {
+            refresh: refreshToken,
+          });
+          const data = response.data;
           setToken(data.access);
           setRefreshToken(data.refresh);
           console.log("Token has been refreshed successfully.");
@@ -71,6 +75,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+/**
+ * Custom hook to use the AuthContext.
+ * @returns {Object} - The authentication context value.
+ */
 export const useAuth = () => {
   return useContext(AuthContext);
 };
