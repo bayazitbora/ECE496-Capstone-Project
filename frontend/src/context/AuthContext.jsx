@@ -34,12 +34,12 @@ export const AuthProvider = ({ children }) => {
   }, [refreshToken]);
 
   useEffect(() => {
-    console.log(
-      "Effect triggered with token:",
-      token,
-      "and refreshToken:",
-      refreshToken
-    );
+    // console.log(
+    //   "Effect triggered with token:",
+    //   token,
+    //   "and refreshToken:",
+    //   refreshToken
+    // );
     const interval = setInterval(async () => {
       if (token && refreshToken) {
         try {
