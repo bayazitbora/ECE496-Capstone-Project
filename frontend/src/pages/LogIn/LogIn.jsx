@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { publicAxios, privateAxios, setPrivateAxiosToken } from "../../api/api";
-import { Container, Button, Form, FormGroup, Input } from "reactstrap";
+import { Container, Button, Form, FormGroup, Input, Alert } from "reactstrap";
 import "./LogIn.module.css";
 import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
@@ -17,6 +17,7 @@ function LogIn() {
   const { setFormData } = useContext(SignUpContext);
   const { token, setToken, setRefreshToken } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginError, setLoginError] = useState(""); // Add state for login error
 
   /**
    * Handles the form submission for login.
@@ -26,6 +27,16 @@ function LogIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check for empty fields
+    if (!username) {
+      setLoginError("Username field should not be empty.");
+      return;
+    }
+    if (!password) {
+      setLoginError("Password field should not be empty.");
+      return;
+    }
+
     try {
       const response = await publicAxios.post("token/", { username, password });
       const data = response.data;
@@ -33,8 +44,10 @@ function LogIn() {
       setToken(data.access);
       setRefreshToken(data.refresh);
       setIsLoggedIn(true);
+      setLoginError(""); // Clear any previous error
     } catch (error) {
       console.error("Login failed:", error);
+      setLoginError("Login failed. Please check your username and password."); // Set error message
     }
   };
 
@@ -81,6 +94,12 @@ function LogIn() {
         }}
       >
         <h2>Log In to your Account</h2>
+        {loginError && (
+          <Alert color="danger" fade={false}>
+            {loginError}
+          </Alert>
+        )}{" "}
+        {/* Display error message */}
         <Form onSubmit={(e) => handleSubmit(e)}>
           <FormGroup>
             <Input
