@@ -1,7 +1,7 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Container } from "reactstrap";
 import initFontAwesome from "./utils/initFontAwesome";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 initFontAwesome();
 
 import Navbar from "./components/Navbar/Navbar";
@@ -17,6 +17,10 @@ import { SignUpProvider } from "./context/SignUpContext";
 import { FormProvider } from "./context/FormContext";
 import { useAuth, AuthProvider } from "./context/AuthContext";
 
+/**
+ * Defines the routes for the application based on the user's authentication status.
+ * Public routes are accessible to all users, while private routes are only accessible to authenticated users.
+ */
 const Routes = () => {
   const { token } = useAuth();
 
@@ -43,6 +47,9 @@ const Routes = () => {
   return <RouterProvider router={router} />;
 };
 
+/**
+ * The main App component that wraps the application with necessary providers and renders the Navbar and Routes.
+ */
 function App() {
   return (
     <main style={{ height: "100vh", width: "100vw", margin: 0 }}>

@@ -1,7 +1,27 @@
 import axios from "axios";
 
-// API functions for the frontend
+// Public axios instance
+export const publicAxios = axios.create({
+  baseURL: "http://localhost:8000/api/",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
+// Private axios instance
+export const privateAxios = axios.create({
+  baseURL: "http://localhost:8000/api/",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Function to set the token for private axios instance
+export const setPrivateAxiosToken = (token) => {
+  privateAxios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+};
+
+// API functions for the frontend
 /**
  * Registers a new user.
  * @param {Object} formData - The registration data.
@@ -11,12 +31,7 @@ export const registerUser = async (formData) => {
   const url = "http://localhost:8000/api/register/";
 
   try {
-    const response = await axios.post(url, formData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
+    const response = await publicAxios.post(url, formData);
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -32,12 +47,7 @@ export const registerUser = async (formData) => {
 export const loginUser = async (credentials) => {
   const url = "http://localhost:8000/api/token/";
   try {
-    const response = await axios.post(url, credentials, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
+    const response = await publicAxios.post(url, credentials);
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -51,17 +61,9 @@ export const loginUser = async (credentials) => {
  * @returns {Object} - The response data.
  */
 export const refreshToken = async (refreshToken) => {
+  const url = "http://localhost:8000/api/token/refresh/";
   try {
-    const response = await axios.post(
-      "http://localhost:8000/api/token/refresh/",
-      { refresh: refreshToken },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
+    const response = await publicAxios.post(url, { refresh: refreshToken });
     return response.data;
   } catch (error) {
     console.error("Error refreshing token:", error);
@@ -82,18 +84,10 @@ export const getUser = async ({ requested_user }, token) => {
   console.log("Token:", token);
   console.log("Username:", requested_user);
 
-  try {
-    const response = await axios.post(
-      url,
-      { requested_user },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  setPrivateAxiosToken(token);
 
+  try {
+    const response = await privateAxios.post(url, { requested_user });
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -114,18 +108,10 @@ export const getSelf = async ({ username }, token) => {
   console.log("Token:", token);
   console.log("Username:", username);
 
-  try {
-    const response = await axios.post(
-      url,
-      { username },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  setPrivateAxiosToken(token);
 
+  try {
+    const response = await privateAxios.post(url, { username });
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -143,21 +129,13 @@ export const getSelf = async ({ username }, token) => {
 export const createProfile = async (username, formState, token) => {
   const url = "http://localhost:8000/api/updateProfile/";
 
-  try {
-    const response = await axios.post(
-      url,
-      {
-        username,
-        profile: formState,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  setPrivateAxiosToken(token);
 
+  try {
+    const response = await privateAxios.post(url, {
+      username,
+      profile: formState,
+    });
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -170,7 +148,7 @@ export const createProfile = async (username, formState, token) => {
  */
 export const getRoutes = async () => {
   try {
-    const response = await axios.get("http://localhost:8000/api/");
+    const response = await publicAxios.get("http://localhost:8000/api/");
     console.log(response.data);
   } catch (error) {
     console.error("Error fetching routes:", error);
@@ -182,7 +160,9 @@ export const getRoutes = async () => {
  */
 export const getStatus = async () => {
   try {
-    const response = await axios.get("http://localhost:8000/api/getStatus/");
+    const response = await publicAxios.get(
+      "http://localhost:8000/api/getStatus/"
+    );
     console.log("Status:", response.data);
   } catch (error) {
     console.error("Error fetching status:", error);

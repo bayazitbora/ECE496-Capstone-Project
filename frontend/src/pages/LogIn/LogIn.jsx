@@ -33,7 +33,6 @@ function LogIn() {
       if (isLoggedIn && token) {
         try {
           const userData = await getSelf({ username }, token);
-          console.log("Fetched user data:", userData);
           setFormData({
             role: userData.teacher ? "instructor" : "student",
             first_name: userData.first_name,
