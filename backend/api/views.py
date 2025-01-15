@@ -1,3 +1,5 @@
+import datetime as dt
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 
@@ -11,6 +13,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
+SCHEDULER = settings.SCHEDULER
 from django.contrib.auth import get_user_model
 from .models import Course, MyUser
 
@@ -54,9 +57,17 @@ def getRoutes(request):
 
 #Protected Endpoints----------------------------
 @api_view(['POST'])
-#@permission_classes([IsAuthenticated])
+def scheduleMatch(request):
+    now = dt.datetime.now() + dt.timedelta(minutes=1)
+    print(now)
+    SCHEDULER.add_job(job_test, "date", [request], run_date=now, name="test_job")
+    return Response({"message": "Matched Scheduled!"}, status=status.HTTP_200_OK)
+
+def job_test(request):
+    print("Test job!")
+
+@api_view(['POST'])
 def matchTeams(request):
-    user = get_user_model().objects.get(username=request.user.username)
     if 'courseCode' in request.data:
         students = MyUser.objects.filter(is_teacher=False)
         print(students)

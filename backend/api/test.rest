@@ -90,5 +90,13 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "courseCode": "ECE496"
+    "courseCode": "CIV220"
+}
+
+###
+POST http://127.0.0.1:8000/api/scheduleMatch/
+Content-Type: application/json
+
+{
+    "courseCode": "CIV220"
 }
