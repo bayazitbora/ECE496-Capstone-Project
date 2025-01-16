@@ -10,6 +10,7 @@ from sklearn.metrics import silhouette_score
 from yellowbrick.cluster import KElbowVisualizer
 import itertools
 from typing import List, Dict, Optional
+from sklearn.mixture import GaussianMixture
 
 # Load the spacy model
 nlp = spacy.load('en_core_web_lg')
@@ -93,73 +94,176 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
     def transform(self, X: List[List[str]]) -> np.ndarray:
         return self.mlb.transform(X)
 
-# TODO add exception cases
-# Changed the below method to form groups using Greedy approach based on the remaining attributes (preferred traits)
-def form_groups_greedy(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray) -> Dict[int, List[int]]:
-    groups_dict: Dict[int, List[int]] = {} #dict to store by group number ex: 0: [1,2,10]
-    groups_num: int = 0
+# #TDO add exception cases
+# # Changed the below method to form groups using Greedy approach based on the remaining attributes (preferred traits)
+# def form_groups_greedy(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray) -> Dict[int, List[int]]:
+#     groups_dict: Dict[int, List[int]] = {} #dict to store by group number ex: 0: [1,2,10]
+#     groups_num: int = 0
 
-    for cluster in data['cluster'].unique():  # iterate through clusters
-        cluster_data: pd.DataFrame = data[data['cluster'] == cluster]
-        remaining_indices: List[int] = list(cluster_data.index)
+#     for cluster in data['cluster'].unique():  # iterate through clusters
+#         cluster_data: pd.DataFrame = data[data['cluster'] == cluster]
+#         remaining_indices: List[int] = list(cluster_data.index)
         
-        similarity_array: List[List[float]] = []
-        for student1 in range(len(remaining_indices)):
-            for student2 in range(student1 + 1, len(remaining_indices)):
-                # compare the similarity of student embeddings
-                sim: float = np.linalg.norm(student_embeddings[remaining_indices[student1]] - student_embeddings[remaining_indices[student2]])
-                similarity_array.append([remaining_indices[student1], remaining_indices[student2], sim])  # collect all similarity scores in an array for each student
+#         similarity_array: List[List[float]] = []
+#         for student1 in range(len(remaining_indices)):
+#             for student2 in range(student1 + 1, len(remaining_indices)):
+#                 # compare the similarity of student embeddings
+#                 sim: float = np.linalg.norm(student_embeddings[remaining_indices[student1]] - student_embeddings[remaining_indices[student2]])
+#                 similarity_array.append([remaining_indices[student1], remaining_indices[student2], sim])  # collect all similarity scores in an array for each student
                 
-        sorted_sim_array: List[List[float]] = sorted(similarity_array, key=lambda x: x[2])  # array in ascending order according to score
+#         sorted_sim_array: List[List[float]] = sorted(similarity_array, key=lambda x: x[2])  # array in ascending order according to score
 
-        while len(remaining_indices) >= group_size:
-            group: List[int] = []
+#         while len(remaining_indices) >= group_size:
+#             group: List[int] = []
             
-            first: List[float] = sorted_sim_array[0]  # take lowest score (closest students)
-            group.extend(first[:2])  # put those two students in the group
-            # update indices, take out the 2 students just added.
-            remaining_indices.remove(first[0])
-            remaining_indices.remove(first[1])
-            sorted_sim_array.pop(0)  # remove that entry
+#             first: List[float] = sorted_sim_array[0]  # take lowest score (closest students)
+#             group.extend(first[:2])  # put those two students in the group
+#             # update indices, take out the 2 students just added.
+#             remaining_indices.remove(first[0])
+#             remaining_indices.remove(first[1])
+#             sorted_sim_array.pop(0)  # remove that entry
 
-            # when group not full (if group size is 2, do not enter the loop)
-            while len(group) < group_size:
+#             # when group not full (if group size is 2, do not enter the loop)
+#             while len(group) < group_size:
 
-                # Initialize
-                closest_student: Optional[int] = None
-                closest_student_dist: float = float('inf')
+#                 # Initialize
+#                 closest_student: Optional[int] = None
+#                 closest_student_dist: float = float('inf')
 
-                # calculate the average point of all student embeddings in the group
-                embedding_average: np.ndarray = np.mean(student_embeddings[group], axis=0)  # axis 0 for mean for all features across all students
+#                 # calculate the average point of all student embeddings in the group
+#                 embedding_average: np.ndarray = np.mean(student_embeddings[group], axis=0)  # axis 0 for mean for all features across all students
                 
-                for student in remaining_indices:
-                    # Euclidean distance between each student and the mean of embeddings already in the group
-                    distance: float = np.linalg.norm(student_embeddings[student] - embedding_average)
+#                 for student in remaining_indices:
+#                     # Euclidean distance between each student and the mean of embeddings already in the group
+#                     distance: float = np.linalg.norm(student_embeddings[student] - embedding_average)
                     
-                    # find the student with the smallest distance
-                    if distance < closest_student_dist:
-                        closest_student_dist = distance
-                        closest_student = student
+#                     # find the student with the smallest distance
+#                     if distance < closest_student_dist:
+#                         closest_student_dist = distance
+#                         closest_student = student
                 
-                # add closest student to the group and remove from indices
-                if closest_student is not None:
-                    group.append(closest_student)
-                    remaining_indices.remove(closest_student)
+#                 # add closest student to the group and remove from indices
+#                 if closest_student is not None:
+#                     group.append(closest_student)
+#                     remaining_indices.remove(closest_student)
 
-                # remove all the other entries containing the student pair you added to the group
-                sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
+#                 # remove all the other entries containing the student pair you added to the group
+#                 sorted_sim_array = [entry for entry in sorted_sim_array if entry[0] not in group and entry[1] not in group]
                 
-            for student in group:  # assigning group numbers to students
+#             for student in group:  # assigning group numbers to students
+#                 data.loc[student, 'group'] = groups_num
+
+#             groups_dict[groups_num] = group 
+
+#             groups_num += 1
+
+#         if remaining_indices:  # to deal with remaining students if can't fill the last group
+#             groups_dict[groups_num] = remaining_indices
+#             for student in remaining_indices:
+#                 data.loc[student, 'group'] = groups_num
+#             groups_num += 1
+
+#     return groups_dict
+
+
+#TODO need to add a way to stop the algo mid way and get student input for pairs!!!
+
+
+#mixture of gaussians according to highest prob of being in a cluster
+def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray)->Dict[int, List[int]]:
+    groups_dict: Dict[int, List[int]] = {}  # Dictionary to store by group number ex: 0: [1, 2, 10]
+    groups_num: int = 0  # Counter for group numbers
+    
+    gmm = GaussianMixture(n_components=data['cluster'].nunique(), random_state=42) #gmm to previous students embeddings
+    gmm_probs = gmm.fit_predict_proba(student_embeddings) #probabilities of each student belonging to each gmm cluster
+    data['gmm_probs'] = list(gmm_probs) #store prob
+
+    student_probabilities: List[Tuple[int, int, float]] = [] #student index, cluster index, probability
+    
+    #for each student find the most likely cluster
+    for student_idx in range(len(student_embeddings)):
+        most_likely_cluster_idx = np.argmax(gmm_probs[student_idx]) #cluster with max probability
+        most_likely_prob = gmm_probs[student_idx][most_likely_cluster_idx]
+        student_probabilities.append((student_idx, most_likely_cluster_idx, most_likely_prob))
+    
+    #sort students highest prob to lowest
+    student_probabilities.sort(key=lambda x: x[2], reverse=True)
+
+    #note unavailbale students
+    grouped_students: set = set()
+
+    #group assignments
+    while len(grouped_students)<len(student_embeddings):
+        group: List[int] = []
+        current_cluster = None
+        
+        for student_idx, cluster_idx, prob in student_probabilities:
+            if student_idx in grouped_students: #if not alredy in a group
+                continue
+            
+            if len(group) == 0: #if we are looking at the first student, set the cluster number to their most likely cluster
+                current_cluster = cluster_idx
+            
+            #students are added if they have the same high prob cluster as the current one and if there is space
+            if cluster_idx == current_cluster and len(group) < group_size:
+                group.append(student_idx)
+                grouped_students.add(student_idx)
+
+
+            #*** TODO
+            #check if a student from the selected pair was added to the group
+            #TODO should we take the len restriction out here??? and have an option to have 1 more person?
+
+            # if selected_pair:
+            #     #if the selected pair's first student is in the group add the second one if space 
+            #     if selected_pair[0] in group and selected_pair[1] not in grouped_students and len(group) < group_size:
+            #         group.append(selected_pair[1])
+            #         grouped_students.add(selected_pair[1])
+            #     #if the selected pair's second student is in the group add the first one if space
+            #     elif selected_pair[1] in group and selected_pair[0] not in grouped_students and len(group) < group_size:
+            #         group.append(selected_pair[0])
+            #         grouped_students.add(selected_pair[0])
+
+            #***
+            
+            if len(group) == group_size:
+                break
+        
+        #give group num and strore
+        for student in group: #note that this is looking at the current cluster which can be diff than the group number assigned
+            data.loc[student, 'group'] = groups_num
+        
+        groups_dict[groups_num] = group
+        groups_num += 1
+
+    #reamining studenrs
+    remaining_students = [student_idx for student_idx in range(len(student_embeddings)) if student_idx not in grouped_students]
+
+    if remaining_students:
+        #if only one student left put them in their most likely cluster's group
+        if len(remaining_students) == 1:
+            remaining_student_idx = remaining_students[0]
+            most_likely_cluster_idx = np.argmax(gmm_probs[remaining_student_idx])
+            
+            #find the group of the associated most likely cluster
+            best_group = None
+            for group_num, group in groups_dict.items():
+                group_clusters = [np.argmax(gmm_probs[student_idx]) for student_idx in group]
+                if most_likely_cluster_idx in group_clusters:
+                    best_group = group_num
+                    break
+            
+            if best_group is not None:
+                #add the remaining student to their most likely cluster's group
+                data.loc[remaining_student_idx, 'group'] = best_group
+                groups_dict[best_group].append(remaining_student_idx)
+        else:
+            #for the last group with remaining studenrs
+            #note: currently prioritizing having the best possible groups until the last group
+            for student in remaining_students:
                 data.loc[student, 'group'] = groups_num
-
-            groups_dict[groups_num] = group 
-
-            groups_num += 1
-
-        if remaining_indices:  # to deal with remaining students if can't fill the last group
-            groups_dict[groups_num] = remaining_indices
-            for student in remaining_indices:
-                data.loc[student, 'group'] = groups_num
+            
+            groups_dict[groups_num] = remaining_students
             groups_num += 1
 
     return groups_dict
