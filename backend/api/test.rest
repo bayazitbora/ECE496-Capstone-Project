@@ -12,15 +12,16 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
+    "username": "teacher",
     "password": "Thisisatest",
-    "email": "John.Doe@nothing.com",
-    "first_name": "John",
-    "last_name": "Doe",
-    "pos": "Computer Engineering",
-    "gpa": "3.8",
-    "grad_year": "2025",
-    "minors": ["AI"]
+    "email": "teacher@nothing.com",
+    "teacher": "True",
+    "first_name": "teach",
+    "last_name": "er",
+    "pos": "",
+    "gpa": "",
+    "grad_year": "",
+    "minors": []
 }
 
 ###
@@ -29,7 +30,7 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
+    "username": "teacher",
     "password": "Thisisatest"
 }
 
@@ -94,9 +95,24 @@ Authorization: Bearer {{jwtoken}}
 }
 
 ###
-POST http://127.0.0.1:8000/api/scheduleMatch/
+POST http://127.0.0.1:8000/api/createCourse/
 Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
 
 {
-    "courseCode": "CIV220"
+    "courseInfo": {
+        "courseCode": "ECE496",
+        "courseName": "Capstone"
+    }
+}
+
+###
+POST http://127.0.0.1:8000/api/scheduleMatch/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseInfo": {
+        "courseCode": "ECE496"
+    }
 }

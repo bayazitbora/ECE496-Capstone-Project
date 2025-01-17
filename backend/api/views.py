@@ -57,13 +57,63 @@ def getRoutes(request):
 
 #Protected Endpoints----------------------------
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def scheduleMatch(request):
-    now = dt.datetime.now() + dt.timedelta(minutes=1)
-    print(now)
-    SCHEDULER.add_job(job_test, "date", [request], run_date=now, name="test_job")
+    user = get_user_model().objects.get(username=request.user.username)
+    if not user.is_teacher:
+        return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions."
+                }, status=status.HTTP_403_FORBIDDEN)
+
+    if not 'courseInfo' in request.data:
+        if not 'courseCode' in request.data['courseInfo']:
+            return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course code not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    
+    courseCode = request.data['courseInfo']['courseCode']
+    course = Course.objects.filter(courseCode=courseCode)
+
+    if course.count() > 1:
+        return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Multiple Courses with the same Code exist"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    course = course[0] #select the first (and only) course in the list
+
+    #Check if the requesting user is a listed teacher of the requested course
+    userSet = course.teacher.filter(username=user.username)
+    if not userSet:
+         return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions to edit this course."
+                }, status=status.HTTP_403_FORBIDDEN)
+    
+    # #Check for date in JSON
+    # if not 'matchDate' in request.data['courseInfo']:
+    #         return Response(
+    #                 {
+    #                     "user": request.user.username,
+    #                     "message": "Matching Date not included"
+    #                 }, status=status.HTTP_400_BAD_REQUEST)
+
+    #checks done now make the job
+    jobID = courseCode + "_job"
+    matchDate = dt.datetime.now() + dt.timedelta(minutes=1)
+    print(matchDate)
+    SCHEDULER.add_job(job_test, "date", [request, course], run_date=matchDate, name=jobID)
+    course.add_job(jobID, matchDate)
+    
     return Response({"message": "Matched Scheduled!"}, status=status.HTTP_200_OK)
 
-def job_test(request):
+def job_test(request, course):
     print("Test job!")
 
 @api_view(['POST'])
@@ -91,8 +141,6 @@ def matchTeams(request):
         "user": user.username,
         "message": "Missing courseCode in request."
     }, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 @api_view(['POST'])
@@ -235,26 +283,36 @@ def updateProfile(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createCourse(request):
-    user = get_user_model().objects.get(username=request.user.username)
-    if not ('courseInfo' in request) or ('courseCode' in request):
-        if not request.data['courseInfo']['courseCode']:
-            return Response(
-                {
-                    "user": request.user.username,
-                    "message": "Course code not included"
-                }, status=status.HTTP_400_BAD_REQUEST)
-    
+    user = get_user_model().objects.get(username=request.user.username)    
     if (not user.is_teacher):
         return Response(
                 {
                     "user": request.user.username,
                     "message": "User does not have the required permissions."
-                }, status=status.HTTP_401_UNAUTHORIZED)
+                }, status=status.HTTP_403_FORBIDDEN)
+    
+    if not ('courseInfo' in request.data):
+        if not 'courseCode' in request.data['courseInfo']:
+            if not request.data['courseInfo']['courseCode']:
+                return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course code not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    
+    exists = Course.objects.filter(courseCode=request.data['courseInfo']['courseCode'], is_active=True)
+    if exists:
+         return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course Code Exists"
+                    }, status=status.HTTP_400_BAD_REQUEST)
     
     course = Course(courseCode=request.data['courseInfo']['courseCode'])
     course.is_active = True
-    course.update_course(request.data['courseInfo'], user)
+    course.update_course(request.data['courseInfo'])
     course.save()
+    course.add_teacher(user)
 
     return Response({
         "user": user.username,
