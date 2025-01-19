@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser, getSelf } from "../../api/api";
 import { Container, Button, Form, FormGroup, Input } from "reactstrap";
-import "./LogIn.module.css";
+import "./Login.module.css";
 import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
 
