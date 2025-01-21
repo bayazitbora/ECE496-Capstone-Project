@@ -1,16 +1,19 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AccountCreation.module.css";
-import { registerUser, loginUser, getSelf, refreshToken } from "../../api/api";
+import { publicAxios, privateAxios, setPrivateAxiosToken } from "../../api/api";
 
-import ProgressBar from "../../components/AccountCreation/ProgressBar";
-import QuestionTemplate from "../../components/AccountCreation/AccountCreationTemplate";
+import AccountCreationForm from "../../components/AccountCreation/AccountCreationForm";
 import { SignUpContext } from "../../context/SignUpContext";
-import { useAuth } from "../../context/AuthContext"; 
+import { useAuth } from "../../context/AuthContext";
 
+/**
+ * AccountCreation component handles user registration functionality.
+ * It sends registration data to the server, logs in the user, and fetches user data upon successful registration.
+ */
 function AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
-  const { token, setToken } = useAuth(); 
+  const { setToken } = useAuth();
   const [signUpState, setSignUpState] = useState({
     role: "", // student or instructor
     first_name: "",
@@ -18,59 +21,44 @@ function AccountCreation() {
     username: "",
     password: "",
     email: "",
-    pos: "", // prgm of study
-    grad_year: null, // expected grad year
+    pos: "", // program of study
+    grad_year: null, // expected graduation year
     minors: [], // array of minors
     gpa: 0.0, // 0-4
   });
-
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 7;
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
+  /**
+   * Handles the form submission for account creation.
+   * Sends the registration data to the server, logs in the user, and fetches user data.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("form data:", signUpState);
-    try {
-      const response = await registerUser(signUpState);
-      console.log("User registered:", response);
 
-      const loginData = await loginUser({
+    try {
+      // Register user
+      const registerResponse = await publicAxios.post("register/", signUpState);
+      console.log("User registered:", registerResponse.data);
+
+      // Log in user
+      const loginResponse = await publicAxios.post("token/", {
         username: signUpState.username,
         password: signUpState.password,
       });
-
+      const loginData = loginResponse.data;
       if (!loginData.access) {
         throw new Error("Failed to receive access token");
       }
-
       setToken(loginData.access);
-      let userData;
-      try {
-        userData = await getSelf({ username: signUpState.username }, loginData.access);
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          const newToken = await refreshToken(loginData.refresh);
-          if (!newToken.access) {
-            throw new Error("Failed to refresh access token");
-          }
-          setToken(newToken.access);
-          userData = await getSelf({ username: signUpState.username }, newToken.access);
-        } else {
-          throw error;
-        }
-      }
+      setPrivateAxiosToken(loginData.access);
+
+      // Fetch user data
+      const userResponse = await privateAxios.post("getSelf/", {
+        username: signUpState.username,
+      });
+      const userData = userResponse.data;
 
       setFormData({
         role: userData.role,
@@ -85,12 +73,35 @@ function AccountCreation() {
       });
       console.log("User data:", userData);
 
-      navigate("/profile"); // Ensure navigation happens after setting user data
+      // Navigate to profile after setting user data
+      navigate("/profile");
+      window.location.reload();
     } catch (error) {
-      console.error("Registration failed:", error);
+      if (error.response) {
+        if (error.response.status === 400) {
+          console.error("Registration failed:", error.response.data);
+        } else if (error.response.status === 401) {
+          console.error("Login failed:", error.response.data);
+        } else {
+          console.error("Fetching user data failed:", error.response.data);
+        }
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
     }
   };
 
+  /**
+   * Handles the cancel action and navigates to the home page.
+   */
+  const handleCancel = () => {
+    navigate("/");
+  };
+
+  /**
+   * Handles input changes for the sign-up form.
+   * @param {Event} event - The input change event.
+   */
   const handleSignUpInputChange = (event) => {
     const { name, value } = event.target;
     setSignUpState((prevState) => ({
@@ -101,15 +112,11 @@ function AccountCreation() {
 
   return (
     <div className={styles.QuestionnaireContainer}>
-      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-      <QuestionTemplate
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        nextStep={nextStep}
-        prevStep={prevStep}
+      <AccountCreationForm
         signUpState={signUpState}
         handleSignUpInputChange={handleSignUpInputChange}
         handleSubmit={handleSubmit}
+        handleCancel={handleCancel}
       />
     </div>
   );
