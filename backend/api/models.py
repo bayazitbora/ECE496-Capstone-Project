@@ -144,7 +144,7 @@ class Course(models.Model):
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')
     matchDate       = models.DateTimeField(null=True)
-    jobID           = models.CharField(max_length=100)
+    jobID           = models.CharField(max_length=256, null=True)
 
     def __str__ (self):
         return self.courseCode
@@ -156,7 +156,6 @@ class Course(models.Model):
         if 'courseName' in courseInfo:
             self.courseName = courseInfo['courseName']
 
-        
         if 'courseCode' in courseInfo:
             self.courseCode = courseInfo['courseCode']
     

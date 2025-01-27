@@ -12,16 +12,16 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "teacher",
-    "password": "Thisisatest",
-    "email": "teacher@nothing.com",
+    "username": "JoshLa.",
+    "password": "Thisisademo",
+    "email": "josh.lapointe@mail.utoronto.ca",
     "teacher": "True",
-    "first_name": "teach",
-    "last_name": "er",
-    "pos": "",
-    "gpa": "",
-    "grad_year": "",
-    "minors": []
+    "first_name": "Josh",
+    "last_name": "Lapointe",
+    "pos": "Computer Engineering",
+    "gpa": "4.0",
+    "grad_year": "2025",
+    "minors": ["None"]
 }
 
 ###
@@ -30,8 +30,8 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "teacher",
-    "password": "Thisisatest"
+    "username": "JoshLa.",
+    "password": "Thisisademo"
 }
 
 ###
@@ -43,12 +43,12 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "John.Doe@nothing.com",
+    "email": "josh.lapointe@mail.utoronto.ca",
     "profile": {
-        "courseCode": "CIV220",
+        "courseCode": "ECE496",
         "hoursToCommit": "9",
-        "interests": ["NoEcology", "Social Justice", "Swimming"],
-        "skills": ["C++", "Talking", "Programming"]
+        "interests": ["French", "Computers", "Cars"],
+        "skills": ["C++", "Python", "Programming"]
     }
 }
 ###
@@ -59,12 +59,13 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "first_name": "John",
-    "last_name": "Doette",
+    "first_name": "Josh",
+    "last_name": "LaPointe",
     "pos": "Software Engineering",
     "gpa": "4.0",
+    "teacher": "True",
     "grad_year": "2025",
-    "minors": ["AI", "AI 2"]
+    "minors": ["AI"]
 }
 
 ###
@@ -73,7 +74,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "email": "John.Doe@nothing.com"
+    "email": "josh.lapointe@mail.utoronto.ca"
 }
 
 ###
@@ -101,8 +102,8 @@ Authorization: Bearer {{jwtoken}}
 
 {
     "courseInfo": {
-        "courseCode": "ECE496",
-        "courseName": "Capstone"
+        "courseCode": "MIE200",
+        "courseName": "Dynamics"
     }
 }
 
@@ -113,6 +114,14 @@ Authorization: Bearer {{jwtoken}}
 
 {
     "courseInfo": {
-        "courseCode": "ECE496"
+        "courseCode": "MIE200",
+        "matchDate": "2025-01-28T04:24:58.-0500"
     }
+}
+###
+POST http://127.0.0.1:8000/api/listCourses/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
 }

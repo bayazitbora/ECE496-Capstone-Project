@@ -57,66 +57,6 @@ def getRoutes(request):
 
 #Protected Endpoints----------------------------
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def scheduleMatch(request):
-    user = get_user_model().objects.get(username=request.user.username)
-    if not user.is_teacher:
-        return Response(
-                {
-                    "user": request.user.username,
-                    "message": "User does not have the required permissions."
-                }, status=status.HTTP_403_FORBIDDEN)
-
-    if not 'courseInfo' in request.data:
-        if not 'courseCode' in request.data['courseInfo']:
-            return Response(
-                    {
-                        "user": request.user.username,
-                        "message": "Course code not included"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-    
-    courseCode = request.data['courseInfo']['courseCode']
-    course = Course.objects.filter(courseCode=courseCode)
-
-    if course.count() > 1:
-        return Response(
-                    {
-                        "user": request.user.username,
-                        "message": "Multiple Courses with the same Code exist"
-                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    course = course[0] #select the first (and only) course in the list
-
-    #Check if the requesting user is a listed teacher of the requested course
-    userSet = course.teacher.filter(username=user.username)
-    if not userSet:
-         return Response(
-                {
-                    "user": request.user.username,
-                    "message": "User does not have the required permissions to edit this course."
-                }, status=status.HTTP_403_FORBIDDEN)
-    
-    # #Check for date in JSON
-    # if not 'matchDate' in request.data['courseInfo']:
-    #         return Response(
-    #                 {
-    #                     "user": request.user.username,
-    #                     "message": "Matching Date not included"
-    #                 }, status=status.HTTP_400_BAD_REQUEST)
-
-    #checks done now make the job
-    jobID = courseCode + "_job"
-    matchDate = dt.datetime.now() + dt.timedelta(minutes=1)
-    print(matchDate)
-    SCHEDULER.add_job(job_test, "date", [request, course], run_date=matchDate, name=jobID)
-    course.add_job(jobID, matchDate)
-    
-    return Response({"message": "Matched Scheduled!"}, status=status.HTTP_200_OK)
-
-def job_test(request, course):
-    print("Test job!")
-
-@api_view(['POST'])
 def matchTeams(request):
     if 'courseCode' in request.data:
         students = MyUser.objects.filter(is_teacher=False)
@@ -325,6 +265,85 @@ def createCourse(request):
     }, status=status.HTTP_200_OK)
 
 #------------------------------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def listCourses(request):
+    courses = Course.objects.all()
+    response = Response({}, status=status.HTTP_200_OK)
+    for course in courses:
+        response.data[course.courseCode] = {}
+        response.data[course.courseCode]['courseCode'] = course.courseCode
+        response.data[course.courseCode]['courseName'] = course.courseName
+        response.data[course.courseCode]['isActive'] = course.is_active
+        # response.data[course.courseCode]['teacher'] = course.teacher.all()
+    return response
+#------------------------------------------------
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def scheduleMatch(request):
+    user = get_user_model().objects.get(username=request.user.username)
+    if not user.is_teacher:
+        return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions."
+                }, status=status.HTTP_403_FORBIDDEN)
+
+    if not 'courseInfo' in request.data:
+        if not 'courseCode' in request.data['courseInfo']:
+            return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course code not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    
+    courseCode = request.data['courseInfo']['courseCode']
+    course = Course.objects.filter(courseCode=courseCode)
+
+    if course.count() > 1:
+        return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Multiple Courses with the same Code exist"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    course = course[0] #select the first (and only) course in the list
+
+    #Check if the requesting user is a listed teacher of the requested course
+    userSet = course.teacher.filter(username=user.username)
+    if not userSet:
+         return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions to edit this course."
+                }, status=status.HTTP_403_FORBIDDEN)
+    
+    #Check for date in JSON
+    if not 'matchDate' in request.data['courseInfo']:
+            return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Matching Date not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+    matchDateString = request.data['courseInfo']['matchDate']
+    matchDate = dt.datetime.strptime(matchDateString, "%Y-%m-%dT%H:%M:%S.%z")#2025-01-26T04:13:58.UTC
+
+    #Check if job exists, and cancel it
+    if (SCHEDULER.get_job(course.jobID)):
+        SCHEDULER.remove_job(course.jobID)
+        print("Removed jobID: " + course.jobID + " from course: " + course.courseCode)
+
+    jobName = courseCode + "_job"
+    job = SCHEDULER.add_job(job_test, "date", [request, course], run_date=matchDate, name=jobName)
+    print(SCHEDULER.get_jobs())
+    course.add_job(job.id, matchDate)
+
+    return Response({"message": "Matched Scheduled!"}, status=status.HTTP_200_OK)
+
+def job_test(request, course):
+    print("Test job!")
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
