@@ -1,8 +1,8 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { publicAxios, privateAxios, setPrivateAxiosToken } from "../../api/api";
-import { Container, Button, Form, FormGroup, Input, Alert } from "reactstrap";
-import "./LogIn.module.css";
+import { Button, Form, FormGroup, Input, Alert } from "reactstrap";
+import styles from "./LogIn.module.css";
 import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -11,7 +11,7 @@ import { useAuth } from "../../context/AuthContext";
  * It sends login credentials to the server and fetches user data upon successful login.
  */
 function LogIn() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { setFormData } = useContext(SignUpContext);
@@ -28,14 +28,17 @@ function LogIn() {
     e.preventDefault();
 
     // Check for empty fields
-    if (!username) {
-      setLoginError("Username field should not be empty.");
+    if (!email) {
+      setLoginError("Email field should not be empty.");
       return;
     }
     if (!password) {
       setLoginError("Password field should not be empty.");
       return;
     }
+
+    // Extract username from email
+    const username = email.split("@")[0];
 
     try {
       const response = await publicAxios.post("token/", { username, password });
@@ -47,7 +50,7 @@ function LogIn() {
       setLoginError(""); // Clear any previous error
     } catch (error) {
       console.error("Login failed:", error);
-      setLoginError("Login failed. Please check your username and password."); // Set error message
+      setLoginError("Login failed. Please check your email and password."); // Set error message
     }
   };
 
@@ -60,7 +63,9 @@ function LogIn() {
       if (isLoggedIn && token) {
         setPrivateAxiosToken(token);
         try {
-          const response = await privateAxios.post("getSelf/", { username });
+          const response = await privateAxios.post("getSelf/", {
+            username: email.split("@")[0],
+          });
           const userData = response.data;
           setFormData({
             role: userData.teacher ? "instructor" : "student",
@@ -81,50 +86,40 @@ function LogIn() {
     };
 
     fetchUserData();
-  }, [isLoggedIn, token, username, setFormData, navigate]);
+  }, [isLoggedIn, token, email, setFormData, navigate]);
 
   return (
-    <Container>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <h2>Log In to your Account</h2>
-        {loginError && (
-          <Alert color="danger" fade={false}>
-            {loginError}
-          </Alert>
-        )}{" "}
-        {/* Display error message */}
-        <Form onSubmit={(e) => handleSubmit(e)}>
-          <FormGroup>
-            <Input
-              type="username"
-              name="username"
-              id="username"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </FormGroup>
-          <Button type="submit">Log In</Button>
-        </Form>
-      </div>
-    </Container>
+    <div className={styles.QuestionnaireContainer}>
+      <h2>Log In to your Account</h2>
+      {loginError && (
+        <Alert color="danger" fade={false}>
+          {loginError}
+        </Alert>
+      )}
+      <Form onSubmit={(e) => handleSubmit(e)}>
+        <FormGroup>
+          <Input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </FormGroup>
+        <Button type="submit">Log In</Button>
+      </Form>
+    </div>
   );
 }
 
