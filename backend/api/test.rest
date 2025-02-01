@@ -12,15 +12,16 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
-    "password": "Thisisatest",
-    "email": "John.Doe@nothing.com",
-    "first_name": "John",
-    "last_name": "Doe",
+    "username": "JoshLa.",
+    "password": "Thisisademo",
+    "email": "josh.lapointe@mail.utoronto.ca",
+    "teacher": "True",
+    "first_name": "Josh",
+    "last_name": "Lapointe",
     "pos": "Computer Engineering",
-    "gpa": "3.8",
+    "gpa": "4.0",
     "grad_year": "2025",
-    "minors": ["AI"]
+    "minors": ["None"]
 }
 
 ###
@@ -29,8 +30,8 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
-    "password": "Thisisatest"
+    "username": "JoshLa.",
+    "password": "Thisisademo"
 }
 
 ###
@@ -42,12 +43,12 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "John.Doe@nothing.com",
+    "email": "josh.lapointe@mail.utoronto.ca",
     "profile": {
-        "courseCode": "CIV220",
+        "courseCode": "ECE496",
         "hoursToCommit": "9",
-        "interests": ["NoEcology", "Social Justice", "Swimming"],
-        "skills": ["C++", "Talking", "Programming"]
+        "interests": ["French", "Computers", "Cars"],
+        "skills": ["C++", "Python", "Programming"]
     }
 }
 ###
@@ -58,12 +59,13 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "first_name": "John",
-    "last_name": "Doette",
+    "first_name": "Josh",
+    "last_name": "LaPointe",
     "pos": "Software Engineering",
     "gpa": "4.0",
+    "teacher": "True",
     "grad_year": "2025",
-    "minors": ["AI", "AI 2"]
+    "minors": ["AI"]
 }
 
 ###
@@ -72,7 +74,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "email": "John.Doe@nothing.com"
+    "email": "josh.lapointe@mail.utoronto.ca"
 }
 
 ###
@@ -90,5 +92,36 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "courseCode": "ECE496"
+    "courseCode": "CIV220"
+}
+
+###
+POST http://127.0.0.1:8000/api/createCourse/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseInfo": {
+        "courseCode": "MIE200",
+        "courseName": "Dynamics"
+    }
+}
+
+###
+POST http://127.0.0.1:8000/api/scheduleMatch/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseInfo": {
+        "courseCode": "MIE200",
+        "matchDate": "2025-01-28T04:24:58.-0500"
+    }
+}
+###
+POST http://127.0.0.1:8000/api/listCourses/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
 }

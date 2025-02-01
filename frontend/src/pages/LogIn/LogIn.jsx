@@ -1,38 +1,72 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, getSelf } from "../../api/api";
-import { Container, Button, Form, FormGroup, Input } from "reactstrap";
-import "./Login.module.css";
+import { publicAxios, privateAxios, setPrivateAxiosToken } from "../../api/api";
+import { Button, Form, FormGroup, Input, Alert } from "reactstrap";
+import styles from "./Login.module.css";
 import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
 
+/**
+ * LogIn component handles user login functionality.
+ * It sends login credentials to the server and fetches user data upon successful login.
+ */
 function LogIn() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { setFormData } = useContext(SignUpContext);
-  const { token, setToken } = useAuth();
+  const { token, setToken, setRefreshToken } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginError, setLoginError] = useState(""); // Add state for login error
 
+  /**
+   * Handles the form submission for login.
+   * Sends the login credentials to the server and sets the authentication tokens.
+   * @param {Event} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check for empty fields
+    if (!email) {
+      setLoginError("Email field should not be empty.");
+      return;
+    }
+    if (!password) {
+      setLoginError("Password field should not be empty.");
+      return;
+    }
+
+    // Extract username from email
+    const username = email.split("@")[0];
+
     try {
-      const data = await loginUser({ username, password });
+      const response = await publicAxios.post("token/", { username, password });
+      const data = response.data;
       console.log("Login successful, token received:", data.access);
       setToken(data.access);
+      setRefreshToken(data.refresh);
       setIsLoggedIn(true);
+      setLoginError(""); // Clear any previous error
     } catch (error) {
       console.error("Login failed:", error);
+      setLoginError("Login failed. Please check your email and password."); // Set error message
     }
   };
 
+  /**
+   * Fetches user data after successful login.
+   * Sets the user data in the context and navigates to the profile page.
+   */
   useEffect(() => {
     const fetchUserData = async () => {
       if (isLoggedIn && token) {
+        setPrivateAxiosToken(token);
         try {
-          const userData = await getSelf({ username }, token);
-          console.log("Fetched user data:", userData);
+          const response = await privateAxios.post("getSelf/", {
+            username: email.split("@")[0],
+          });
+          const userData = response.data;
           setFormData({
             role: userData.teacher ? "instructor" : "student",
             first_name: userData.first_name,
@@ -52,47 +86,41 @@ function LogIn() {
     };
 
     fetchUserData();
-  }, [isLoggedIn, token, username, setFormData, navigate]);
+  }, [isLoggedIn, token, email, setFormData, navigate]);
 
   return (
-    <Container>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <h2>Log In to your Account</h2>
-        <Form onSubmit={(e) => handleSubmit(e)}>
-          <FormGroup>
-            <Input
-              type="username"
-              name="username"
-              id="username"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </FormGroup>
-          <Button type="submit">Log In</Button>
-        </Form>
-      </div>
-    </Container>
+    <div className={styles.QuestionnaireContainer}>
+      <h2>Log In to your Account</h2>
+      {loginError && (
+        <Alert color="danger" fade={false}>
+          {loginError}
+        </Alert>
+      )}
+      <Form onSubmit={(e) => handleSubmit(e)}>
+        <FormGroup>
+          <Input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <Input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </FormGroup>
+        <Button type="submit">Log In</Button>
+      </Form>
+    </div>
   );
 }
 
 export default LogIn;
-
-

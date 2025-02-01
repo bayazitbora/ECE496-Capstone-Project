@@ -28,8 +28,20 @@ urlpatterns = [
     #createCourse: creates a course object, !!not impl fully!!
     path('createCourse/', views.createCourse, name="createCourse"),
 
+    #listCourses: lists all courses stored in the database
+    path('listCourses/', views.listCourses, name="listCourses"),
+
     #temporary url to match teams
     path('matchTeams/', views.matchTeams, name="matchTeams"),
+
+    #scheduleMatch: given a courseCode and datetime, it adds a thread to match students
+    #at a given time
+    #JSON FORMAT:
+    # "courseInfo": {
+    #     "courseCode": "MIE100",
+    #     "matchDate": "2025-01-28T04:24:58.-0500"
+    # }
+    path('scheduleMatch/', views.scheduleMatch, name="scheduleMatch"),
 
     #register: registers a user with a username and password
     path('register/', views.register_user, name='registerUser'),
