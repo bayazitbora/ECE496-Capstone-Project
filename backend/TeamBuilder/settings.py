@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+
+#initialzing the Job Scheduler for team matching at a specific time 
+SCHEDULER = BackgroundScheduler()
+SCHEDULER.start()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

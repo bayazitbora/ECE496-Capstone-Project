@@ -6,6 +6,7 @@ import { publicAxios, privateAxios, setPrivateAxiosToken } from "../../api/api";
 import AccountCreationForm from "../../components/AccountCreation/AccountCreationForm";
 import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
+import { Alert } from "reactstrap";
 
 /**
  * AccountCreation component handles user registration functionality.
@@ -20,12 +21,14 @@ function AccountCreation() {
     last_name: "",
     username: "",
     password: "",
+    confirmPassword: "",
     email: "",
     pos: "", // program of study
     grad_year: null, // expected graduation year
     minors: [], // array of minors
     gpa: 0.0, // 0-4
   });
+  const [alertMessage, setAlertMessage] = useState("");
   const navigate = useNavigate();
 
   /**
@@ -35,11 +38,42 @@ function AccountCreation() {
    */
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("form data:", signUpState);
+
+    // Check for empty fields
+    for (const [key, value] of Object.entries(signUpState)) {
+      if (
+        key !== "minors" &&
+        key !== "confirmPassword" &&
+        key !== "first_name" &&
+        !value
+      ) {
+        setAlertMessage(
+          `The ${key.replace("_", " ")} field should not be empty.`
+        );
+        return;
+      }
+    }
+
+    // Check if passwords match
+    if (signUpState.password !== signUpState.confirmPassword) {
+      setAlertMessage("Passwords do not match.");
+      return;
+    }
+
+    // Separate last_name into first_name and last_name
+    const nameParts = signUpState.last_name.trim().split(" ");
+    const first_name = nameParts[0];
+    const last_name = nameParts.slice(1).join(" ");
+    console.log("First name:", first_name);
+    console.log("Last name:", last_name);
 
     try {
       // Register user
-      const registerResponse = await publicAxios.post("register/", signUpState);
+      const registerResponse = await publicAxios.post("register/", {
+        ...signUpState,
+        first_name,
+        last_name,
+      });
       console.log("User registered:", registerResponse.data);
 
       // Log in user
@@ -77,6 +111,7 @@ function AccountCreation() {
       navigate("/profile");
       window.location.reload();
     } catch (error) {
+      setAlertMessage("Submission failed. Please try again.");
       if (error.response) {
         if (error.response.status === 400) {
           console.error("Registration failed:", error.response.data);
@@ -112,6 +147,11 @@ function AccountCreation() {
 
   return (
     <div className={styles.QuestionnaireContainer}>
+      {alertMessage && (
+        <Alert color="danger" fade={false}>
+          {alertMessage}
+        </Alert>
+      )}
       <AccountCreationForm
         signUpState={signUpState}
         handleSignUpInputChange={handleSignUpInputChange}
