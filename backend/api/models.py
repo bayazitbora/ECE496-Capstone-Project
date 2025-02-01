@@ -143,10 +143,23 @@ class Course(models.Model):
     courseName      = models.CharField(max_length=140, default="N/A")
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')
+    matchDate       = models.DateTimeField(null=True)
+    jobID           = models.CharField(max_length=256, null=True)
+
     def __str__ (self):
         return self.courseCode
     
-    def update_course(self, courseInfo, user):
+    def add_teacher(self, user):
         self.teacher.add(user)
-        self.courseName = courseInfo['courseName']
-        self.courseCode = courseInfo['courseCode']
+
+    def update_course(self, courseInfo):
+        if 'courseName' in courseInfo:
+            self.courseName = courseInfo['courseName']
+
+        if 'courseCode' in courseInfo:
+            self.courseCode = courseInfo['courseCode']
+    
+    def add_job(self, jobID, matchDate):
+        self.jobID = jobID
+        self.matchDate = matchDate
+        self.save()
