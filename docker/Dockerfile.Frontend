@@ -1,0 +1,14 @@
+FROM node:23.1.0
+
+WORKDIR /app/frontend
+
+COPY ./frontend/package*.json /app/frontend
+ENV PATH /app/frontend/node_modules/.bin:$PATH
+
+RUN cd /app/frontend && npm install 
+
+COPY ./frontend /app/frontend
+
+# ENV PORT=5173
+
+EXPOSE 5173

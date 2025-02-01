@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.Frontend
+    working_dir: /app/frontend
+    command: "npm run dev -- --host"
+    ports:
+      - "5173:5173"
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.Backend
+    working_dir: /app/
+    command: "python /app/backend/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
