@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { publicAxios, privateAxios, setPrivateAxiosToken } from "../../api/api";
 import { Button, Form, FormGroup, Input, Alert } from "reactstrap";
-import styles from "./LogIn.module.css";
+import styles from "./Login.module.css";
 import { SignUpContext } from "../../context/SignUpContext";
 import { useAuth } from "../../context/AuthContext";
 
