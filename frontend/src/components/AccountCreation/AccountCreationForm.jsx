@@ -1,4 +1,12 @@
-import { Button, Input, FormGroup, Label, Form, FormText } from "reactstrap";
+import {
+  Button,
+  Input,
+  FormGroup,
+  Label,
+  Form,
+  FormText,
+  ButtonGroup,
+} from "reactstrap";
 import styles from "./AccountCreationTemplate.module.css";
 
 function AccountCreationForm({
@@ -93,23 +101,24 @@ function AccountCreationForm({
       <div className={styles.questionContainer}>
         <div>
           <h2>Welcome! Are you a student or an instructor?</h2>
-          <div>
+          <ButtonGroup size="lg">
             <Button
-              color={signUpState.role === "Student" ? "primary" : "secondary"}
+              color="primary"
+              outline
               onClick={() => handleRoleSelection("Student")}
-              style={{ marginRight: "10px" }}
+              active={signUpState.role === "Student"}
             >
               Student
             </Button>
             <Button
-              color={
-                signUpState.role === "Instructor" ? "primary" : "secondary"
-              }
+              color="primary"
+              outline
               onClick={() => handleRoleSelection("Instructor")}
+              active={signUpState.role === "Instructor"}
             >
               Instructor
             </Button>
-          </div>
+          </ButtonGroup>
         </div>
         <div>
           <h2>Create your account</h2>
