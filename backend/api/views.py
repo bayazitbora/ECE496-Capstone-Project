@@ -343,8 +343,52 @@ def scheduleMatch(request):
     return Response({"message": "Matched Scheduled!"}, status=status.HTTP_200_OK)
 
 def job_test(request, course):
-    print("Test job!")
+    if 'courseCode' in request.data['courseInfo']:
+        students = MyUser.objects.filter(is_teacher=False)
+        listOfDictOfStudentInfo = []
+        studentIndex = {}
+        i = 0
+        for currUser in students:
+            if(currUser.profile.filter(courseCode=request.data['courseInfo']['courseCode'])):
+                dictOfStudentInfo = {}
+                studentIndex[currUser.username] = i
+                #MyUser Info-------
+                #UNCOMMENT to add username to dataframe
+                # dictOfStudentInfo['username'] = currUser.username
+                dictOfStudentInfo['GPA'] = currUser.GPA
+                dictOfStudentInfo['major'] = currUser.programOfStudy
+                
+                #COMMENT after deciding how to handle courses taken
+                dictOfStudentInfo['courses_taken'] = []
+                dictOfStudentInfo['courses_taken'].append(request.data['courseInfo']['courseCode'])
 
+                #UNCOMMENT for list of minors in dataframe
+                # dictOfStudentInfo['minors'] = []
+                # currUserMinors = currUser.minors.all()
+                # for minor in currUserMinors:
+                #     dictOfStudentInfo['minors'].append(minor.minor)
+                #COMMENT if doing the above
+                dictOfStudentInfo['minor'] = currUser.minors.all()[0].minor
+
+                #Profile Info-------
+                profileToAdd = currUser.profile.filter(courseCode=request.data['courseInfo']['courseCode'])
+                dictOfStudentInfo['meeting_freq'] = profileToAdd.get().hoursToCommit
+
+                dictOfStudentInfo['areas_of_interest'] = []
+                for interest in profileToAdd.get().interests.all():
+                    dictOfStudentInfo['areas_of_interest'].append(interest.interest)
+                
+                dictOfStudentInfo['technical_skills'] = []
+                for skill in profileToAdd.get().skills.all():
+                    dictOfStudentInfo['technical_skills'].append(skill.skill)
+                listOfDictOfStudentInfo.append(dictOfStudentInfo) 
+                i = i + 1
+        print(dictOfStudentInfo)
+        #df = pd.DataFrame(listOfDictOfStudentInfo)
+        #df2 = generate_students(10) #generate random 10 students
+        #new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
+        #dictOfMatches = cluster_and_match_students(new_df, 3) 
+        
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
