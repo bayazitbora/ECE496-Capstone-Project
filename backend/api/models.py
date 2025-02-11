@@ -42,6 +42,7 @@ class Profile(models.Model):
     interests       = models.ManyToManyField(Interest, blank=True)
     skills          = models.ManyToManyField(Skill, blank=True)
     hoursToCommit   = models.IntegerField(default=0)
+    matchedUsers    = models.ManyToManyField(User, related_name='matchedUsers')
 
     #not implemented
     availableTimes  = models.ManyToManyField(AvailableTimes)
