@@ -31,9 +31,6 @@ urlpatterns = [
     #listCourses: lists all courses stored in the database
     path('listCourses/', views.listCourses, name="listCourses"),
 
-    #temporary url to match teams
-    path('matchTeams/', views.matchTeams, name="matchTeams"),
-
     #scheduleMatch: given a courseCode and datetime, it adds a thread to match students
     #at a given time
     #JSON FORMAT:
