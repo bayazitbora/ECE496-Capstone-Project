@@ -42,6 +42,7 @@ class Profile(models.Model):
     interests       = models.ManyToManyField(Interest, blank=True)
     skills          = models.ManyToManyField(Skill, blank=True)
     hoursToCommit   = models.IntegerField(default=0)
+    matchedUsers    = models.ManyToManyField(User, related_name='matchedUsers')
 
     #not implemented
     availableTimes  = models.ManyToManyField(AvailableTimes)
@@ -57,6 +58,8 @@ class Profile(models.Model):
                    + str(self.skills.all())
                    + ", "
                    + str(self.hoursToCommit)
+                   + ", "
+                   + str(self.matchedUsers.all())
                    )
         return message
     
@@ -145,6 +148,7 @@ class Course(models.Model):
     students        = models.ManyToManyField(MyUser, related_name='students')
     matchDate       = models.DateTimeField(null=True)
     jobID           = models.CharField(max_length=256, null=True)
+    groupSize       = models.IntegerField(default=2)
 
     def __str__ (self):
         return self.courseCode
@@ -158,6 +162,9 @@ class Course(models.Model):
 
         if 'courseCode' in courseInfo:
             self.courseCode = courseInfo['courseCode']
+
+        if 'groupSize' in courseInfo:
+            self.groupSize = courseInfo['groupSize']
     
     def add_job(self, jobID, matchDate):
         self.jobID = jobID

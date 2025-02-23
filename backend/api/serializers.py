@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import make_password
 class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = get_user_model()
-        fields = ['id', 
+        fields = [
                   'username', 
                   'email', 
                   'password', 
@@ -40,6 +40,7 @@ class ProfileSerializer(serializers.Serializer):
     hoursToCommit   = serializers.IntegerField(default=0)
     interests = InterestsSerializer(many=True)
     skills = SkillsSerializer(many=True)
+    matchedUsers = UserSerializer(many=True)
 
     class Meta:
         model = Profile
