@@ -19,6 +19,11 @@ from .models import Course, MyUser
 
 from .serializers import UserSerializer, ProfileSerializer, MinorSerializer
 
+
+import pandas as pd
+
+from .algorithm.algorithm import cluster_and_match_students
+
 @api_view(['GET'])
 def getStatus(request):
     return HttpResponse(1)
@@ -57,25 +62,94 @@ def getRoutes(request):
 
 #Protected Endpoints----------------------------
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def matchTeams(request):
+    user = get_user_model().objects.get(username=request.user.username)
     if 'courseCode' in request.data:
         students = MyUser.objects.filter(is_teacher=False)
-        print(students)
-        #filtered = students.values('username','email', 'first_name','last_name','programOfStudy','minors','GPA')
+        #------------------------
+        listOfDictOfStudentInfo = []
+        studentIndex = {}
+        i = 0
+        for currUser in students:
+            if (currUser.profile.filter(courseCode=request.data['courseCode'])):
+                dictOfStudentInfo = {}
+                studentIndex[currUser.username] = i
+                #MyUser Info-------
+                #UNCOMMENT to add username to dataframe
+                # dictOfStudentInfo['username'] = currUser.username
+                dictOfStudentInfo['GPA'] = currUser.GPA
+                dictOfStudentInfo['major'] = currUser.programOfStudy
+                
+                #COMMENT after deciding how to handle courses taken
+                dictOfStudentInfo['courses_taken'] = []
+                dictOfStudentInfo['courses_taken'].append(request.data['courseCode'])
+
+                #UNCOMMENT for list of minors in dataframe
+                # dictOfStudentInfo['minors'] = []
+                # currUserMinors = currUser.minors.all()
+                # for minor in currUserMinors:
+                #     dictOfStudentInfo['minors'].append(minor.minor)
+                #COMMENT if doing the above
+                dictOfStudentInfo['minor'] = currUser.minors.all()[0].minor
+
+                #Profile Info-------
+                profileToAdd = currUser.profile.filter(courseCode=request.data['courseCode'])
+                dictOfStudentInfo['meeting_freq'] = profileToAdd.get().hoursToCommit
+
+                dictOfStudentInfo['areas_of_interest'] = []
+                for interest in profileToAdd.get().interests.all():
+                    dictOfStudentInfo['areas_of_interest'].append(interest.interest)
+                
+                dictOfStudentInfo['technical_skills'] = []
+                for skill in profileToAdd.get().skills.all():
+                    dictOfStudentInfo['technical_skills'].append(skill.skill)
+                listOfDictOfStudentInfo.append(dictOfStudentInfo) 
+                i = i + 1   
+        #--------------------------    
+        print(studentIndex)
+        df = pd.DataFrame(listOfDictOfStudentInfo)
+        #print(df)
+        df2 = generate_students(10) #generate random 10 students
+        new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
+        print(new_df)
+        dictOfMatches = cluster_and_match_students(new_df, 3) #call algorithm
+        print("Matches: ", dictOfMatches)
         
-        # for entry in filtered:
-        #     currUser = get_user_model().objects.get(entry['username'])
-        #     profile = currUser.profiles.filter(request.data['courseCode'])
-        #     print(profile)
-        #     print(currUser)
-        # print(filtered)
+        response = Response({
+            "user": user.username,
+            "ActualUsers": [],
+            "generatedUsers": []
 
-        #df = pd.DataFrame(filtered)
+        },
+        status=status.HTTP_200_OK)
+        
+        for groupID in dictOfMatches:
+            listofMatchIndexes = dictOfMatches[groupID]
+            if studentIndex[user.username] in listofMatchIndexes:
+                for ind in listofMatchIndexes:
+                    if ind in studentIndex.values() and ind != studentIndex[user.username]:
+                        newDict = {}
+                        dfmajor = new_df.loc[ind, 'major']
+                        dfinterests = new_df.loc[ind, 'areas_of_interest']
+                        dfskills = new_df.loc[ind, 'technical_skills']
+                        newDict['matchID'] = list(studentIndex.keys())[ind]
+                        newDict['major'] = dfmajor
+                        newDict['interests'] = dfinterests
+                        newDict['skills'] = dfskills
+                        response.data['ActualUsers'].append(newDict)
+                    elif (ind != studentIndex[user.username]):
+                        dfmajor = new_df.loc[ind, 'major']
+                        dfinterests = new_df.loc[ind, 'areas_of_interest']
+                        dfskills = new_df.loc[ind, 'technical_skills']
+                        newDict = {}
+                        newDict['matchID'] = ind
+                        newDict['major'] = dfmajor
+                        newDict['interests'] = dfinterests
+                        newDict['skills'] = dfskills
+                        response.data['generatedUsers'].append(newDict)
 
-        return Response({
-        "user": user.username,
-        "message": "Matched User!"
-        }, status=status.HTTP_200_OK)
+        return response
     else:
          return Response({
         "user": user.username,
