@@ -173,98 +173,170 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
 def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.ndarray)->Dict[int, List[int]]:
     groups_dict: Dict[int, List[int]] = {}  # Dictionary to store by group number ex: 0: [1, 2, 10]
     groups_num: int = 0  # Counter for group numbers
-    
-    gmm = GaussianMixture(n_components=data['cluster'].nunique(), random_state=42) #gmm to previous students embeddings
-    gmm_probs = gmm.fit_predict_proba(student_embeddings) #probabilities of each student belonging to each gmm cluster
-    data['gmm_probs'] = list(gmm_probs) #store prob
 
-    student_probabilities: List[Tuple[int, int, float]] = [] #student index, cluster index, probability
-    
-    #for each student find the most likely cluster
-    for student_idx in range(len(student_embeddings)):
-        most_likely_cluster_idx = np.argmax(gmm_probs[student_idx]) #cluster with max probability
-        most_likely_prob = gmm_probs[student_idx][most_likely_cluster_idx]
-        student_probabilities.append((student_idx, most_likely_cluster_idx, most_likely_prob))
-    
-    #sort students highest prob to lowest
-    student_probabilities.sort(key=lambda x: x[2], reverse=True)
+    unique_clusters = data['cluster'].unique() #output of stage 1 as input
 
-    #note unavailbale students
-    grouped_students: set = set()
+    for id in unique_clusters:
+        c_data = data[data['cluster'] == id]
+        students_in_c = c_data.index
+        embeddings_c = student_embeddings[students_in_c]
 
-    #group assignments
-    while len(grouped_students)<len(student_embeddings):
-        group: List[int] = []
-        current_cluster = None
+        gmm = GaussianMixture(n_components=len(students_in_c) // group_size, random_state=42) #gmm to previous students embeddings
+        gmm.fit(embeddings_c)
+        gmm_probs = gmm.predict_proba(embeddings_c) #probabilities of each student belonging to each gmm cluster
+        for idx in range(gmm_probs.shape[1]):
+            data.loc[students_in_c, f'gmm_prob_cluster_{idx}'] = gmm_probs[:,idx] #store prob
+
+        # student_probabilities: List[Tuple[int, int, float]] = [] #student index, cluster index, probability
+        student_probabilities  = [(idx, np.argmax(prob), prob[np.argmax(prob)]) for idx, prob in zip(students_in_c, gmm_probs)]
+        student_probabilities.sort(key=lambda x: x[2], reverse=True)
+
         
-        for student_idx, cluster_idx, prob in student_probabilities:
-            if student_idx in grouped_students: #if not alredy in a group
-                continue
-            
-            if len(group) == 0: #if we are looking at the first student, set the cluster number to their most likely cluster
-                current_cluster = cluster_idx
-            
-            #students are added if they have the same high prob cluster as the current one and if there is space
-            if cluster_idx == current_cluster and len(group) < group_size:
-                group.append(student_idx)
-                grouped_students.add(student_idx)
+        grouped_students = set()
+        while len(grouped_students) < len(students_in_c):
+            group = []
+            current_cluster = None
 
+            for student_idx, cluster_idx, prob in student_probabilities:
+                if student_idx in grouped_students:
+                    continue
+                if len(group) == 0:
+                    current_cluster = cluster_idx
 
-            #*** TODO
-            #check if a student from the selected pair was added to the group
-            #TODO should we take the len restriction out here??? and have an option to have 1 more person?
+                if cluster_idx == current_cluster and len(group) < group_size:
+                    group.append(student_idx)
+                    grouped_students.add(student_idx)
 
-            # if selected_pair:
-            #     #if the selected pair's first student is in the group add the second one if space 
-            #     if selected_pair[0] in group and selected_pair[1] not in grouped_students and len(group) < group_size:
-            #         group.append(selected_pair[1])
-            #         grouped_students.add(selected_pair[1])
-            #     #if the selected pair's second student is in the group add the first one if space
-            #     elif selected_pair[1] in group and selected_pair[0] not in grouped_students and len(group) < group_size:
-            #         group.append(selected_pair[0])
-            #         grouped_students.add(selected_pair[0])
-
-            #***
-            
-            if len(group) == group_size:
-                break
-        
-        #give group num and strore
-        for student in group: #note that this is looking at the current cluster which can be diff than the group number assigned
-            data.loc[student, 'group'] = groups_num
-        
-        groups_dict[groups_num] = group
-        groups_num += 1
-
-    #reamining studenrs
-    remaining_students = [student_idx for student_idx in range(len(student_embeddings)) if student_idx not in grouped_students]
-
-    if remaining_students:
-        #if only one student left put them in their most likely cluster's group
-        if len(remaining_students) == 1:
-            remaining_student_idx = remaining_students[0]
-            most_likely_cluster_idx = np.argmax(gmm_probs[remaining_student_idx])
-            
-            #find the group of the associated most likely cluster
-            best_group = None
-            for group_num, group in groups_dict.items():
-                group_clusters = [np.argmax(gmm_probs[student_idx]) for student_idx in group]
-                if most_likely_cluster_idx in group_clusters:
-                    best_group = group_num
+                if len(group) == group_size:
                     break
-            
-            if best_group is not None:
-                #add the remaining student to their most likely cluster's group
-                data.loc[remaining_student_idx, 'group'] = best_group
-                groups_dict[best_group].append(remaining_student_idx)
-        else:
-            #for the last group with remaining studenrs
-            #note: currently prioritizing having the best possible groups until the last group
-            for student in remaining_students:
+
+            if len(group) < group_size and len(grouped_students) == len(students_in_c) - 1:
+                remaining_student = set(students_in_c) - grouped_students
+                group.append(remaining_student.pop())
+                grouped_students.add(group[-1])
+
+            # Assign group number to students
+            for student in group:
                 data.loc[student, 'group'] = groups_num
-            
-            groups_dict[groups_num] = remaining_students
+
+            groups_dict[groups_num] = group
             groups_num += 1
+
+        # #for each student find the most likely cluster
+        # for student_idx in students_in_c:
+        #     most_likely_cluster_idx = np.argmax(gmm_probs[student_idx]) #cluster with max probability
+        #     most_likely_prob = gmm_probs[student_idx][most_likely_cluster_idx]
+        #     student_probabilities.append((student_idx, most_likely_cluster_idx, most_likely_prob))
+    
+        # #sort students highest prob to lowest
+        # # student_probabilities.sort(key=lambda x: x[2], reverse=True)
+
+        # #note unavailbale students
+        # grouped_students: set = set()
+
+        # #group assignments
+        # while len(grouped_students)<len(students_in_c):
+        #     group: List[int] = []
+        #     current_cluster = None
+        
+        #     for student_idx, cluster_idx, prob in student_probabilities:
+        #         if student_idx in grouped_students: #if not alredy in a group
+        #             continue
+                
+        #         if len(group) == 0: #if we are looking at the first student, set the cluster number to their most likely cluster
+        #             current_cluster = cluster_idx
+                
+        #         #students are added if they have the same high prob cluster as the current one and if there is space
+        #         if cluster_idx == current_cluster and len(group) < group_size:
+        #             group.append(student_idx)
+        #             grouped_students.add(student_idx)
+
+
+        #         #*** TODO
+        #         #check if a student from the selected pair was added to the group
+        #         #TODO should we take the len restriction out here??? and have an option to have 1 more person?
+
+        #         # if selected_pair:
+        #         #     #if the selected pair's first student is in the group add the second one if space 
+        #         #     if selected_pair[0] in group and selected_pair[1] not in grouped_students and len(group) < group_size:
+        #         #         group.append(selected_pair[1])
+        #         #         grouped_students.add(selected_pair[1])
+        #         #     #if the selected pair's second student is in the group add the first one if space
+        #         #     elif selected_pair[1] in group and selected_pair[0] not in grouped_students and len(group) < group_size:
+        #         #         group.append(selected_pair[0])
+        #         #         grouped_students.add(selected_pair[0])
+
+        #         #***
+                
+        #         if len(group) == group_size:
+        #             break
+        
+        #     #give group num and strore
+        #     for student in group: #note that this is looking at the current cluster which can be diff than the group number assigned
+        #         data.loc[student, 'group'] = groups_num
+            
+        #     groups_dict[groups_num] = group
+        #     groups_num += 1
+
+        # #reamining studenrs
+        # remaining_students = [student_idx for student_idx in students_in_c if student_idx not in grouped_students]
+
+        # if remaining_students:
+        #     if len(remaining_students) == 1:
+        #         remaining_student_idx = remaining_students[0]
+        #         most_likely_cluster_idx = np.argmax(gmm_probs[remaining_student_idx])
+        #         bestgroup = None
+        #         max_overlap = -1
+
+        #         for group_num, group in groups_dict.items():
+        #             group_probs = [gmm_probs[student_idx][most_likely_cluster_idx] for student_idx in group]
+        #             avg_prob = np.mean(group_probs)
+        #             if avg_prob > max_overlap:
+        #                 bestgroup  = group_num
+        #                 max_overlap = avg_prob
+                
+        #         if bestgroup is not None:
+        #             data.loc[remaining_student_idx, 'group'] = bestgroup
+        #             groups_dict[bestgroup].append(remaining_student_idx)
+        #         else:
+        #             data.loc[remaining_student_idx, 'group'] = group_num
+        #             groups_dict[group_num] = [remaining_student_idx]
+        #             group_num +=1
+        #     else: #more than 1
+        #         for s in remaining_students:
+        #             data.loc[s, 'group'] = groups_num
+        #         groups_dict[groups_num] = remaining_students
+        #         groups_num +=1
+
+
+
+
+            ##################################
+            # #if only one student left put them in their most likely cluster's group
+            # if len(remaining_students) == 1:
+            #     remaining_student_idx = remaining_students[0]
+            #     most_likely_cluster_idx = np.argmax(gmm_probs[remaining_student_idx])
+                
+            #     #find the group of the associated most likely cluster
+            #     best_group = None
+            #     for group_num, group in groups_dict.items():
+            #         group_clusters = [np.argmax(gmm_probs[student_idx]) for student_idx in group]
+            #         if most_likely_cluster_idx in group_clusters:
+            #             best_group = group_num
+            #             break
+                
+            #     if best_group is not None:
+            #         #add the remaining student to their most likely cluster's group
+            #         data.loc[remaining_student_idx, 'group'] = best_group
+            #         groups_dict[best_group].append(remaining_student_idx)
+            # else:
+            #     #for the last group with remaining studenrs
+            #     #note: currently prioritizing having the best possible groups until the last group
+            #     for student in remaining_students:
+            #         data.loc[student, 'group'] = groups_num
+                
+            #     groups_dict[groups_num] = remaining_students
+            #     groups_num += 1
 
     return groups_dict
 
@@ -362,5 +434,5 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
     data['cluster'] = kmeans.labels_
 
     # Form groups of 'group_size' students within each cluster using Greedy approach
-    groups_dict = form_groups_greedy(data, group_size, student_embeddings)
+    groups_dict = form_groups_gmm(data, group_size, student_embeddings)
     return groups_dict
