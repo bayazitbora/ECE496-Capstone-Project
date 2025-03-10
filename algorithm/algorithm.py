@@ -220,7 +220,7 @@ def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.
                 data.loc[student, 'group'] = groups_num
 
             groups_dict[groups_num] = group
-            groups_num += 1
+            groups_num += 1 
 
         # #for each student find the most likely cluster
         # for student_idx in students_in_c:
