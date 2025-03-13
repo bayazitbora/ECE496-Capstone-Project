@@ -65,13 +65,21 @@ class Profile(models.Model):
     
     def update_interests(self, listOfInterests):
         for interest in listOfInterests:
-            #interestToAdd = Interest(interest=interest)
-            self.interests.create(interest=interest)
+            inter = Interest.objects.filter(interest=interest)
+            if inter:
+                #interestToAdd = Interest(interest=interest)
+                self.interests.add(inter.first())
+            else:
+                self.interests.create(interest=interest)
 
     def update_skills(self, listOfskills):
         for skill in listOfskills:
+            sk = Skill.objects.filter(skill=skill)
             #skillToAdd = Skill(skill=skill)
-            self.skills.create(skill=skill)
+            if sk:
+                self.skills.add(sk.first())
+            else:
+                self.skills.create(skill=skill)
 
     def update_profile(self, profile):
         if profile['interests']:
