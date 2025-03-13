@@ -31,8 +31,8 @@ function AccountCreationForm({
     );
   };
 
-  const handleRoleSelection = (role) => {
-    handleSignUpInputChange({ target: { name: "role", value: role } });
+  const handleRoleSelection = (teacher) => {
+    handleSignUpInputChange({ target: { name: "teacher", value: teacher } });
   };
 
   const handleEmailChange = (e) => {
@@ -105,16 +105,16 @@ function AccountCreationForm({
             <Button
               color="primary"
               outline
-              onClick={() => handleRoleSelection("Student")}
-              active={signUpState.role === "Student"}
+              onClick={() => handleRoleSelection("False")}
+              active={signUpState.teacher === "False"}
             >
               Student
             </Button>
             <Button
               color="primary"
               outline
-              onClick={() => handleRoleSelection("Instructor")}
-              active={signUpState.role === "Instructor"}
+              onClick={() => handleRoleSelection("True")}
+              active={signUpState.teacher === "True"}
             >
               Instructor
             </Button>

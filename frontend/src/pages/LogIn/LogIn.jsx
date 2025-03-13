@@ -67,8 +67,9 @@ function LogIn() {
             username: email.split("@")[0],
           });
           const userData = response.data;
+          console.log("User data:", userData);
           setFormData({
-            role: userData.teacher ? "instructor" : "student",
+            teacher: userData.teacher,
             first_name: userData.first_name,
             last_name: userData.last_name,
             username: userData.username,

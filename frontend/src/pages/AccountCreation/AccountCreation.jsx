@@ -16,7 +16,7 @@ function AccountCreation() {
   const { setFormData } = useContext(SignUpContext);
   const { setToken } = useAuth();
   const [signUpState, setSignUpState] = useState({
-    role: "", // student or instructor
+    teacher: "False", // student or instructor
     first_name: "",
     last_name: "",
     username: "",
@@ -69,6 +69,7 @@ function AccountCreation() {
 
     try {
       // Register user
+      console.log("Registering user:", signUpState);
       const registerResponse = await publicAxios.post("register/", {
         ...signUpState,
         first_name,
@@ -95,7 +96,7 @@ function AccountCreation() {
       const userData = userResponse.data;
 
       setFormData({
-        role: userData.role,
+        teacher: userData.teacher,
         first_name: userData.first_name,
         last_name: userData.last_name,
         username: userData.username,
