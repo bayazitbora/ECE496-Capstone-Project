@@ -23,9 +23,35 @@ function AccountCreationForm({
     );
   };
 
+  const validateForm = () => {
+    const requiredFields = [
+      "last_name",
+      "email",
+      "password",
+      "confirmPassword",
+    ];
+    if (signUpState.teacher === "False") {
+      requiredFields.push("pos", "grad_year", "gpa");
+    }
+    for (const field of requiredFields) {
+      if (!signUpState[field]) {
+        alert(`Please fill in the ${field.replace("_", " ")} field.`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const confirmButton = (handleSubmit) => {
     return (
-      <Button onClick={handleSubmit} className={styles.confirmButton}>
+      <Button
+        onClick={() => {
+          if (validateForm()) {
+            handleSubmit();
+          }
+        }}
+        className={styles.confirmButton}
+      >
         Confirm
       </Button>
     );
@@ -163,87 +189,90 @@ function AccountCreationForm({
                 onChange={handleSignUpInputChange}
               />
             </FormGroup>
-            <p>Choose your Engineering Major from the list:</p>
-            <FormGroup>
-              <Input
-                type="select"
-                name="major"
-                id="major"
-                value={signUpState.pos || ""}
-                onChange={handleMajorChange}
-              >
-                <option value="" disabled>
-                  Choose Major...
-                </option>
-                {majors.map((major, index) => (
-                  <option key={index} value={major.label}>
-                    {major.label}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-            <FormGroup>
-              <Input
-                type="number"
-                name="grad_year"
-                id="grad_year"
-                value={signUpState.grad_year || ""}
-                onChange={handleGradYearChange}
-                min={2024}
-                max={2030}
-                placeholder="Choose Graduation Year..."
-              />
-            </FormGroup>
-            <p>Choose your Engineering Minor(s) from the list:</p>
-            <FormGroup>
-              <Input
-                type="select"
-                name="minor"
-                id="minor"
-                value=""
-                onChange={handleMinorChange}
-              >
-                <option value="" disabled>
-                  Choose Minor...
-                </option>
-                {minors.map((minor, index) => (
-                  <option key={index} value={minor.label}>
-                    {minor.label}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-            <div>
-              {signUpState.minors.map((minor, index) => (
-                <Button
-                  key={index}
-                  color="outline"
-                  onClick={() => handleMinorRemove(minor)}
-                  style={{ marginRight: "10px", marginBottom: "10px" }}
-                >
-                  {minor} &times;
-                </Button>
-              ))}
-            </div>
-            <FormGroup>
-              <Label for="gpa">Enter your GPA:</Label>
-              <Input
-                type="number"
-                name="gpa"
-                id="gpa"
-                value={signUpState.gpa || ""}
-                onChange={handleSignUpInputChange}
-                step="0.01"
-                min={0}
-                max={4}
-              />
-              <FormText>Enter your GPA (0 - 4 scale)</FormText>
-            </FormGroup>
+            {signUpState.teacher === "False" && (
+              <>
+                <p>Choose your Engineering Major from the list:</p>
+                <FormGroup>
+                  <Input
+                    type="select"
+                    name="major"
+                    id="major"
+                    value={signUpState.pos || ""}
+                    onChange={handleMajorChange}
+                  >
+                    <option value="" disabled>
+                      Choose Major...
+                    </option>
+                    {majors.map((major, index) => (
+                      <option key={index} value={major.label}>
+                        {major.label}
+                      </option>
+                    ))}
+                  </Input>
+                </FormGroup>
+                <FormGroup>
+                  <Input
+                    type="number"
+                    name="grad_year"
+                    id="grad_year"
+                    value={signUpState.grad_year || ""}
+                    onChange={handleGradYearChange}
+                    min={2024}
+                    max={2030}
+                    placeholder="Choose Graduation Year..."
+                  />
+                </FormGroup>
+                <p>Choose your Engineering Minor(s) from the list:</p>
+                <FormGroup>
+                  <Input
+                    type="select"
+                    name="minor"
+                    id="minor"
+                    value=""
+                    onChange={handleMinorChange}
+                  >
+                    <option value="" disabled>
+                      Choose Minor...
+                    </option>
+                    {minors.map((minor, index) => (
+                      <option key={index} value={minor.label}>
+                        {minor.label}
+                      </option>
+                    ))}
+                  </Input>
+                </FormGroup>
+                <div>
+                  {signUpState.minors.map((minor, index) => (
+                    <Button
+                      key={index}
+                      color="outline"
+                      onClick={() => handleMinorRemove(minor)}
+                      style={{ marginRight: "10px", marginBottom: "10px" }}
+                    >
+                      {minor} &times;
+                    </Button>
+                  ))}
+                </div>
+                <FormGroup>
+                  <Label for="gpa">Enter your GPA:</Label>
+                  <Input
+                    type="number"
+                    name="gpa"
+                    id="gpa"
+                    value={signUpState.gpa || ""}
+                    onChange={handleSignUpInputChange}
+                    step="0.01"
+                    min={0}
+                    max={4}
+                  />
+                  <FormText>Enter your GPA (0 - 4 scale)</FormText>
+                </FormGroup>
+                <p>You can modify your answers in your Profile.</p>
+              </>
+            )}
           </Form>
         </div>
-        <div>
-          <p>You can modify your answers in your Profile.</p>
-        </div>
+        <div></div>
         <div className={styles.confirmCancelContainer}>
           {goBackButton()}
           {confirmButton(handleSubmit)}

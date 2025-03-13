@@ -36,24 +36,7 @@ function AccountCreation() {
    * Sends the registration data to the server, logs in the user, and fetches user data.
    * @param {Event} event - The form submission event.
    */
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Check for empty fields
-    for (const [key, value] of Object.entries(signUpState)) {
-      if (
-        key !== "minors" &&
-        key !== "confirmPassword" &&
-        key !== "first_name" &&
-        !value
-      ) {
-        setAlertMessage(
-          `The ${key.replace("_", " ")} field should not be empty.`
-        );
-        return;
-      }
-    }
-
+  const handleSubmit = async () => {
     // Check if passwords match
     if (signUpState.password !== signUpState.confirmPassword) {
       setAlertMessage("Passwords do not match.");
