@@ -11,6 +11,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
+import CreateCourseModal from "../../components/CreateCourse/CreateCourseModal";
 import styles from "./Courses.module.css";
 import { privateAxios, setPrivateAxiosToken } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
@@ -128,6 +129,31 @@ function Courses() {
     }));
   };
 
+  /**
+   * Handles the creation of a new course.
+   * Sends the course data to the server and updates the user profiles.
+   * @param {Object} courseData - The data of the new course.
+   */
+  const handleCreate = async (courseData) => {
+    try {
+      const response = await privateAxios.post("createCourse/", {
+        username,
+        course: courseData,
+      });
+      console.log("Course created successfully:", response.data);
+
+      const updatedProfilesResponse = await privateAxios.post("getSelf/", {
+        username,
+      });
+      const updatedProfiles = updatedProfilesResponse.data;
+      setProfiles(updatedProfiles.profiles);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.profiles });
+      console.log("Updated profiles:", updatedProfiles.profiles);
+    } catch (error) {
+      console.error("Error creating course:", error);
+    }
+  };
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -169,19 +195,29 @@ function Courses() {
         </Button>
 
         <Modal isOpen={open} toggle={handleClose}>
-          <ModalHeader toggle={handleClose}>Add Course</ModalHeader>
+          <ModalHeader toggle={handleClose}>
+            {signUpState.teacher == "False" ? "Add Course" : "Create Course"}
+          </ModalHeader>
           <ModalBody>
-            <AddCourseModal
-              currentStep={currentStep}
-              handleOpen={open}
-              handleClose={handleClose}
-              nextStep={nextStep}
-              prevStep={prevStep}
-              formState={formState}
-              handleInputChange={handleInputChange}
-              handleSubmit={handleSubmit}
-              totalSteps={totalSteps}
-            />
+            {signUpState.teacher == "False" ? (
+              <AddCourseModal
+                currentStep={currentStep}
+                handleOpen={open}
+                handleClose={handleClose}
+                nextStep={nextStep}
+                prevStep={prevStep}
+                formState={formState}
+                handleInputChange={handleInputChange}
+                handleSubmit={handleSubmit}
+                totalSteps={totalSteps}
+              />
+            ) : (
+              <CreateCourseModal
+                handleOpen={handleOpen}
+                handleClose={handleClose}
+                handleCreate={handleCreate}
+              />
+            )}
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={handleClose}>
