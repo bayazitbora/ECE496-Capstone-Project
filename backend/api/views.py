@@ -1,3 +1,5 @@
+import datetime as dt
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 
@@ -11,10 +13,17 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
+SCHEDULER = settings.SCHEDULER
 from django.contrib.auth import get_user_model
 from .models import Course, MyUser
 
 from .serializers import UserSerializer, ProfileSerializer, MinorSerializer
+
+import pandas as pd
+import numpy as np
+import random
+
+from .algorithm.algorithm import cluster_and_match_students
 
 @api_view(['GET'])
 def getStatus(request):
@@ -53,36 +62,6 @@ def getRoutes(request):
     return Response(routes)
 
 #Protected Endpoints----------------------------
-@api_view(['POST'])
-#@permission_classes([IsAuthenticated])
-def matchTeams(request):
-    user = get_user_model().objects.get(username=request.user.username)
-    if 'courseCode' in request.data:
-        students = MyUser.objects.filter(is_teacher=False)
-        print(students)
-        #filtered = students.values('username','email', 'first_name','last_name','programOfStudy','minors','GPA')
-        
-        # for entry in filtered:
-        #     currUser = get_user_model().objects.get(entry['username'])
-        #     profile = currUser.profiles.filter(request.data['courseCode'])
-        #     print(profile)
-        #     print(currUser)
-        # print(filtered)
-
-        #df = pd.DataFrame(filtered)
-
-        return Response({
-        "user": user.username,
-        "message": "Matched User!"
-        }, status=status.HTTP_200_OK)
-    else:
-         return Response({
-        "user": user.username,
-        "message": "Missing courseCode in request."
-    }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -224,26 +203,36 @@ def updateProfile(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def createCourse(request):
-    user = get_user_model().objects.get(username=request.user.username)
-    if not ('courseInfo' in request) or ('courseCode' in request):
-        if not request.data['courseInfo']['courseCode']:
-            return Response(
-                {
-                    "user": request.user.username,
-                    "message": "Course code not included"
-                }, status=status.HTTP_400_BAD_REQUEST)
-    
+    user = get_user_model().objects.get(username=request.user.username)    
     if (not user.is_teacher):
         return Response(
                 {
                     "user": request.user.username,
                     "message": "User does not have the required permissions."
-                }, status=status.HTTP_401_UNAUTHORIZED)
+                }, status=status.HTTP_403_FORBIDDEN)
+    
+    if not ('courseInfo' in request.data):
+        if not 'courseCode' in request.data['courseInfo']:
+            if not request.data['courseInfo']['courseCode']:
+                return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course code not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    
+    exists = Course.objects.filter(courseCode=request.data['courseInfo']['courseCode'], is_active=True)
+    if exists:
+         return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course Code Exists"
+                    }, status=status.HTTP_400_BAD_REQUEST)
     
     course = Course(courseCode=request.data['courseInfo']['courseCode'])
     course.is_active = True
-    course.update_course(request.data['courseInfo'], user)
+    course.update_course(request.data['courseInfo'])
     course.save()
+    course.add_teacher(user)
 
     return Response({
         "user": user.username,
@@ -256,6 +245,147 @@ def createCourse(request):
     }, status=status.HTTP_200_OK)
 
 #------------------------------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def listCourses(request):
+    courses = Course.objects.all()
+    response = Response({}, status=status.HTTP_200_OK)
+    for course in courses:
+        response.data[course.courseCode] = {}
+        response.data[course.courseCode]['courseCode'] = course.courseCode
+        response.data[course.courseCode]['courseName'] = course.courseName
+        response.data[course.courseCode]['isActive'] = course.is_active
+        # response.data[course.courseCode]['teacher'] = course.teacher.all()
+    return response
+#------------------------------------------------
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def scheduleMatch(request):
+    user = get_user_model().objects.get(username=request.user.username)
+    if not user.is_teacher:
+        return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions."
+                }, status=status.HTTP_403_FORBIDDEN)
+
+    if not 'courseInfo' in request.data:
+        if not 'courseCode' in request.data['courseInfo']:
+            return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course code not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    
+    courseCode = request.data['courseInfo']['courseCode']
+    course = Course.objects.filter(courseCode=courseCode)
+
+    if course.count() > 1:
+        return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Multiple Courses with the same Code exist"
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    course = course[0] #select the first (and only) course in the list
+
+    #Check if the requesting user is a listed teacher of the requested course
+    userSet = course.teacher.filter(username=user.username)
+    if not userSet:
+         return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions to edit this course."
+                }, status=status.HTTP_403_FORBIDDEN)
+    
+    #Check for date in JSON
+    if not 'matchDate' in request.data['courseInfo']:
+            return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Matching Date not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+    matchDateString = request.data['courseInfo']['matchDate']
+    matchDate = dt.datetime.strptime(matchDateString, "%Y-%m-%dT%H:%M:%S.%z")#2025-01-26T04:13:58.UTC
+
+    #Check if job exists, and cancel it
+    if (SCHEDULER.get_job(course.jobID)):
+        SCHEDULER.remove_job(course.jobID)
+        print("Removed jobID: " + course.jobID + " from course: " + course.courseCode)
+
+    jobName = courseCode + "_job"
+    job = SCHEDULER.add_job(job_match, "date", [request, course], run_date=matchDate, name=jobName)
+    print(SCHEDULER.get_jobs())
+    course.add_job(job.id, matchDate)
+
+    return Response({"message": "Matched Scheduled!"}, status=status.HTTP_200_OK)
+
+def job_match(request, course):
+    if 'courseCode' in request.data['courseInfo']:
+        students = MyUser.objects.filter(is_teacher=False)
+        listOfDictOfStudentInfo = []
+        studentIndex = {}
+        i = 0
+        for currUser in students:
+            if(currUser.profile.filter(courseCode=request.data['courseInfo']['courseCode'])):
+                dictOfStudentInfo = {}
+                studentIndex[i] = currUser.username
+                #MyUser Info-------
+                #UNCOMMENT to add username to dataframe
+                # dictOfStudentInfo['username'] = currUser.username
+                dictOfStudentInfo['GPA'] = currUser.GPA
+                dictOfStudentInfo['major'] = currUser.programOfStudy
+                
+                #COMMENT after deciding how to handle courses taken
+                dictOfStudentInfo['courses_taken'] = []
+                dictOfStudentInfo['courses_taken'].append(request.data['courseInfo']['courseCode'])
+
+                #UNCOMMENT for list of minors in dataframe
+                # dictOfStudentInfo['minors'] = []
+                # currUserMinors = currUser.minors.all()
+                # for minor in currUserMinors:
+                #     dictOfStudentInfo['minors'].append(minor.minor)
+                #COMMENT if doing the above
+                dictOfStudentInfo['minor'] = currUser.minors.all()[0].minor
+
+                #Profile Info-------
+                profileToAdd = currUser.profile.filter(courseCode=request.data['courseInfo']['courseCode'])
+                dictOfStudentInfo['meeting_freq'] = profileToAdd.get().hoursToCommit
+
+                dictOfStudentInfo['areas_of_interest'] = []
+                for interest in profileToAdd.get().interests.all():
+                    dictOfStudentInfo['areas_of_interest'].append(interest.interest)
+                
+                dictOfStudentInfo['technical_skills'] = []
+                for skill in profileToAdd.get().skills.all():
+                    dictOfStudentInfo['technical_skills'].append(skill.skill)
+                listOfDictOfStudentInfo.append(dictOfStudentInfo) 
+                i = i + 1
+        print(dictOfStudentInfo)
+        groupSize = course.groupSize
+        df = pd.DataFrame(listOfDictOfStudentInfo)
+        df2 = generate_students(10) #generate random 10 students
+        new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
+        dictOfMatches = cluster_and_match_students(new_df, groupSize) 
+        print(dictOfMatches)
+        print(studentIndex)
+
+        for groupID in dictOfMatches:
+            for index in dictOfMatches[groupID]:
+                if index in studentIndex: #check if user is real user since we are using generated students
+                    username = studentIndex[index]
+                    currUser = get_user_model().objects.filter(username=username).first()
+                    currUser_profile = currUser.profile.filter(courseCode=course.courseCode).first()
+                    print("Adding matched users to:", currUser.username)
+                    for index2 in dictOfMatches[groupID]:
+                        if index2 != index: #if the students within a group are not the same
+                            #grab the student username and attach to forgien key relationship
+                            matchedStudent = get_user_model().objects.filter(username=studentIndex[index2]).first()
+                            currUser_profile.matchedUsers.add(matchedStudent)
+                            currUser_profile.save()
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -270,3 +400,30 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+def generate_random_student():
+    major_categories = ['CS', 'EE', 'ME', 'CE', 'INDY']
+    minor_categories = ['Math', 'Physics', 'Chem', 'Econ', 'Business', 'None']
+    courses_categories = ["Electric and Magnetic Fields", "Fields and Waves", "Dynamics", "Communication Systems", "Electric Drives", "Computer Systems Programming", "Physiological Control Systems", "Sensory Communication", "Introduction to Electronic Devices", "Mechanics"]
+    interests_categories = ['AI', 'ML', 'Robotics', 'Circuits', 'Signal Processing', 'Thermodynamics', 'Fluid Mechanics']
+    skills_categories = ['Python', 'Java', 'C++', 'MATLAB', 'VHDL', 'SolidWorks', 'AutoCAD']
+
+    # Days from Monday to Saturday
+    days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    # Generate random GPA
+    gpa = np.clip(np.random.normal(3, 1), 0, 4)  # Normal distribution centered at 3.0, clipped to [0, 4]
+    meeting_freq = random.randint(1, 15) 
+    return {
+        'GPA': round(gpa, 2),
+        'major': random.choice(major_categories),
+        'minor': random.choice(minor_categories),
+        'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
+        'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
+        'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
+        #'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        'meeting_freq': meeting_freq # change according to questionnaire
+    }
+
+def generate_students(n):
+    return pd.DataFrame([generate_random_student() for _ in range(n)])

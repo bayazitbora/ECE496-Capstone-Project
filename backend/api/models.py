@@ -42,6 +42,7 @@ class Profile(models.Model):
     interests       = models.ManyToManyField(Interest, blank=True)
     skills          = models.ManyToManyField(Skill, blank=True)
     hoursToCommit   = models.IntegerField(default=0)
+    matchedUsers    = models.ManyToManyField(User, related_name='matchedUsers')
 
     #not implemented
     availableTimes  = models.ManyToManyField(AvailableTimes)
@@ -57,18 +58,28 @@ class Profile(models.Model):
                    + str(self.skills.all())
                    + ", "
                    + str(self.hoursToCommit)
+                   + ", "
+                   + str(self.matchedUsers.all())
                    )
         return message
     
     def update_interests(self, listOfInterests):
         for interest in listOfInterests:
-            #interestToAdd = Interest(interest=interest)
-            self.interests.create(interest=interest)
+            inter = Interest.objects.filter(interest=interest)
+            if inter:
+                #interestToAdd = Interest(interest=interest)
+                self.interests.add(inter.first())
+            else:
+                self.interests.create(interest=interest)
 
     def update_skills(self, listOfskills):
         for skill in listOfskills:
+            sk = Skill.objects.filter(skill=skill)
             #skillToAdd = Skill(skill=skill)
-            self.skills.create(skill=skill)
+            if sk:
+                self.skills.add(sk.first())
+            else:
+                self.skills.create(skill=skill)
 
     def update_profile(self, profile):
         if profile['interests']:
@@ -119,7 +130,7 @@ class MyUser(AbstractUser):
             if request['pos']:
                 self.programOfStudy = request['pos']
         
-        if 'minor' in request:
+        if 'minors' in request:
             if request['minors']:
                 self.update_minors(request['minors'])
         if 'grad_year' in request:
@@ -143,10 +154,27 @@ class Course(models.Model):
     courseName      = models.CharField(max_length=140, default="N/A")
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')
+    matchDate       = models.DateTimeField(null=True)
+    jobID           = models.CharField(max_length=256, null=True)
+    groupSize       = models.IntegerField(default=2)
+
     def __str__ (self):
         return self.courseCode
     
-    def update_course(self, courseInfo, user):
+    def add_teacher(self, user):
         self.teacher.add(user)
-        self.courseName = courseInfo['courseName']
-        self.courseCode = courseInfo['courseCode']
+
+    def update_course(self, courseInfo):
+        if 'courseName' in courseInfo:
+            self.courseName = courseInfo['courseName']
+
+        if 'courseCode' in courseInfo:
+            self.courseCode = courseInfo['courseCode']
+
+        if 'groupSize' in courseInfo:
+            self.groupSize = courseInfo['groupSize']
+    
+    def add_job(self, jobID, matchDate):
+        self.jobID = jobID
+        self.matchDate = matchDate
+        self.save()

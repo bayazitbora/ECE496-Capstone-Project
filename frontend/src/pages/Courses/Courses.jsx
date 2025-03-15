@@ -1,14 +1,28 @@
 import { useState, useContext, useEffect } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from "reactstrap";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Row,
+  Col,
+} from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
 import styles from "./Courses.module.css";
-import { createProfile, getSelf } from "../../api/api";
+import { privateAxios, setPrivateAxiosToken } from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 import { SignUpContext } from "../../context/SignUpContext";
 import CourseCard from "../../components/Courses/CourseCard";
 
+/**
+ * Courses component handles the display and management of user courses.
+ * It fetches user profiles, displays them, and allows adding new courses.
+ */
 function Courses() {
+  const { token } = useAuth();
   const [open, setOpen] = useState(false);
   const [formState, setFormState] = useState({
     courseCode: "",
@@ -23,36 +37,49 @@ function Courses() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
 
+  /**
+   * Fetches user profiles on component mount.
+   */
   useEffect(() => {
-    if (initialProfiles && Object.keys(initialProfiles).length > 0) {
-      setProfiles(initialProfiles);
-    } else {
-      const fetchProfiles = async () => {
-        try {
-          const response = await getSelf({ username });
-          setProfiles(response.profiles);
-          dispatch({ type: "SET_PROFILES", profiles: response.profiles });
-          console.log("User profiles:", response.profiles);
-        } catch (error) {
-          console.error("Error fetching profiles:", error);
-        }
-      };
+    const fetchProfiles = async () => {
+      setPrivateAxiosToken(token);
+      try {
+        const response = await privateAxios.post("getSelf/", { username });
+        const userData = response.data;
+        setProfiles(userData.profiles);
+        dispatch({ type: "SET_PROFILES", profiles: userData.profiles });
+        console.log("User profiles:", userData.profiles);
+      } catch (error) {
+        console.error("Error fetching profiles:", error);
+      }
+    };
 
-      fetchProfiles();
-    }
-  }, [username, initialProfiles, dispatch]);
+    fetchProfiles();
+  }, [username, dispatch, token]);
 
+  /**
+   * Advances to the next step in the course addition process.
+   */
   const nextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
+
+  /**
+   * Goes back to the previous step in the course addition process.
+   */
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
+  /**
+   * Handles the form submission for adding a new course.
+   * Sends the course data to the server and updates the user profiles.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("Submit button clicked");
@@ -60,11 +87,18 @@ function Courses() {
     console.log(formState);
 
     try {
-      const response = await createProfile(username, formState);
-      console.log("Profile created successfully:", response);
+      const response = await privateAxios.post("updateProfile/", {
+        username,
+        profile: formState,
+      });
+      console.log("Profile created successfully:", response.data);
 
-      const updatedProfiles = await getSelf({ username });
+      const updatedProfilesResponse = await privateAxios.post("getSelf/", {
+        username,
+      });
+      const updatedProfiles = updatedProfilesResponse.data;
       setProfiles(updatedProfiles.profiles);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.profiles });
       console.log("Updated profiles:", updatedProfiles.profiles);
 
       setFormState({
@@ -75,14 +109,17 @@ function Courses() {
         skills: [],
       });
       setCurrentStep(1);
-      
     } catch (error) {
-      console.error("Error creating profile:", error);
+      console.error(error);
     }
 
     handleClose();
   };
 
+  /**
+   * Handles input changes for the course addition form.
+   * @param {Event} event - The input change event.
+   */
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormState((prevState) => ({
@@ -106,9 +143,9 @@ function Courses() {
             <Row>
               {Object.keys(profiles).map((courseCode) => (
                 <Col sm="4" key={courseCode}>
-                  <CourseCard 
-                    courseCode={courseCode} 
-                    profile={profiles[courseCode]} 
+                  <CourseCard
+                    courseCode={courseCode}
+                    profile={profiles[courseCode]}
                   />
                 </Col>
               ))}
@@ -147,7 +184,9 @@ function Courses() {
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={handleClose}>Cancel</Button>
+            <Button color="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
           </ModalFooter>
         </Modal>
       </div>
