@@ -1,4 +1,4 @@
-from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_greedy, find_best_k, cluster_and_match_students
+from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_gmm, find_best_k, cluster_and_match_students
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer, normalize
 from sklearn.compose import ColumnTransformer
