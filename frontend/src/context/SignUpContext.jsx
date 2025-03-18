@@ -2,6 +2,7 @@ import { createContext, useReducer, useEffect } from "react";
 
 const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
   teacher: "", // student or instructor
+  title: "",
   first_name: "",
   last_name: "",
   username: "",

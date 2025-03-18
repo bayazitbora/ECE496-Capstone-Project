@@ -122,6 +122,8 @@ function AccountCreationForm({
     { label: "Sustainable Energy" },
   ];
 
+  const titles = ["Mr.", "Ms.", "Mrs.", "Mx.", "Dr.", "Prof."];
+
   return (
     <div className={styles.question}>
       <div className={styles.questionContainer}>
@@ -149,6 +151,27 @@ function AccountCreationForm({
         <div>
           <h2>Create your account</h2>
           <Form className={styles.leftAlign}>
+            {signUpState.teacher === "True" && (
+              <FormGroup>
+                <Input
+                  type="select"
+                  name="title"
+                  id="title"
+                  placeholder="Title"
+                  value={signUpState.title}
+                  onChange={handleSignUpInputChange}
+                >
+                  <option value="" disabled>
+                    Choose Title...
+                  </option>
+                  {titles.map((title, index) => (
+                    <option key={index} value={title}>
+                      {title}
+                    </option>
+                  ))}
+                </Input>
+              </FormGroup>
+            )}
             <FormGroup>
               <Input
                 type="text"

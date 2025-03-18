@@ -80,6 +80,7 @@ function AccountCreation() {
 
       setFormData({
         teacher: userData.teacher,
+        title: userData.title,
         first_name: userData.first_name,
         last_name: userData.last_name,
         username: userData.username,
