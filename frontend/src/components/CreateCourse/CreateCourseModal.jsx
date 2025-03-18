@@ -92,13 +92,13 @@ const CreateCourseModal = ({
             />
           </FormGroup>
           <FormGroup>
-            <Label for="courseDescription">Course Description</Label>
+            <Label for="description">Course Description</Label>
             <Input
               type="textarea"
-              id="courseDescription"
+              id="description"
               rows={3}
               placeholder="Enter course description"
-              value={courseState.courseDescription}
+              value={courseState.description}
               onChange={handleChange}
             />
           </FormGroup>

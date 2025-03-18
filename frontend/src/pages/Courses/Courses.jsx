@@ -37,7 +37,7 @@ function Courses() {
     courseName: "",
     description: "",
     session: "",
-    year: 0,
+    year: new Date().getFullYear(),
     groupSize: "",
   });
   const { state: signUpState, dispatch } = useContext(SignUpContext);
@@ -169,6 +169,15 @@ function Courses() {
     } catch (error) {
       console.error("Error creating course:", error);
     }
+    setCourseState({
+      courseCode: "",
+      courseName: "",
+      description: "",
+      session: "",
+      year: new Date().getFullYear(),
+      groupSize: "",
+    });
+    handleClose();
   };
 
   const handleOpen = () => setOpen(true);
@@ -230,7 +239,7 @@ function Courses() {
               />
             ) : (
               <CreateCourseModal
-                handleOpen={handleOpen}
+                handleOpen={open}
                 handleClose={handleClose}
                 handleCreate={handleCreate}
                 courseState={courseState}
