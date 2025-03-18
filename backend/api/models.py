@@ -93,6 +93,7 @@ class MyUser(AbstractUser):
     email_verified  = models.BooleanField(default=False)
     first_name      = models.CharField(max_length=50)
     last_name       = models.CharField(max_length=50)
+    title           = models.CharField(null=True, max_length=20)
     programOfStudy  = models.CharField(max_length=200, default="N/A")
     minors          = models.ManyToManyField(Minor)
     expectedGrad    = models.IntegerField(default=0)
@@ -137,6 +138,8 @@ class MyUser(AbstractUser):
             if request['teacher'] == "True":
                 self.is_teacher = True
                 self.user_type = 'teacher'
+                if 'title' in request:
+                    self.title = request['title']
 
         self.save()
         
@@ -144,6 +147,10 @@ class Course(models.Model):
     is_active       = models.BooleanField()
     courseCode      = models.CharField(max_length=50)
     courseName      = models.CharField(max_length=140, default="N/A")
+    session         = models.CharField(max_length=50)
+    year            = models.IntegerField() 
+    description     = models.CharField(max_length=500)
+
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')
     matchDate       = models.DateTimeField(null=True)
@@ -156,12 +163,29 @@ class Course(models.Model):
     def add_teacher(self, user):
         self.teacher.add(user)
 
+    def add_student(self, user):
+        self.student.add(user)
+
     def update_course(self, courseInfo):
         if 'courseName' in courseInfo:
             self.courseName = courseInfo['courseName']
 
         if 'courseCode' in courseInfo:
             self.courseCode = courseInfo['courseCode']
+
+        if 'session' in courseInfo:
+            if courseInfo['session'] == 'Fall':
+                self.session = 'Fall'
+            if courseInfo['session'] == 'Winter':
+                self.session = 'Winter'
+            if courseInfo['session'] == 'Summer':
+                self.session = 'Summer'
+
+        if 'year' in courseInfo:
+            self.year = courseInfo['year']
+
+        if 'description' in courseInfo:
+            self.description = courseInfo['description']
 
         if 'groupSize' in courseInfo:
             self.groupSize = courseInfo['groupSize']

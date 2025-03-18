@@ -30,6 +30,9 @@ urlpatterns = [
 
     #listCourses: lists all courses stored in the database
     path('listCourses/', views.listCourses, name="listCourses"),
+    
+    #listCourses: lists all courses that a user is a student/teacher of
+    path('listUserCourses/', views.listUserCourses, name="listUserCourses"),
 
     #scheduleMatch: given a courseCode and datetime, it adds a thread to match students
     #at a given time

@@ -122,6 +122,7 @@ def getSelf(request):
         "first_name": user.first_name,
         "last_name": user.last_name,
         "teacher": str(user.is_teacher),
+        "title": user.title,
         "pos": user.programOfStudy,
         "grad_year": user.expectedGrad,
         "GPA": user.GPA,
@@ -162,12 +163,17 @@ def updateProfile(request):
             
             if not profile_QuerySet:
                 #Profiles is empty, create new profile
-                # courseCode = request.data['profile']['courseCode']
-                # course = Course.filter(courseCode=courseCode)
-                
+                courseCode = request.data['profile']['courseCode']
+                courseQS = Course.objects.filter(courseCode=courseCode)
+                if courseQS.count() == 1:
+                    #if there is one course then add that student to that course
+                    #if there is no course then maybe we should not let them make the profile?
+                    courseQS.first().add_student(user)
+                elif not courseQS:
+                    return Response({"message":"Course Not Found"}, status=status.HTTP_400_BAD_REQUEST)
+
                 # #check if course exists. if not, return error
                 # if not course:
-                #     return Response({"message":"Course Not Found"}, status=status.HTTP_400_BAD_REQUEST)
 
                 user.profile.create(courseCode=(request.data['profile']['courseCode']))
                 profile = user.profile.get(courseCode=request.data['profile']['courseCode'])
@@ -240,6 +246,10 @@ def createCourse(request):
         {
             "courseCode": course.courseCode,
             "courseName": course.courseName,
+            "description": course.description,
+            "session": course.session,
+            "year": course.year,
+            "groupSize": course.groupSize
         },
         "message": "Created course successfully"
     }, status=status.HTTP_200_OK)
@@ -254,10 +264,45 @@ def listCourses(request):
         response.data[course.courseCode] = {}
         response.data[course.courseCode]['courseCode'] = course.courseCode
         response.data[course.courseCode]['courseName'] = course.courseName
+        response.data[course.courseCode]['description'] = course.description
+        response.data[course.courseCode]['session'] = course.session
+        response.data[course.courseCode]['year'] = course.year
+        response.data[course.courseCode]['groupSize'] = course.groupSize
         response.data[course.courseCode]['isActive'] = course.is_active
         # response.data[course.courseCode]['teacher'] = course.teacher.all()
     return response
 #------------------------------------------------
+
+#------------------------------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def listUserCourses(request):
+    user = get_user_model().objects.get(username=request.user.username)    
+    courses = {}
+    if user.is_teacher == True:
+        #list courses that the user teaches
+        courses = user.teachers.all()
+    elif user.is_teacher == False:
+        courses = user.students.all()
+
+
+    response = Response(
+                {
+                    "user": user.username,
+                    "courses": {}
+                }, status=status.HTTP_200_OK)
+
+    for course in courses:
+        response.data['courses'][course.courseCode] = {}
+        response.data['courses'][course.courseCode]['courseCode'] = course.courseCode
+        response.data['courses'][course.courseCode]['courseName'] = course.courseName
+        response.data['courses'][course.courseCode]['description'] = course.description
+        response.data['courses'][course.courseCode]['session'] = course.session
+        response.data['courses'][course.courseCode]['year'] = course.year
+        response.data['courses'][course.courseCode]['groupSize'] = course.groupSize
+        response.data['courses'][course.courseCode]['isActive'] = course.is_active
+
+    return response
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

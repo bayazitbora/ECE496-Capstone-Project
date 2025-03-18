@@ -12,15 +12,16 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "teacher1",
+    "username": "AaronTran",
     "password": "Thisisademo",
-    "email": "teacher1@mail.utoronto.ca",
+    "email": "AaronTran@mail.utoronto.ca",
     "teacher": "True",
-    "first_name": "teacher",
-    "last_name": "one",
-    "pos": "Computer Engineering",
+    "first_name": "Aaron",
+    "last_name": "Tran",
+    "title": "Dr.",
+    "pos": "LeagueOfLegends",
     "gpa": "4.0",
-    "grad_year": "2025",
+    "grad_year": "1999",
     "minors": ["None"]
 }
 
@@ -30,7 +31,7 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "teacher1",
+    "username": "AaronTran",
     "password": "Thisisademo"
 }
 
@@ -43,11 +44,11 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "student2@mail.utoronto.ca",
+    "email": "ArtherMorgan@mail.utoronto.ca",
     "profile": {
-        "courseCode": "ECE496",
-        "hoursToCommit": "9",
-        "interests": ["French", "Computers", "Cars"],
+        "courseCode": "ENG100",
+        "hoursToCommit": "10",
+        "interests": ["Horses", "Money", "Cars"],
         "skills": ["C++", "Python", "Programming"]
     }
 }
@@ -93,8 +94,11 @@ Authorization: Bearer {{jwtoken}}
 
 {
     "courseInfo": {
-        "courseCode": "ECE496",
-        "courseName": "capstone",
+        "courseCode": "LOL200",
+        "courseName": "Quitting League of Legends",
+        "description": "Hear harrowing stories from surivivors of Summoner's Rift, and learn how to overcome your League of Legends addicition.",
+        "session": "Summer",
+        "year": 2026,
         "groupSize": "3"
     }
 }
@@ -109,6 +113,13 @@ Authorization: Bearer {{jwtoken}}
         "courseCode": "ECE496",
         "matchDate": "2025-02-12T14:53:58.-0500"
     }
+}
+###
+POST http://127.0.0.1:8000/api/listUserCourses/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
 }
 ###
 POST http://127.0.0.1:8000/api/listCourses/
