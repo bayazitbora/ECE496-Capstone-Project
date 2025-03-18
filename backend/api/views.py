@@ -99,6 +99,7 @@ def getUser(request):
         "email": user.email,
         "first_name": user.first_name,
         "last_name": user.last_name,
+        "title": user.title,
         "pos": user.programOfStudy,
         "grad_year": user.expectedGrad,
         "minors": user.minors.values_list('minor', flat=True),
@@ -303,6 +304,50 @@ def listUserCourses(request):
         response.data['courses'][course.courseCode]['isActive'] = course.is_active
 
     return response
+
+
+#------------------------------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def listUsersInCourse(request):
+    user = get_user_model().objects.get(username=request.user.username)    
+    courseCode = ""
+    if 'courseCode' in request.data:
+        courseCode = request.data['courseCode']
+    else:
+        return Response(
+                    {
+                        "user": request.user.username,
+                        "message": "Course code not included"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    course = Course.objects.filter(courseCode=courseCode)
+    if course.count() > 1:
+        return Response(
+                    {
+                        "user": request.user.username,
+                        "courseCode": request.data['courseCode'],
+                        "message": "Multiple Courses with that course code."
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    course = course.first()
+    response = Response(
+        {},
+        status=status.HTTP_200_OK
+    )
+    teachers = course.teacher.all()
+    for teacher in teachers:
+        response.data['teachers'] = teacher.email
+    
+    students = course.students.all()
+    response.data['studentsEmail'] = []
+    response.data['studentsUsername'] = []
+    for student in students:
+        response.data['studentsEmail'].append(student.email)
+        response.data['studentsUsername'].append(student.username)
+
+    return response
+
+#------------------------------------------------
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

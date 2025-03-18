@@ -12,16 +12,16 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "AaronTran",
+    "username": "TaimoK",
     "password": "Thisisademo",
-    "email": "AaronTran@mail.utoronto.ca",
-    "teacher": "True",
-    "first_name": "Aaron",
-    "last_name": "Tran",
-    "title": "Dr.",
-    "pos": "LeagueOfLegends",
+    "email": "Taimok@mail.utoronto.ca",
+    "teacher": "False",
+    "first_name": "Taimo",
+    "last_name": "K",
+    "title": null,
+    "pos": "Anthropology",
     "gpa": "4.0",
-    "grad_year": "1999",
+    "grad_year": "2025",
     "minors": ["None"]
 }
 
@@ -31,7 +31,7 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "AaronTran",
+    "username": "TaimoK",
     "password": "Thisisademo"
 }
 
@@ -44,9 +44,9 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "ArtherMorgan@mail.utoronto.ca",
+    "email": "TaimoK@mail.utoronto.ca",
     "profile": {
-        "courseCode": "ENG100",
+        "courseCode": "ECE496",
         "hoursToCommit": "10",
         "interests": ["Horses", "Money", "Cars"],
         "skills": ["C++", "Python", "Programming"]
@@ -120,6 +120,14 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
+}
+###
+POST http://127.0.0.1:8000/api/listUsersInCourse/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseCode": "ECE496"
 }
 ###
 POST http://127.0.0.1:8000/api/listCourses/

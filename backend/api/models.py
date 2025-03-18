@@ -164,7 +164,7 @@ class Course(models.Model):
         self.teacher.add(user)
 
     def add_student(self, user):
-        self.student.add(user)
+        self.students.add(user)
 
     def update_course(self, courseInfo):
         if 'courseName' in courseInfo:
