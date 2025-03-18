@@ -14,8 +14,6 @@ function Settings() {
     last_name: `${signUpState?.first_name || ""} ${
       signUpState?.last_name || ""
     }`.trim(),
-    // password: "",
-    // confirmPassword: "",
     pos: signUpState?.pos || "",
     grad_year: signUpState?.grad_year || null,
     minors: signUpState?.minors || [],
@@ -74,10 +72,6 @@ function Settings() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (formData.password !== formData.confirmPassword) {
-    //   alert("Passwords do not match!");
-    //   return;
-    // }
 
     const nameParts = formData.last_name.trim().split(" ");
     const first_name = nameParts[0];
@@ -126,26 +120,6 @@ function Settings() {
               onChange={handleChange}
             />
           </FormGroup>
-          {/* <FormGroup>
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Input
-              type="password"
-              name="confirmPassword"
-              id="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-          </FormGroup> */}
           <FormGroup>
             <Input
               type="select"
