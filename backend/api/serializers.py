@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from django.db import models
-from .models import Skill, Interest, Profile, Minor
+from .models import Skill, Interest, Profile, Minor, Review
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth import get_user_model
@@ -45,4 +45,9 @@ class ProfileSerializer(serializers.Serializer):
     class Meta:
         model = Profile
         fields = ('courseCode', 'interests', 'skills', 'hoursToCommit')
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'reviewer', 'reviewee', 'score', 'comment']
 
