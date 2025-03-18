@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Modal,
   ModalHeader,
@@ -13,30 +12,24 @@ import {
   Col,
 } from "reactstrap";
 
-const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
-  const [courseCode, setCourseCode] = useState("");
-  const [courseName, setCourseName] = useState("");
-  const [courseDescription, setCourseDescription] = useState("");
-  const [groupSize, setGroupSize] = useState("");
-  const [session, setSession] = useState("");
-  const [year, setYear] = useState("");
+const CreateCourseModal = ({
+  handleOpen,
+  handleClose,
+  handleCreate,
+  courseState,
+  setCourseState,
+}) => {
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setCourseState((prevState) => ({
+      ...prevState,
+      [id]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleCreate({
-      courseCode: courseCode,
-      courseName: courseName,
-      groupSize: groupSize,
-      session: session,
-      year: year,
-    });
-    setCourseCode("");
-    setCourseName("");
-    setCourseDescription("");
-    setGroupSize("");
-    setSession("");
-    setYear("");
-    handleClose();
+    handleCreate(courseState);
   };
 
   return (
@@ -50,8 +43,8 @@ const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
               type="text"
               id="courseCode"
               placeholder="Enter course code"
-              value={courseCode}
-              onChange={(e) => setCourseCode(e.target.value)}
+              value={courseState.courseCode}
+              onChange={handleChange}
               required
             />
           </FormGroup>
@@ -62,8 +55,8 @@ const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
                 <Input
                   type="select"
                   id="session"
-                  value={session}
-                  onChange={(e) => setSession(e.target.value)}
+                  value={courseState.session}
+                  onChange={handleChange}
                   required
                 >
                   <option value="">Select session</option>
@@ -80,8 +73,8 @@ const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
                   type="number"
                   id="year"
                   placeholder="Enter year"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
+                  value={courseState.year}
+                  onChange={handleChange}
                   required
                 />
               </FormGroup>
@@ -93,8 +86,8 @@ const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
               type="text"
               id="courseName"
               placeholder="Enter course name"
-              value={courseName}
-              onChange={(e) => setCourseName(e.target.value)}
+              value={courseState.courseName}
+              onChange={handleChange}
               required
             />
           </FormGroup>
@@ -105,8 +98,8 @@ const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
               id="courseDescription"
               rows={3}
               placeholder="Enter course description"
-              value={courseDescription}
-              onChange={(e) => setCourseDescription(e.target.value)}
+              value={courseState.courseDescription}
+              onChange={handleChange}
             />
           </FormGroup>
           <FormGroup>
@@ -115,8 +108,8 @@ const CreateCourseModal = ({ handleOpen, handleClose, handleCreate }) => {
               type="number"
               id="groupSize"
               placeholder="Enter group size"
-              value={groupSize}
-              onChange={(e) => setGroupSize(e.target.value)}
+              value={courseState.groupSize}
+              onChange={handleChange}
               required
             />
           </FormGroup>

@@ -32,6 +32,14 @@ function Courses() {
     hoursToCommit: 0,
     skills: [],
   });
+  const [courseState, setCourseState] = useState({
+    courseCode: "",
+    courseName: "",
+    description: "",
+    session: "",
+    year: 0,
+    groupSize: "",
+  });
   const { state: signUpState, dispatch } = useContext(SignUpContext);
   const { username, profiles: initialProfiles } = signUpState;
   const [profiles, setProfiles] = useState(initialProfiles || {});
@@ -132,17 +140,20 @@ function Courses() {
   /**
    * Handles the creation of a new course.
    * Sends the course data to the server and updates the user profiles.
-   * @param {Object} courseData - The data of the new course.
+   * @param {Object} courseState - The data of the new course.
    */
-  const handleCreate = async (courseData) => {
+  const handleCreate = async (courseState) => {
     try {
       const response = await privateAxios.post(
         "http://127.0.0.1:8000/api/createCourse/",
         {
           courseInfo: {
-            courseCode: courseData.courseCode,
-            courseName: courseData.courseName,
-            groupSize: courseData.groupSize,
+            courseCode: courseState.courseCode,
+            courseName: courseState.courseName,
+            description: courseState.description,
+            session: courseState.session,
+            year: courseState.year,
+            groupSize: courseState.groupSize,
           },
         }
       );
@@ -222,6 +233,8 @@ function Courses() {
                 handleOpen={handleOpen}
                 handleClose={handleClose}
                 handleCreate={handleCreate}
+                courseState={courseState}
+                setCourseState={setCourseState}
               />
             )}
           </ModalBody>
