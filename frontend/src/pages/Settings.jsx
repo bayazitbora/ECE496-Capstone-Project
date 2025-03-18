@@ -1,18 +1,21 @@
 import { useState, useContext } from "react";
 import { Button, Form, FormGroup, Input } from "reactstrap";
-import { privateAxios } from "../api/api";
+import { privateAxios, setPrivateAxiosToken } from "../api/api";
 import { SignUpContext } from "../context/SignUpContext";
+import { useAuth } from "../context/AuthContext";
 
 function Settings() {
-  const { state: signUpState } = useContext(SignUpContext);
+  const { state: signUpState, setFormData: updateSignUpState } =
+    useContext(SignUpContext);
+  const { token } = useAuth();
 
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: `${signUpState?.first_name || ""} ${
       signUpState?.last_name || ""
     }`.trim(),
-    password: "",
-    confirmPassword: "",
+    // password: "",
+    // confirmPassword: "",
     pos: signUpState?.pos || "",
     grad_year: signUpState?.grad_year || null,
     minors: signUpState?.minors || [],
@@ -71,10 +74,10 @@ function Settings() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
+    // if (formData.password !== formData.confirmPassword) {
+    //   alert("Passwords do not match!");
+    //   return;
+    // }
 
     const nameParts = formData.last_name.trim().split(" ");
     const first_name = nameParts[0];
@@ -90,12 +93,18 @@ function Settings() {
     });
 
     try {
-      const response = await privateAxios.post("/updateSelf", {
+      setPrivateAxiosToken(token);
+      const response = await privateAxios.post("updateSelf/", {
         ...updatedData,
         first_name,
         last_name,
       });
       console.log("Profile updated successfully:", response.data);
+      updateSignUpState({
+        ...updatedData,
+        first_name,
+        last_name,
+      });
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -117,7 +126,7 @@ function Settings() {
               onChange={handleChange}
             />
           </FormGroup>
-          <FormGroup>
+          {/* <FormGroup>
             <Input
               type="password"
               name="password"
@@ -136,7 +145,7 @@ function Settings() {
               value={formData.confirmPassword}
               onChange={handleChange}
             />
-          </FormGroup>
+          </FormGroup> */}
           <FormGroup>
             <Input
               type="select"
