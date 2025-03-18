@@ -136,10 +136,16 @@ function Courses() {
    */
   const handleCreate = async (courseData) => {
     try {
-      const response = await privateAxios.post("createCourse/", {
-        username,
-        course: courseData,
-      });
+      const response = await privateAxios.post(
+        "http://127.0.0.1:8000/api/createCourse/",
+        {
+          courseInfo: {
+            courseCode: courseData.courseCode,
+            courseName: courseData.courseName,
+            groupSize: courseData.groupSize,
+          },
+        }
+      );
       console.log("Course created successfully:", response.data);
 
       const updatedProfilesResponse = await privateAxios.post("getSelf/", {
