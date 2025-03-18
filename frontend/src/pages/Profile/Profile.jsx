@@ -16,6 +16,11 @@ function Profile() {
             <strong>Role: </strong>
             {userProfile.teacher === "False" ? "Student" : "Instructor"}
           </p>
+          {userProfile.teacher === "True" && (
+            <p>
+              <strong>Title:</strong> {userProfile.title}
+            </p>
+          )}
           <p>
             <strong>Username:</strong> {userProfile.username}
           </p>
