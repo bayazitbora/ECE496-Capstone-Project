@@ -103,6 +103,7 @@ class MyUser(AbstractUser):
     first_name      = models.CharField(max_length=50)
     last_name       = models.CharField(max_length=50)
     title           = models.CharField(null=True, max_length=20)
+    bio             = models.TextField(null=True)
     programOfStudy  = models.CharField(max_length=200, default="N/A")
     minors          = models.ManyToManyField(Minor)
     expectedGrad    = models.IntegerField(default=0)
@@ -149,6 +150,9 @@ class MyUser(AbstractUser):
                 self.user_type = 'teacher'
                 if 'title' in request:
                     self.title = request['title']
+
+        if 'bio' in request:
+            self.bio = request.get('bio')
 
         self.save()
         

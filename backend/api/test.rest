@@ -12,12 +12,12 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "TaimoK",
+    "username": "JohnDoe",
     "password": "Thisisademo",
-    "email": "Taimok@mail.utoronto.ca",
+    "email": "JohnDoe@mail.utoronto.ca",
     "teacher": "False",
-    "first_name": "Taimo",
-    "last_name": "K",
+    "first_name": "John",
+    "last_name": "Doe",
     "title": null,
     "pos": "Anthropology",
     "gpa": "4.0",
@@ -31,8 +31,8 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "paul.dup",
-    "password": "12345"
+    "username": "JohnDoe",
+    "password": "Thisisademo"
 }
 
 ###
@@ -44,7 +44,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "TaimoK@mail.utoronto.ca",
+    "email": "John.Doe@mail.utoronto.ca",
     "profile": {
         "courseCode": "ECE496",
         "hoursToCommit": "10",
@@ -60,13 +60,14 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "first_name": "Josh",
-    "last_name": "LaPointe",
+    "first_name": "John",
+    "last_name": "Doe",
     "pos": "Software Engineering",
     "gpa": "4.0",
-    "teacher": "True",
+    "teacher": "False",
     "grad_year": "2025",
-    "minors": ["AI"]
+    "minors": ["AI"],
+    "bio": "Hi! My name is John Doe and I like hammer head sharks."
 }
 
 ###
