@@ -23,7 +23,9 @@ const OwnReview = ({ review, onDelete }) => {
               <FontAwesomeIcon
                 key={index}
                 icon={faStar}
-                style={{ color: index < review.score ? "#ffc107" : "#e4e5e9" }}
+                style={{
+                  color: index < review.score ? "#ffc107" : "#e4e5e9",
+                }}
               />
             ))}
           </Col>
@@ -32,14 +34,18 @@ const OwnReview = ({ review, onDelete }) => {
               {review.reviewer}
             </CardTitle>
           </Col>
+          <Col className="d-flex justify-content-end align-items-center">
+            <Button
+              color="danger"
+              size="sm"
+              onClick={() => onDelete(review.id)}
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </Button>
+          </Col>
         </Row>
         <CardText className="mb-0">{review.review}</CardText>
         <CardText>{review.comment}</CardText>
-        <div style={{ textAlign: "right" }}>
-          <Button color="danger" size="sm" onClick={() => onDelete(review.id)}>
-            <FontAwesomeIcon icon={faTimes} />
-          </Button>
-        </div>
       </CardBody>
     </Card>
   );
