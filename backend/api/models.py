@@ -203,3 +203,12 @@ class Course(models.Model):
         self.jobID = jobID
         self.matchDate = matchDate
         self.save()
+
+class Review(models.Model):
+    reviewer = models.ForeignKey(User, related_name='reviews_given', on_delete=models.CASCADE)
+    reviewee = models.ForeignKey(User, related_name='reviews_received', on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    comment = models.TextField()
+
+    def __str__(self):
+        return f'Review from {self.reviewer.username} to {self.reviewee.username}'

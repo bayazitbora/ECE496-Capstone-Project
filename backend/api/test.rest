@@ -31,8 +31,8 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "TaimoK",
-    "password": "Thisisademo"
+    "username": "paul.dup",
+    "password": "12345"
 }
 
 ###
@@ -135,4 +135,33 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
+}
+
+###
+POST http://127.0.0.1:8000/api/addReview/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "reviewee": "paul.dup",
+    "score": 3,
+    "comment": "Terrible teammate."
+}
+
+###
+DELETE http://127.0.0.1:8000/api/deleteReview/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "review_id": 2
+}
+
+###
+GET http://127.0.0.1:8000/api/getReviews/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "username": "guest"
 }

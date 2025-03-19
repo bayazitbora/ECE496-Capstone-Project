@@ -15,9 +15,9 @@ from django.conf import settings
 User = settings.AUTH_USER_MODEL
 SCHEDULER = settings.SCHEDULER
 from django.contrib.auth import get_user_model
-from .models import Course, MyUser
+from .models import Course, MyUser, Review
 
-from .serializers import UserSerializer, ProfileSerializer, MinorSerializer
+from .serializers import UserSerializer, ProfileSerializer, MinorSerializer, ReviewSerializer
 
 import pandas as pd
 import numpy as np
@@ -508,12 +508,65 @@ def generate_random_student():
         'GPA': round(gpa, 2),
         'major': random.choice(major_categories),
         'minor': random.choice(minor_categories),
-        'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
-        'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
-        'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
-        #'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        'courses_taken': random.sample(courses_categories, k.random.randint(1, len(courses_categories))),
+        'areas_of_interest': random.sample(interests_categories, k.random.randint(1, len(interests_categories))),
+        'technical_skills': random.sample(skills_categories, k.random.randint(1, len(skills_categories))),
+        #'schedule': random.sample(schedule_categories, k.random.randint(1, len(schedule_categories))), # change according to questionnaire
         'meeting_freq': meeting_freq # change according to questionnaire
     }
 
 def generate_students(n):
     return pd.DataFrame([generate_random_student() for _ in range(n)])
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_review(request):
+    reviewer = get_user_model().objects.get(username=request.user.username)
+    reviewee_username = request.data.get('reviewee')
+    score = request.data.get('score')
+    comment = request.data.get('comment')
+
+    if not reviewee_username or score is None or comment is None:
+        return Response({"message": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+    reviewee = get_user_model().objects.filter(username=reviewee_username).first()
+    if not reviewee:
+        return Response({"message": "Reviewee not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    review = Review(reviewer=reviewer, reviewee=reviewee, score=score, comment=comment)
+    review.save()
+
+    review_data = ReviewSerializer(review).data
+    return Response({"message": "Review added successfully", "review": review_data}, status=status.HTTP_201_CREATED)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_review(request):
+    reviewee = get_user_model().objects.get(username=request.user.username)
+    review_id = request.data.get('review_id')
+
+    if not review_id:
+        return Response({"message": "Missing review ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+    review = Review.objects.filter(id=review_id, reviewee=reviewee).first()
+    if not review:
+        return Response({"message": "Review not found or you do not have permission to delete this review"}, status=status.HTTP_404_NOT_FOUND)
+
+    review.delete()
+    return Response({"message": "Review deleted successfully"}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_reviews(request):
+    username = request.data.get('username')
+    if not username:
+        return Response({"message": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = get_user_model().objects.filter(username=username).first()
+    if not user:
+        return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    reviews = Review.objects.filter(reviewee=user)
+    serialized_reviews = ReviewSerializer(reviews, many=True)
+    return Response({"reviews": serialized_reviews.data}, status=status.HTTP_200_OK)

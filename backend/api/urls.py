@@ -55,4 +55,12 @@ urlpatterns = [
     #token/refresh: refreshes a users JWT to keep them logged in.
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
+    #addReview: adds a review
+    path('addReview/', views.add_review, name="addReview"),
+
+    #deleteReview: deletes a review
+    path('deleteReview/', views.delete_review, name="deleteReview"),
+
+    #getReviews: returns all reviews
+    path('getReviews/', views.get_reviews, name="getReviews"),
 ]
