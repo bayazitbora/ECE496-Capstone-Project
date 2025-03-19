@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+import datetime
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -155,9 +156,9 @@ class Course(models.Model):
     is_active       = models.BooleanField()
     courseCode      = models.CharField(max_length=50)
     courseName      = models.CharField(max_length=140, default="N/A")
-    session         = models.CharField(max_length=50)
-    year            = models.IntegerField() 
-    description     = models.CharField(max_length=500)
+    session         = models.CharField(max_length=50, default="Fall")
+    year            = models.IntegerField(default=datetime.datetime.now().year)  # Change default year to current year
+    description     = models.CharField(max_length=500, default="")
 
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')

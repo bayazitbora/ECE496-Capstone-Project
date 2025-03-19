@@ -13,26 +13,36 @@ function Profile() {
         </h1>
         <div style={{ marginBottom: "20px" }}>
           <p>
-            <strong>Role:</strong> {userProfile.teacher ? "Instructor" : "Student"}
+            <strong>Role: </strong>
+            {userProfile.teacher === "False" ? "Student" : "Instructor"}
           </p>
+          {userProfile.teacher === "True" && (
+            <p>
+              <strong>Title:</strong> {userProfile.title}
+            </p>
+          )}
           <p>
             <strong>Username:</strong> {userProfile.username}
           </p>
           <p>
             <strong>Email:</strong> {userProfile.email}
           </p>
-          <p>
-            <strong>Program of Study:</strong> {userProfile.pos}
-          </p>
-          <p>
-            <strong>Graduation Year:</strong> {userProfile.grad_year}
-          </p>
-          <p>
-            <strong>Minors:</strong> {userProfile.minors.join(", ")}
-          </p>
-          <p>
-            <strong>GPA:</strong> {userProfile.gpa}
-          </p>
+          {userProfile.teacher === "False" && (
+            <>
+              <p>
+                <strong>Program of Study:</strong> {userProfile.pos}
+              </p>
+              <p>
+                <strong>Graduation Year:</strong> {userProfile.grad_year}
+              </p>
+              <p>
+                <strong>Minors:</strong> {userProfile.minors.join(", ")}
+              </p>
+              <p>
+                <strong>GPA:</strong> {userProfile.gpa}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -1,7 +1,8 @@
 import { createContext, useReducer, useEffect } from "react";
 
 const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
-  role: "", // student or instructor
+  teacher: "", // student or instructor
+  title: "",
   first_name: "",
   last_name: "",
   username: "",
@@ -10,7 +11,7 @@ const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
   grad_year: "", // expected grad year
   minors: [], // array of minors
   gpa: 0, // 0-4
-  profiles: [], 
+  profiles: [],
 };
 
 const UPDATE_FORM = "UPDATE_FORM";
