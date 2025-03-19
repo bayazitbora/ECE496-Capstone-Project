@@ -508,10 +508,10 @@ def generate_random_student():
         'GPA': round(gpa, 2),
         'major': random.choice(major_categories),
         'minor': random.choice(minor_categories),
-        'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
-        'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
-        'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
-        #'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        'courses_taken': random.sample(courses_categories, k.random.randint(1, len(courses_categories))),
+        'areas_of_interest': random.sample(interests_categories, k.random.randint(1, len(interests_categories))),
+        'technical_skills': random.sample(skills_categories, k.random.randint(1, len(skills_categories))),
+        #'schedule': random.sample(schedule_categories, k.random.randint(1, len(schedule_categories))), # change according to questionnaire
         'meeting_freq': meeting_freq # change according to questionnaire
     }
 
@@ -522,7 +522,7 @@ def generate_students(n):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_review(request):
-    reviewer = request.user
+    reviewer = get_user_model().objects.get(username=request.user.username)
     reviewee_username = request.data.get('reviewee')
     score = request.data.get('score')
     comment = request.data.get('comment')
@@ -543,7 +543,7 @@ def add_review(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_review(request):
-    reviewee = request.user
+    reviewee = get_user_model().objects.get(username=request.user.username)
     review_id = request.data.get('review_id')
 
     if not review_id:
@@ -559,7 +559,14 @@ def delete_review(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_reviews(request):
-    user = request.user
+    username = request.data.get('username')
+    if not username:
+        return Response({"message": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = get_user_model().objects.filter(username=username).first()
+    if not user:
+        return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
     reviews = Review.objects.filter(reviewee=user)
     serialized_reviews = ReviewSerializer(reviews, many=True)
     return Response({"reviews": serialized_reviews.data}, status=status.HTTP_200_OK)

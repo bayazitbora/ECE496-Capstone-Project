@@ -210,4 +210,4 @@ class Review(models.Model):
     comment = models.TextField()
 
     def __str__(self):
-        return f'Review from {self.reviewer} to {self.reviewee}'
+        return f'Review from {self.reviewer.username} to {self.reviewee.username}'

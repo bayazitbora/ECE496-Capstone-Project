@@ -47,7 +47,16 @@ class ProfileSerializer(serializers.Serializer):
         fields = ('courseCode', 'interests', 'skills', 'hoursToCommit')
 
 class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SerializerMethodField()
+    reviewee = serializers.SerializerMethodField()
+
     class Meta:
         model = Review
         fields = ['id', 'reviewer', 'reviewee', 'score', 'comment']
+
+    def get_reviewer(self, obj):
+        return obj.reviewer.username
+
+    def get_reviewee(self, obj):
+        return obj.reviewee.username
 
