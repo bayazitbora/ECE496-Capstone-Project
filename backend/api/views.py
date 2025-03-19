@@ -24,6 +24,7 @@ import numpy as np
 import random
 
 from .algorithm.algorithm import cluster_and_match_students
+from django.db.models import Q
 
 @api_view(['GET'])
 def getStatus(request):
@@ -142,7 +143,7 @@ def getSelf(request):
 @permission_classes([IsAuthenticated])
 def updateProfile(request):
     if request.user.email:
-        user = get_user_model().objects.get(email__iexact(request.user.email))
+        user = get_user_model().objects.get(Q(email__iexact=request.user.email))
     elif request.user.username:
         user = get_user_model().objects.get(username=request.user.username)
     else:
