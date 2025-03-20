@@ -82,6 +82,9 @@ function Profile() {
               </p>
             </>
           )}
+          <p>
+            <strong>About Me:</strong> {userProfile.bio}
+          </p>
         </div>
         <div>
           <h2>Reviews</h2>
