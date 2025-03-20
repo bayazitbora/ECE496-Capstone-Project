@@ -28,6 +28,11 @@ function Profile() {
   }, [userState.username, token]);
 
   const handleDeleteReview = async (reviewId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this review?"
+    );
+    if (!confirmDelete) return;
+
     try {
       setPrivateAxiosToken(token);
       await privateAxios.delete("deleteReview/", {
@@ -80,13 +85,17 @@ function Profile() {
         </div>
         <div>
           <h2>Reviews</h2>
-          {reviews.map((review) => (
-            <OwnReview
-              key={review.id}
-              review={review}
-              onDelete={handleDeleteReview}
-            />
-          ))}
+          {reviews.length === 0 ? (
+            <p>No reviews available.</p>
+          ) : (
+            reviews.map((review) => (
+              <OwnReview
+                key={review.id}
+                review={review}
+                onDelete={handleDeleteReview}
+              />
+            ))
+          )}
         </div>
       </div>
     </>
