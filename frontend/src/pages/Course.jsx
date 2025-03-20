@@ -2,16 +2,8 @@ import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { SignUpContext } from "../context/SignUpContext";
 import { privateAxios, setPrivateAxiosToken } from "../api/api";
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  CardText,
-  Button,
-  Row,
-  Col,
-} from "reactstrap";
 import TeammateModal from "../components/Course/TeammateModal";
+import Teammate from "../components/Course/Teammate";
 import { useAuth } from "../context/AuthContext";
 
 /**
@@ -35,7 +27,7 @@ function Course() {
    */
   useEffect(() => {
     // TODO: remove this and fetch team from backend later
-    const sampleUsernames = ["joao.bicalho", "user2", "user3", "test4"];
+    const sampleUsernames = ["joao.bicalho", "isabelle.noa", "user3", "user4"];
     const fetchTeammates = async () => {
       setPrivateAxiosToken(token);
       try {
@@ -86,30 +78,14 @@ function Course() {
         <h2>Teammates</h2>
         {teammates.length > 0 ? (
           teammates.map((member) => (
-            <Card key={member.username} className="mb-3">
-              <CardBody>
-                <Row>
-                  <Col>
-                    <CardTitle tag="h5">
-                      {member.first_name} {member.last_name}
-                    </CardTitle>
-                    <CardText>Major: {member.pos}</CardText>
-                    <CardText>Graduation Year: {member.grad_year}</CardText>
-                  </Col>
-                  <Col className="d-flex justify-content-end align-items-center">
-                    <Button
-                      onClick={() => {
-                        setSelectedTeammate(member);
-                        toggleModal();
-                      }}
-                      color="primary"
-                    >
-                      More Info
-                    </Button>
-                  </Col>
-                </Row>
-              </CardBody>
-            </Card>
+            <Teammate
+              key={member.username}
+              member={member}
+              onMoreInfo={(member) => {
+                setSelectedTeammate(member);
+                toggleModal();
+              }}
+            />
           ))
         ) : (
           <p>No teammates available.</p>
