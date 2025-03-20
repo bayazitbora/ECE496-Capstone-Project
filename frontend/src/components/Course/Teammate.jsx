@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardBody,
@@ -9,6 +10,12 @@ import {
 } from "reactstrap";
 
 const Teammate = ({ member, onMoreInfo }) => {
+  const navigate = useNavigate();
+
+  const handleSendMessage = () => {
+    navigate("/contacts", { state: { receiver: member.username } });
+  };
+
   return (
     <Card className="mb-3">
       <CardBody>
@@ -21,8 +28,15 @@ const Teammate = ({ member, onMoreInfo }) => {
             <CardText>Graduation Year: {member.grad_year}</CardText>
           </Col>
           <Col className="d-flex justify-content-end align-items-center">
-            <Button onClick={() => onMoreInfo(member)} color="primary">
+            <Button
+              onClick={() => onMoreInfo(member)}
+              color="primary"
+              style={{ marginRight: "10px" }}
+            >
               More Info
+            </Button>
+            <Button onClick={handleSendMessage} color="secondary">
+              Send Message
             </Button>
           </Col>
         </Row>
