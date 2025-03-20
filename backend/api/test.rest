@@ -31,7 +31,7 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "guest",
+    "username": "paul.dup",
     "password": "12345"
 }
 
