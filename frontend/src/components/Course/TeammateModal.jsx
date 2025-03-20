@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Modal,
   ModalHeader,
@@ -22,6 +23,7 @@ const TeammateModal = ({ isOpen, toggle, teammate }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [score, setScore] = useState(0);
   const [comment, setComment] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -63,6 +65,10 @@ const TeammateModal = ({ isOpen, toggle, teammate }) => {
 
   const handleStarClick = (index) => {
     setScore(index + 1);
+  };
+
+  const handleSendMessage = () => {
+    navigate("/contacts", { state: { receiver: teammate.username } });
   };
 
   return (
@@ -130,8 +136,8 @@ const TeammateModal = ({ isOpen, toggle, teammate }) => {
         >
           Write Review
         </Button>
-        <Button color="primary" href={`mailto:${teammate.email}`}>
-          Email
+        <Button color="primary" onClick={handleSendMessage}>
+          Send Message
         </Button>
       </ModalFooter>
     </Modal>

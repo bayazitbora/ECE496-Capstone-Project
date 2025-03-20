@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Button, ListGroup, Nav, NavItem, NavLink } from "reactstrap";
 import MessageSent from "../components/Contacts/MessageSent";
@@ -6,18 +7,19 @@ import MessageReceived from "../components/Contacts/MessageReceived";
 import MessageModal from "../components/Contacts/MessageModal";
 
 function Contacts() {
+  const location = useLocation();
   const [messages, setMessages] = useState({
     received_messages: [],
     sent_messages: [],
   });
   const [newMessage, setNewMessage] = useState({
-    receiver: "",
+    receiver: location.state?.receiver || "",
     title: "",
     text: "",
   });
   const [token] = useState(localStorage.getItem("token"));
   const [activeTab, setActiveTab] = useState("received");
-  const [modal, setModal] = useState(false);
+  const [modal, setModal] = useState(!!location.state?.receiver);
 
   useEffect(() => {
     fetchMessages();
