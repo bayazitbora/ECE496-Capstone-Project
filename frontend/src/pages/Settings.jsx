@@ -18,6 +18,7 @@ function Settings() {
     grad_year: signUpState?.grad_year || null,
     minors: signUpState?.minors || [],
     gpa: signUpState?.gpa || 0.0,
+    bio: signUpState?.bio || "", // Add bio field
   });
 
   const majors = [
@@ -107,7 +108,6 @@ function Settings() {
   return (
     <>
       <div>
-        <h2>Settings</h2>
         <h3>Update Profile</h3>
         <Form onSubmit={handleSubmit}>
           <FormGroup>
@@ -184,6 +184,16 @@ function Settings() {
               id="gpa"
               placeholder="GPA"
               value={formData.gpa}
+              onChange={handleChange}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Input
+              type="textarea"
+              name="bio"
+              id="bio"
+              placeholder="Bio"
+              value={formData.bio}
               onChange={handleChange}
             />
           </FormGroup>

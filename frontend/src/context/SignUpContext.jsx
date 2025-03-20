@@ -12,6 +12,7 @@ const initialState = JSON.parse(localStorage.getItem("userProfile")) || {
   minors: [], // array of minors
   gpa: 0, // 0-4
   profiles: [],
+  bio: "",
 };
 
 const UPDATE_FORM = "UPDATE_FORM";
