@@ -84,7 +84,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "requested_user": "JohnDoe1234"
+    "requested_user": "paul.dup"
 }
 
 ###
@@ -143,7 +143,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "reviewee": "paul.dup",
+    "reviewee": "guest",
     "score": 3,
     "comment": "Terrible teammate."
 }
@@ -158,10 +158,34 @@ Authorization: Bearer {{jwtoken}}
 }
 
 ###
-GET http://127.0.0.1:8000/api/getReviews/
+GET http://127.0.0.1:8000/api/getReviews/?username=paul.dup
 Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
-{
-    "username": "guest"
+###
+POST http://127.0.0.1:8000/api/sendMessage/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+    "receiver": "paul.dup", 
+    "title": "Hello",
+    "text": "Hello, Paul. How are you?"
+}
+
+###
+GET http://127.0.0.1:8000/api/getMessages/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+}
+
+###
+DELETE  http://127.0.0.1:8000/api/deleteMessage/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+    "message_id": 1
 }
