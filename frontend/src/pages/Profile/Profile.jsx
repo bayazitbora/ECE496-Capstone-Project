@@ -83,7 +83,7 @@ function Profile() {
             </>
           )}
           <p>
-            <strong>About Me:</strong> {userProfile.bio}
+            <strong>About Me:</strong> {userState.bio}
           </p>
         </div>
         <div>
