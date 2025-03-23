@@ -17,5 +17,4 @@ services:
         value: backend.settings
       - key: PYTHON_VERSION
         value: 3.11.0
-    buildCommand: ""
-    startCommand: "python /app/backend/manage.py runserver 0.0.0.0:$PORT" 
+    buildCommand: "" 
