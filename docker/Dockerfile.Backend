@@ -9,23 +9,27 @@ ENV PYTHONUNBUFFERED=1
 RUN pip install --upgrade pip --no-warn-script-location
  
 # Copy requirements first for better caching
-COPY ./backend/requirements.txt /app/backend/
+COPY ./backend/requirements.txt /app/backend/requirements.txt
  
 RUN cd /app/backend && pip install -r requirements.txt --no-warn-script-location --root-user-action=ignore
  
 # Copy backend code
 COPY ./backend /app/backend
 
+# Debug directory listing
+RUN ls -la /app && ls -la /app/backend
+ 
 # Ensure manage.py is executable
 RUN chmod +x /app/backend/manage.py
  
 EXPOSE 8000
 
 # Use exec form of CMD for better signal handling
-CMD ["bash", "-c", "cd /app/backend && \
+CMD ["bash", "-c", "echo \"Listing directory content for debugging:\" && \
+ls -la /app/backend && \
 echo \"Starting collectstatic...\" && \
-python manage.py collectstatic --noinput && \
+python /app/backend/manage.py collectstatic --noinput && \
 echo \"Starting migrations...\" && \
-python manage.py migrate && \
+python /app/backend/manage.py migrate && \
 echo \"Starting gunicorn...\" && \
 exec gunicorn --bind 0.0.0.0:${PORT:-8000} TeamBuilder.wsgi"]
