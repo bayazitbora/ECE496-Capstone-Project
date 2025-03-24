@@ -3,7 +3,7 @@ services:
     name: frontend
     env: node
     buildCommand: cd frontend && npm install && npm run build
-    startCommand: cd frontend && npm run preview
+    startCommand: cd frontend && npm run preview -- --host
     envVars:
       - key: NODE_ENV
         value: production
@@ -15,9 +15,10 @@ services:
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: backend.settings_prod
-      - fromGroup: django-settings
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
       - key: DJANGO_DEBUG
-        value: 0
+        value: "0"
     disk:
       name: sqlite-data
       mountPath: /app/backend
