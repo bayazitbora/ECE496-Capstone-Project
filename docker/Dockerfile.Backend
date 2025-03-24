@@ -1,35 +1,45 @@
 FROM python:3.12
 
-WORKDIR /app
- 
 # Set environment variables 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
  
 RUN pip install --upgrade pip --no-warn-script-location
- 
-# Copy requirements first for better caching
-COPY ./backend/requirements.txt /app/backend/requirements.txt
- 
-RUN cd /app/backend && pip install -r requirements.txt --no-warn-script-location --root-user-action=ignore
- 
-# Copy backend code
-COPY ./backend /app/backend
 
-# Debug directory listing
-RUN ls -la /app && ls -la /app/backend
- 
-# Ensure manage.py is executable
-RUN chmod +x /app/backend/manage.py
+# Create app structure
+WORKDIR /app
+RUN mkdir -p /app/backend
+
+# Check build context (debugging)
+RUN echo "Checking build context:" && ls -la
+
+# Define paths for clarity
+ENV BACKEND_DIR=/app/backend
+
+# Copy requirements and install
+COPY ./backend/requirements.txt ${BACKEND_DIR}/
+RUN pip install -r ${BACKEND_DIR}/requirements.txt
+
+# Copy backend files
+COPY ./backend/ ${BACKEND_DIR}/
+
+# Check if files were copied correctly
+RUN echo "Backend directory content:" && ls -la ${BACKEND_DIR}/
+
+# Make sure manage.py is executable
+RUN if [ -f "${BACKEND_DIR}/manage.py" ]; then chmod +x ${BACKEND_DIR}/manage.py; else echo "manage.py not found"; fi
  
 EXPOSE 8000
 
-# Use exec form of CMD for better signal handling
-CMD ["bash", "-c", "echo \"Listing directory content for debugging:\" && \
-ls -la /app/backend && \
-echo \"Starting collectstatic...\" && \
-python /app/backend/manage.py collectstatic --noinput && \
-echo \"Starting migrations...\" && \
-python /app/backend/manage.py migrate && \
-echo \"Starting gunicorn...\" && \
-exec gunicorn --bind 0.0.0.0:${PORT:-8000} TeamBuilder.wsgi"]
+# Start the application
+CMD ["bash", "-c", "cd /app/backend && \
+if [ -f \"./manage.py\" ]; then \
+  echo \"Starting Django application...\" && \
+  python manage.py collectstatic --noinput && \
+  python manage.py migrate && \
+  exec gunicorn --bind 0.0.0.0:${PORT:-8000} TeamBuilder.wsgi; \
+else \
+  echo \"ERROR: manage.py not found in $(pwd)\" && \
+  echo \"Directory contents:\" && ls -la && \
+  exit 1; \
+fi"]
