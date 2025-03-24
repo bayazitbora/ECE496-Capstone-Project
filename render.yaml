@@ -10,8 +10,9 @@ services:
     
   - type: web
     name: backend
-    env: docker
-    dockerfilePath: ./docker/Dockerfile.Backend
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn TeamBuilder.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: TeamBuilder.settings_prod
@@ -21,6 +22,5 @@ services:
         value: "0"
     disk:
       name: sqlite-data
-      mountPath: /app
-      sizeGB: 1
-    buildCommand: "" 
+      mountPath: /opt/render/project/src/backend
+      sizeGB: 1 
