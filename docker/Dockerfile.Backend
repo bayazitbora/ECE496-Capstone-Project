@@ -1,20 +1,23 @@
 FROM python:3.12
 
-WORKDIR /app/backend
+WORKDIR /app
  
 # Set environment variables 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
  
-RUN pip install --upgrade pip 
+RUN pip install --upgrade pip --no-warn-script-location
  
 COPY ./backend/requirements.txt  /app/backend/
  
-RUN cd /app/backend && pip install -r requirements.txt
+RUN cd /app/backend && pip install -r requirements.txt --no-warn-script-location --root-user-action=ignore
  
 COPY ./backend /app/backend
  
 EXPOSE 8000
 
+# List directory contents to debug
+RUN ls -la /app && ls -la /app/backend
+
 # Run migrations, collect static files, and start gunicorn
-CMD python manage.py collectstatic --noinput && python manage.py migrate && gunicorn --bind 0.0.0.0:$PORT backend.wsgi
+CMD cd /app/backend && python manage.py collectstatic --noinput && python manage.py migrate && gunicorn --bind 0.0.0.0:$PORT TeamBuilder.wsgi

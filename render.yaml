@@ -14,7 +14,7 @@ services:
     dockerfilePath: ./docker/Dockerfile.Backend
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: backend.settings_prod
+        value: TeamBuilder.settings_prod
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
