@@ -15,8 +15,7 @@ services:
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: backend.settings_prod
-      - key: DJANGO_SECRET_KEY
-        fromGroup: django-settings
+      - fromGroup: django-settings
       - key: DJANGO_DEBUG
         value: 0
     disk:
