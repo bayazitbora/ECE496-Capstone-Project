@@ -12,7 +12,7 @@ services:
     name: backend
     env: python
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd /opt/render/project/src && python -m gunicorn --pythonpath backend backend.TeamBuilder.wsgi:application --bind=0.0.0.0:$PORT
+    startCommand: cd /opt/render/project/src/backend && python manage.py migrate && gunicorn TeamBuilder.wsgi:application --bind=0.0.0.0:$PORT
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: TeamBuilder.settings_prod
