@@ -14,7 +14,13 @@ services:
     dockerfilePath: ./docker/Dockerfile.Backend
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: backend.settings
-      - key: PYTHON_VERSION
-        value: 3.11.0
+        value: backend.settings_prod
+      - key: DJANGO_SECRET_KEY
+        fromGroup: django-settings
+      - key: DJANGO_DEBUG
+        value: 0
+    disk:
+      name: sqlite-data
+      mountPath: /app/backend
+      sizeGB: 1
     buildCommand: "" 
