@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm run preview -- --host
+    envVars:
+      - key: NODE_ENV
+        value: production
+    
+  - type: web
+    name: backend
+    env: docker
+    dockerfilePath: ./docker/Dockerfile.Backend
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: backend.settings_prod
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+    disk:
+      name: sqlite-data
+      mountPath: /app/backend
+      sizeGB: 1
+    buildCommand: "" 
