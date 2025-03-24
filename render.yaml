@@ -12,7 +12,7 @@ services:
     name: backend
     env: python
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && PYTHONPATH=$PYTHONPATH:. gunicorn --chdir=. --bind=0.0.0.0:$PORT TeamBuilder.wsgi:application
+    startCommand: cd /opt/render/project/src && python -m gunicorn --pythonpath backend backend.TeamBuilder.wsgi:application --bind=0.0.0.0:$PORT
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: TeamBuilder.settings_prod
@@ -20,8 +20,6 @@ services:
         generateValue: true
       - key: DJANGO_DEBUG
         value: "0"
-      - key: PYTHONPATH
-        value: /opt/render/project/src/backend
     disk:
       name: sqlite-data
       mountPath: /opt/render/project/src/backend
