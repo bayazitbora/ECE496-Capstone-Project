@@ -2,44 +2,35 @@ FROM python:3.12
 
 # Set environment variables 
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
- 
-RUN pip install --upgrade pip --no-warn-script-location
+ENV PYTHONUNBUFFERED=1
 
-# Create app structure
+# Set working directory
 WORKDIR /app
-RUN mkdir -p /app/backend
 
-# Check build context (debugging)
-RUN echo "Checking build context:" && ls -la
+# Debug current directory
+RUN pwd && ls -la
 
-# Define paths for clarity
-ENV BACKEND_DIR=/app/backend
+# Install dependencies
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy requirements and install
-COPY ./backend/requirements.txt ${BACKEND_DIR}/
-RUN pip install -r ${BACKEND_DIR}/requirements.txt
+# Copy project files
+COPY backend/ .
 
-# Copy backend files
-COPY ./backend/ ${BACKEND_DIR}/
+# Debug after copying
+RUN echo "Files after copying:" && ls -la
 
-# Check if files were copied correctly
-RUN echo "Backend directory content:" && ls -la ${BACKEND_DIR}/
-
-# Make sure manage.py is executable
-RUN if [ -f "${BACKEND_DIR}/manage.py" ]; then chmod +x ${BACKEND_DIR}/manage.py; else echo "manage.py not found"; fi
- 
+# Expose port for the Django application
 EXPOSE 8000
 
 # Start the application
-CMD ["bash", "-c", "cd /app/backend && \
-if [ -f \"./manage.py\" ]; then \
-  echo \"Starting Django application...\" && \
+CMD ["bash", "-c", "echo 'Current directory:' && pwd && echo 'Directory contents:' && ls -la && \
+if [ -f 'manage.py' ]; then \
+  echo 'Starting Django application...' && \
   python manage.py collectstatic --noinput && \
   python manage.py migrate && \
   exec gunicorn --bind 0.0.0.0:${PORT:-8000} TeamBuilder.wsgi; \
 else \
-  echo \"ERROR: manage.py not found in $(pwd)\" && \
-  echo \"Directory contents:\" && ls -la && \
+  echo 'ERROR: manage.py not found' && \
   exit 1; \
 fi"]

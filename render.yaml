@@ -21,6 +21,6 @@ services:
         value: "0"
     disk:
       name: sqlite-data
-      mountPath: /app/backend
+      mountPath: /app
       sizeGB: 1
     buildCommand: "" 
