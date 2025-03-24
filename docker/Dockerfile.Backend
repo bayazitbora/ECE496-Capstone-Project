@@ -8,10 +8,12 @@ ENV PYTHONUNBUFFERED=1
  
 RUN pip install --upgrade pip --no-warn-script-location
  
-COPY ./backend/requirements.txt  /app/backend/
+# Copy requirements first for better caching
+COPY ./backend/requirements.txt /app/backend/
  
 RUN cd /app/backend && pip install -r requirements.txt --no-warn-script-location --root-user-action=ignore
  
+# Copy backend code
 COPY ./backend /app/backend
 
 # Ensure manage.py is executable
@@ -19,8 +21,11 @@ RUN chmod +x /app/backend/manage.py
  
 EXPOSE 8000
 
-# Run Django commands and start gunicorn
-CMD cd /app/backend && \
-    python manage.py collectstatic --noinput && \
-    python manage.py migrate && \
-    gunicorn --bind 0.0.0.0:$PORT TeamBuilder.wsgi
+# Use exec form of CMD for better signal handling
+CMD ["bash", "-c", "cd /app/backend && \
+echo \"Starting collectstatic...\" && \
+python manage.py collectstatic --noinput && \
+echo \"Starting migrations...\" && \
+python manage.py migrate && \
+echo \"Starting gunicorn...\" && \
+exec gunicorn --bind 0.0.0.0:${PORT:-8000} TeamBuilder.wsgi"]
