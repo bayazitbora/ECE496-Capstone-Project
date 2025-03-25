@@ -39,6 +39,7 @@ function Courses() {
     session: "",
     year: new Date().getFullYear(),
     groupSize: "",
+    isActive: true,
   });
   const { state: signUpState, dispatch } = useContext(SignUpContext);
   const { username, profiles: initialProfiles } = signUpState;
@@ -53,13 +54,15 @@ function Courses() {
     const fetchProfiles = async () => {
       setPrivateAxiosToken(token);
       try {
-        const response = await privateAxios.post("getSelf/", { username });
+        const response = await privateAxios.post("listUserCourses/", {
+          username,
+        });
         const userData = response.data;
-        setProfiles(userData.profiles);
-        dispatch({ type: "SET_PROFILES", profiles: userData.profiles });
-        console.log("User profiles:", userData.profiles);
+        setProfiles(userData.courses);
+        dispatch({ type: "SET_PROFILES", profiles: userData.courses });
+        console.log("User courses:", userData.courses);
       } catch (error) {
-        console.error("Error fetching profiles:", error);
+        console.error("Error fetching courses:", error);
       }
     };
 
@@ -102,13 +105,16 @@ function Courses() {
       });
       console.log("Profile created successfully:", response.data);
 
-      const updatedProfilesResponse = await privateAxios.post("getSelf/", {
-        username,
-      });
+      const updatedProfilesResponse = await privateAxios.post(
+        "listUserCourses/",
+        {
+          username,
+        }
+      );
       const updatedProfiles = updatedProfilesResponse.data;
-      setProfiles(updatedProfiles.profiles);
-      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.profiles });
-      console.log("Updated profiles:", updatedProfiles.profiles);
+      setProfiles(updatedProfiles.courses);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.courses });
+      console.log("Updated courses:", updatedProfiles.courses);
 
       setFormState({
         courseCode: "",
@@ -159,13 +165,16 @@ function Courses() {
       );
       console.log("Course created successfully:", response.data);
 
-      const updatedProfilesResponse = await privateAxios.post("getSelf/", {
-        username,
-      });
+      const updatedProfilesResponse = await privateAxios.post(
+        "listUserCourses/",
+        {
+          username,
+        }
+      );
       const updatedProfiles = updatedProfilesResponse.data;
-      setProfiles(updatedProfiles.profiles);
-      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.profiles });
-      console.log("Updated profiles:", updatedProfiles.profiles);
+      setProfiles(updatedProfiles.courses);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.courses });
+      console.log("Updated courses:", updatedProfiles.courses);
     } catch (error) {
       console.error("Error creating course:", error);
     }
@@ -176,6 +185,7 @@ function Courses() {
       session: "",
       year: new Date().getFullYear(),
       groupSize: "",
+      isActive: true,
     });
     handleClose();
   };
