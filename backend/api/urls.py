@@ -63,4 +63,13 @@ urlpatterns = [
 
     #getReviews: returns all reviews
     path('getReviews/', views.get_reviews, name="getReviews"),
+
+    #sendMessage: sends a message from the authenticated user to another user
+    path('sendMessage/', views.send_message, name="sendMessage"),
+
+    #getMessages: retrieves all received and sent messages for the authenticated user
+    path('getMessages/', views.get_messages, name="getMessages"),
+
+    #deleteMessage: deletes a message for the authenticated user
+    path('deleteMessage/', views.delete_message, name="deleteMessage"),
 ]
