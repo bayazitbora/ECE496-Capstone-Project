@@ -1,24 +1,32 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Form, FormGroup, Label, Input } from "reactstrap";
+import { privateAxios, setPrivateAxiosToken } from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 
 export function CourseNameQ({ formState, handleInputChange }) {
-  const courses = [
-    "ECE496",
-    "ECE490",
-    "ECE297",
-    "CSC343",
-    "ECE444",
-    "ECE421",
-    "APS360",
-  ];
+  const { token } = useAuth();
+  const [courses, setCourses] = useState({});
 
   useEffect(() => {
-    if (!formState.courseCode) {
-      handleInputChange({
-        target: { name: "courseCode", value: courses[0] },
-      });
-    }
-  }, [formState.courseCode, handleInputChange]);
+    const fetchCourses = async () => {
+      setPrivateAxiosToken(token);
+      try {
+        const response = await privateAxios.post("listCourses/", {});
+        const courseData = response.data;
+        setCourses(courseData);
+        if (!formState.courseCode && Object.keys(courseData).length > 0) {
+          handleInputChange({
+            target: { name: "courseCode", value: Object.keys(courseData)[0] },
+          });
+        }
+        console.log("Available courses:", courseData);
+      } catch (error) {
+        console.error("Error fetching available courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, [token, formState.courseCode, handleInputChange]);
 
   const handleCourseChange = (event) => {
     const { value } = event.target;
@@ -41,9 +49,9 @@ export function CourseNameQ({ formState, handleInputChange }) {
             value={formState.courseCode}
             onChange={handleCourseChange}
           >
-            {courses.map((course, index) => (
-              <option key={index} value={course}>
-                {course}
+            {Object.keys(courses).map((courseCode) => (
+              <option key={courseCode} value={courseCode}>
+                {`${courseCode} - ${courses[courseCode].session} ${courses[courseCode].year}`}
               </option>
             ))}
           </Input>
@@ -166,9 +174,7 @@ export function SkillsQ({ formState, handleInputChange }) {
     if (checked) {
       updatedSkills.push(value);
     } else {
-      updatedSkills = updatedSkills.filter(
-        (skill) => skill !== value
-      );
+      updatedSkills = updatedSkills.filter((skill) => skill !== value);
     }
 
     handleInputChange({

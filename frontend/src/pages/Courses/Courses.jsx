@@ -213,7 +213,7 @@ function Courses() {
               ))}
             </Row>
           ) : (
-            <p>No profiles found.</p>
+            <p>No courses found.</p>
           )}
         </div>
 
