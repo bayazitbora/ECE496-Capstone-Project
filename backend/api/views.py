@@ -15,9 +15,9 @@ from django.conf import settings
 User = settings.AUTH_USER_MODEL
 SCHEDULER = settings.SCHEDULER
 from django.contrib.auth import get_user_model
-from .models import Course, MyUser, Review
+from .models import Course, MyUser, Review, Message
 
-from .serializers import UserSerializer, ProfileSerializer, MinorSerializer, ReviewSerializer
+from .serializers import UserSerializer, ProfileSerializer, MinorSerializer, ReviewSerializer, MessageSerializer
 
 import pandas as pd
 import numpy as np
@@ -572,4 +572,53 @@ def get_reviews(request):
 
     reviews = Review.objects.filter(reviewee=user)
     serialized_reviews = ReviewSerializer(reviews, many=True)
-    return Response({"reviews": serialized_reviews.data}, status=status.HTTP_200_OK)
+    return Response({"reviews": serialized_reviews.data, "user": username}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_message(request):
+    sender = request.user
+    receiver_username = request.data.get('receiver')
+    title = request.data.get('title')
+    text = request.data.get('text')
+
+    if not receiver_username or not title or not text:
+        return Response({"message": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+    receiver = get_user_model().objects.filter(username=receiver_username).first()
+    if not receiver:
+        return Response({"message": "Receiver not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    message = Message(sender=sender, receiver=receiver, title=title, text=text)
+    message.save()
+
+    message_data = MessageSerializer(message).data
+    return Response({"message": "Message sent successfully", "message_data": message_data}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_messages(request):
+    user = request.user
+    received_messages = Message.objects.filter(receiver=user)
+    sent_messages = Message.objects.filter(sender=user)
+
+    received_data = MessageSerializer(received_messages, many=True).data
+    sent_data = MessageSerializer(sent_messages, many=True).data
+
+    return Response({"received_messages": received_data, "sent_messages": sent_data}, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_message(request):
+    user = request.user
+    message_id = request.data.get('message_id')
+
+    if not message_id:
+        return Response({"message": "Missing message ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+    message = Message.objects.filter(id=message_id, receiver=user).first()
+    if not message:
+        return Response({"message": "Message not found or you do not have permission to delete this message"}, status=status.HTTP_404_NOT_FOUND)
+
+    message.delete()
+    return Response({"message": "Message deleted successfully"}, status=status.HTTP_200_OK)

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from django.db import models
-from .models import Skill, Interest, Profile, Minor, Review
+from .models import Skill, Interest, Profile, Minor, Review, Message
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth import get_user_model
@@ -59,4 +59,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def get_reviewee(self, obj):
         return obj.reviewee.username
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SerializerMethodField()
+    receiver = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'receiver', 'title', 'text', 'date']
+
+    def get_sender(self, obj):
+        return obj.sender.username
+
+    def get_receiver(self, obj):
+        return obj.receiver.username
 
