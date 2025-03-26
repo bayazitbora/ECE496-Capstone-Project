@@ -14,8 +14,15 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '0') == '1'
 # Set allowed hosts
 ALLOWED_HOSTS = ['*.onrender.com', 'localhost', '127.0.0.1']
 
-# CSRF settings for secure operations
+# CORS settings for secure operations
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "https://frontend-3w7h.onrender.com",
+    "http://localhost:5173",  # Vite's default port
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # Database
 # Using SQLite for simplicity, the file will be stored on the mounted disk
