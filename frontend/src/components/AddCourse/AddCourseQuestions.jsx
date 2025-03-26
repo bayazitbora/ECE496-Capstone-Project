@@ -13,13 +13,22 @@ export function CourseNameQ({ formState, handleInputChange }) {
       try {
         const response = await privateAxios.post("listCourses/", {});
         const courseData = response.data;
-        setCourses(courseData);
-        if (!formState.courseCode && Object.keys(courseData).length > 0) {
+        const sortedCourseData = Object.keys(courseData)
+          .sort()
+          .reduce((acc, key) => {
+            acc[key] = courseData[key];
+            return acc;
+          }, {});
+        setCourses(sortedCourseData);
+        if (!formState.courseCode && Object.keys(sortedCourseData).length > 0) {
           handleInputChange({
-            target: { name: "courseCode", value: Object.keys(courseData)[0] },
+            target: {
+              name: "courseCode",
+              value: Object.keys(sortedCourseData)[0],
+            },
           });
         }
-        console.log("Available courses:", courseData);
+        console.log("Available courses:", sortedCourseData);
       } catch (error) {
         console.error("Error fetching available courses:", error);
       }
@@ -49,6 +58,9 @@ export function CourseNameQ({ formState, handleInputChange }) {
             value={formState.courseCode}
             onChange={handleCourseChange}
           >
+            <option value="" disabled>
+              Select a course
+            </option>
             {Object.keys(courses).map((courseCode) => (
               <option key={courseCode} value={courseCode}>
                 {`${courseCode} - ${courses[courseCode].session} ${courses[courseCode].year}`}
