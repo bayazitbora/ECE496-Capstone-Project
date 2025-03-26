@@ -13,6 +13,7 @@ import Courses from "./pages/Courses/Courses";
 import Contacts from "./pages/Contacts";
 import Settings from "./pages/Settings";
 import Course from "./pages/Course";
+import CourseMngmt from "./pages/CourseMngmt";
 import { SignUpProvider } from "./context/SignUpContext";
 import { FormProvider } from "./context/FormContext";
 import { useAuth, AuthProvider } from "./context/AuthContext";
@@ -37,6 +38,7 @@ const Routes = () => {
     { path: "/contacts", element: <Contacts /> },
     { path: "/settings", element: <Settings /> },
     { path: "/course/:courseCode", element: <Course /> },
+    { path: "/course-management/:courseCode", element: <CourseMngmt /> },
   ];
 
   const router = createBrowserRouter([
