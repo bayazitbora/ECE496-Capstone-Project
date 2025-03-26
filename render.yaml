@@ -15,9 +15,15 @@ services:
       cd backend
       pip install --upgrade pip
       pip install -r requirements.txt
+      chmod +x db_setup.sh
     startCommand: |
       cd backend
-      gunicorn TeamBuilder.wsgi:application --bind=0.0.0.0:$PORT
+      # Start gunicorn in the background
+      gunicorn TeamBuilder.wsgi:application --bind=0.0.0.0:$PORT &
+      # Run the setup script which waits for the server to be ready
+      ./db_setup.sh
+      # Keep the container running by waiting for the gunicorn process
+      wait
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: TeamBuilder.settings_prod
