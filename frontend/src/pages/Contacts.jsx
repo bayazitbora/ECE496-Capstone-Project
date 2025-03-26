@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 import { Button, ListGroup, Nav, NavItem, NavLink } from "reactstrap";
 import MessageSent from "../components/Contacts/MessageSent";
 import MessageReceived from "../components/Contacts/MessageReceived";
 import MessageModal from "../components/Contacts/MessageModal";
+import { privateAxios, setPrivateAxiosToken } from "../api/api";
+import { useAuth } from "../context/AuthContext";
 
 function Contacts() {
   const location = useLocation();
+  const { token } = useAuth();
   const [messages, setMessages] = useState({
     received_messages: [],
     sent_messages: [],
@@ -17,22 +19,17 @@ function Contacts() {
     title: "",
     text: "",
   });
-  const [token] = useState(localStorage.getItem("token"));
   const [activeTab, setActiveTab] = useState("received");
   const [modal, setModal] = useState(!!location.state?.receiver);
 
   useEffect(() => {
+    setPrivateAxiosToken(token);
     fetchMessages();
-  }, []);
+  }, [token]);
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/getMessages/",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await privateAxios.get("getMessages/");
       setMessages(response.data);
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -42,9 +39,7 @@ function Contacts() {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://127.0.0.1:8000/api/sendMessage/", newMessage, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await privateAxios.post("sendMessage/", newMessage);
       fetchMessages();
       setNewMessage({ receiver: "", title: "", text: "" });
       toggleModal();
@@ -55,8 +50,7 @@ function Contacts() {
 
   const handleDeleteMessage = async (messageId) => {
     try {
-      await axios.delete("http://127.0.0.1:8000/api/deleteMessage/", {
-        headers: { Authorization: `Bearer ${token}` },
+      await privateAxios.delete("deleteMessage/", {
         data: { message_id: messageId },
       });
       fetchMessages();
