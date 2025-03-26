@@ -17,6 +17,7 @@ import { privateAxios, setPrivateAxiosToken } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
 import { SignUpContext } from "../../context/SignUpContext";
 import CourseCard from "../../components/Courses/CourseCard";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Courses component handles the display and management of user courses.
@@ -46,6 +47,7 @@ function Courses() {
   const [profiles, setProfiles] = useState(initialProfiles || {});
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
+  const navigate = useNavigate();
 
   /**
    * Fetches user profiles on component mount.
@@ -193,6 +195,14 @@ function Courses() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const handleCourseClick = (courseCode) => {
+    if (signUpState.teacher === "True") {
+      navigate(`/course-management/${courseCode}`);
+    } else {
+      navigate(`/course/${courseCode}`);
+    }
+  };
+
   return (
     <>
       <div className={styles.Container}>
@@ -208,6 +218,7 @@ function Courses() {
                   <CourseCard
                     courseCode={courseCode}
                     profile={profiles[courseCode]}
+                    onClick={() => handleCourseClick(courseCode)}
                   />
                 </Col>
               ))}
