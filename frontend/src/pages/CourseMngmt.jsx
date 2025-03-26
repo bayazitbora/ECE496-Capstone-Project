@@ -4,6 +4,7 @@ import { privateAxios, setPrivateAxiosToken } from "../api/api";
 import { useAuth } from "../context/AuthContext";
 import StudentRow from "../components/Course/StudentRow";
 import StudentModal from "../components/Course/StudentModal";
+import ScheduleMatchForm from "../components/Course/ScheduleMatchForm";
 
 /**
  * CourseMngmt component allows instructors to manage a specific course.
@@ -52,6 +53,26 @@ function CourseMngmt() {
     setModalOpen(true);
   };
 
+  const handleScheduleMatch = async (matchDate) => {
+    const formattedMatchDate = matchDate
+      .toISOString()
+      .replace(/\.\d{3}Z$/, ".-0500");
+    console.log("Formatted match date:", formattedMatchDate); // Print formatted matchDate for error checking
+    setPrivateAxiosToken(token);
+    try {
+      const response = await privateAxios.post("scheduleMatch/", {
+        courseInfo: {
+          courseCode,
+          matchDate: formattedMatchDate,
+        },
+      });
+      console.log("Match scheduled:", response.data);
+      alert("Match successfully scheduled!");
+    } catch (error) {
+      console.error("Error scheduling match:", error);
+    }
+  };
+
   return (
     <div>
       <h1>Manage Course: {courseCode}</h1>
@@ -62,7 +83,7 @@ function CourseMngmt() {
           <p>Session: {courseData.session}</p>
           <p>Year: {courseData.year}</p>
           <p>Group Size: {courseData.groupSize}</p>
-          {/* Add more course management functionalities here */}
+          <ScheduleMatchForm onSubmit={handleScheduleMatch} />
         </div>
       ) : (
         <p>Loading course data...</p>
