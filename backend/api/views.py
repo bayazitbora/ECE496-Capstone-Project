@@ -63,6 +63,43 @@ def getRoutes(request):
     return Response(routes)
 
 #Protected Endpoints----------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deleteUser(request):
+    user = get_user_model().objects.get(username=request.user.username)
+    if not user.is_superuser:
+        #add another line here when we want users to delete themselves
+        return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions."
+                }, status=status.HTTP_403_FORBIDDEN)
+    else:
+        usernameToDelete = request.data.get('toDelete')
+        if usernameToDelete is not None:
+            user = get_user_model().objects.get(username=usernameToDelete)
+            if user is not None:
+                for iprofile in user.profile.all():
+                    iprofile.delete()
+                user.delete()
+                return Response(
+                    {
+                        "user": usernameToDelete,
+                        "message": "User is deleted"
+                    }, status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {
+                        "user": usernameToDelete,
+                        "message": "User not found"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+            {
+                "user": usernameToDelete,
+                "message": "Something went wrong"
+            }, status=status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

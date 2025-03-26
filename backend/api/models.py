@@ -121,7 +121,7 @@ class MyUser(AbstractUser):
     def update_minors(self, listOfMinors):
         for minor in listOfMinors:
             if not self.minors.filter(minor=minor):
-                self.minors.create(minor=minor)
+                self.minors.add(Minor.objects.get_or_create(minor=minor))
 
     def update_user(self, request):
         if request['first_name']:
