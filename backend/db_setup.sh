@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Create persistent directory if it doesn't exist
+echo "Creating persistent database directory..."
+mkdir -p persistentdb
+chmod 777 persistentdb
+
 # Wait for server to be ready
 echo "Waiting for server to start..."
 sleep 30

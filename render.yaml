@@ -33,7 +33,9 @@ services:
         value: "0"
       - key: PYTHONPATH
         value: backend
+      - key: DATABASE_URL
+        value: sqlite:///persistentdb/db.sqlite3
     disk:
       name: sqlite-data
-      mountPath: backend
+      mountPath: /opt/render/project/src/backend/persistentdb
       sizeGB: 1 

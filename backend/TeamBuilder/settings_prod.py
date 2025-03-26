@@ -4,6 +4,7 @@ Production settings for TeamBuilder project.
 
 import os
 from .settings import *
+import dj_database_url
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
@@ -47,13 +48,30 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # Database
-# Using SQLite for simplicity, the file will be stored on the mounted disk
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+# Using SQLite with a persistent disk mount
+
+# Get DATABASE_URL from environment or use default
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///persistentdb/db.sqlite3')
+
+# Parse the DATABASE_URL
+if DATABASE_URL.startswith('sqlite:///'):
+    # Ensure the directory exists
+    db_dir = os.path.join(BASE_DIR, 'persistentdb')
+    os.makedirs(db_dir, exist_ok=True)
+    
+    # Configure database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, DATABASE_URL.replace('sqlite:///', '')),
+            'ATOMIC_REQUESTS': True,
+        }
     }
-}
+else:
+    # Parse other database URLs
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
 
 # Static files settings
 STATIC_URL = '/static/'
