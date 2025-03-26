@@ -19,6 +19,7 @@ export const publicAxios = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,  // Important for CORS with credentials
 });
 
 // Private axios instance
@@ -27,6 +28,7 @@ export const privateAxios = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,  // Important for CORS with credentials
 });
 
 // Function to set the token for private axios instance

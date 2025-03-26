@@ -11,18 +11,40 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '0') == '1'
 
-# Set allowed hosts
-ALLOWED_HOSTS = ['*.onrender.com', 'localhost', '127.0.0.1']
+# Set allowed hosts - use exact domain names
+ALLOWED_HOSTS = ['backend-nfdh.onrender.com', 'localhost', '127.0.0.1']
 
-# CORS settings for secure operations
-CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+# CSRF settings for secure operations
+CSRF_TRUSTED_ORIGINS = ['https://frontend-3w7h.onrender.com', 'https://backend-nfdh.onrender.com']
 
-# CORS settings
+# CORS settings - temporarily set to allow all origins for testing
+CORS_ALLOW_ALL_ORIGINS = True
+
+# More specific CORS settings (will use these after confirming CORS_ALLOW_ALL_ORIGINS works)
 CORS_ALLOWED_ORIGINS = [
     "https://frontend-3w7h.onrender.com",
     "http://localhost:5173",  # Vite's default port
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # Database
 # Using SQLite for simplicity, the file will be stored on the mounted disk
