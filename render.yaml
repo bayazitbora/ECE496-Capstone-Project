@@ -29,5 +29,5 @@ services:
         value: backend
     disk:
       name: sqlite-data
-      mountPath:backend
+      mountPath: backend
       sizeGB: 1 
