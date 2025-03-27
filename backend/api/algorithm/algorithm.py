@@ -136,7 +136,7 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
 #                 for student in remaining_indices:
 #                     # Euclidean distance between each student and the mean of embeddings already in the group
 #                     distance: float = np.linalg.norm(student_embeddings[student] - embedding_average)
-                    
+#                     
 #                     # find the student with the smallest distance
 #                     if distance < closest_student_dist:
 #                         closest_student_dist = distance
@@ -181,7 +181,8 @@ def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.
         students_in_c = c_data.index
         embeddings_c = student_embeddings[students_in_c]
 
-        gmm = GaussianMixture(n_components=len(students_in_c) // group_size, random_state=42) #gmm to previous students embeddings
+        n_components = max(1, len(students_in_c) // group_size)
+        gmm = GaussianMixture(n_components=n_components, random_state=42) #gmm to previous students embeddings
         gmm.fit(embeddings_c)
         gmm_probs = gmm.predict_proba(embeddings_c) #probabilities of each student belonging to each gmm cluster
         for idx in range(gmm_probs.shape[1]):
@@ -397,7 +398,7 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
             ('courses', CustomMultiLabelEmbeddingTransformer(), 'courses_taken'),
             ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
             ('skills', CustomMultiLabelEmbeddingTransformer(), 'technical_skills'),
-        #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+            #('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
             ('freq', MinMaxScaler(), ['meeting_freq']),
         ])
 
