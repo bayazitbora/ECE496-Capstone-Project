@@ -110,11 +110,11 @@ const StudentModal = ({ isOpen, toggle, student, courseCode }) => {
         ) : (
           <p>Loading user data...</p>
         )}
-        <h5>Reviews</h5>
+        <h5>Recommendations</h5>
         {reviews.length > 0 ? (
           reviews.map((review) => <Review key={review.id} review={review} />)
         ) : (
-          <p>No reviews available.</p>
+          <p>No recommendations available.</p>
         )}
         {showReviewForm && (
           <ReviewForm reviewee={student} onReviewAdded={handleReviewAdded} />

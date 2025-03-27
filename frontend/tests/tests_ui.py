@@ -284,7 +284,7 @@ class LocalAppTest(unittest.TestCase):
             comment_textarea = self.wait.until(EC.visibility_of_element_located((By.ID, comment_textarea_id)))
             comment_textarea.send_keys("this is my comment")
 
-            print("Waiting for Submit Review Button")
+            print("Waiting for Submit Recommendation Button")
             submit_review_button = self.wait.until(EC.element_to_be_clickable((By.XPATH, submit_review_btn_xpath)))
             submit_review_button.click()
         except TimeoutException:
