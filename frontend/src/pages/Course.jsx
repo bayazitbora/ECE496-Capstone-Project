@@ -26,27 +26,38 @@ function Course() {
    * Fetches teammates' data on component mount.
    */
   useEffect(() => {
-    // TODO: remove this and fetch team from backend later
-    const sampleUsernames = ["joao.bicalho", "isabelle.noa", "user3", "user4"];
     const fetchTeammates = async () => {
       setPrivateAxiosToken(token);
       try {
+        // Fetch user data using getSelf/
+        const response = await privateAxios.post("getSelf/");
+        const userData = response.data;
+
+        // Extract matchedUsers for the current course
+        const matchedUsers =
+          userData.profiles && userData.profiles[courseCode]
+            ? userData.profiles[courseCode].matchedUsers
+            : [];
+
+        // Fetch detailed data for each matched user
         const users = await Promise.all(
-          sampleUsernames.map(async (requested_user) => {
-            const response = await privateAxios.post("getUser/", {
-              requested_user,
+          matchedUsers.map(async (matchedUser) => {
+            const userResponse = await privateAxios.post("getUser/", {
+              requested_user: matchedUser.username,
             });
-            return response.data;
+            return userResponse.data;
           })
         );
+
         setTeammates(users);
         console.log("Teammates:", users);
       } catch (error) {
         console.error("Error fetching teammates:", error);
       }
     };
+
     fetchTeammates();
-  }, [token]);
+  }, [token, courseCode]);
 
   return (
     <div>
@@ -88,7 +99,7 @@ function Course() {
             />
           ))
         ) : (
-          <p>No teammates available.</p>
+          <p>Team matching has not occurred yet for this course.</p>
         )}
       </div>
       {selectedTeammate && (

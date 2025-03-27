@@ -12,13 +12,13 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "JohnDoe",
+    "username": "teacher3",
     "password": "Thisisademo",
-    "email": "JohnDoe@mail.utoronto.ca",
-    "teacher": "False",
-    "first_name": "John",
-    "last_name": "Doe",
-    "title": null,
+    "email": "DanielTeacher@mail.utoronto.ca",
+    "teacher": "True",
+    "first_name": "Daniel",
+    "last_name": "Teacher",
+    "title": "prof",
     "pos": "Anthropology",
     "gpa": "4.0",
     "grad_year": "2025",
@@ -31,8 +31,8 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "paul.dup",
-    "password": "12345"
+    "username": "teacher3",
+    "password": "Thisisademo"
 }
 
 ###
@@ -95,12 +95,12 @@ Authorization: Bearer {{jwtoken}}
 
 {
     "courseInfo": {
-        "courseCode": "LOL200",
-        "courseName": "Quitting League of Legends",
-        "description": "Hear harrowing stories from surivivors of Summoner's Rift, and learn how to overcome your League of Legends addicition.",
-        "session": "Summer",
-        "year": 2026,
-        "groupSize": "3"
+        "courseCode": "TEST100",
+        "courseName": "Testing Course",
+        "description": "Course to test student matching",
+        "session": "Fall",
+        "year": 2025,
+        "groupSize": "4"
     }
 }
 
@@ -111,8 +111,8 @@ Authorization: Bearer {{jwtoken}}
 
 {
     "courseInfo": {
-        "courseCode": "ECE496",
-        "matchDate": "2025-02-12T14:53:58.-0500"
+        "courseCode": "TEST100",
+        "matchDate": "2025-03-27T00:03:58.-0400"
     }
 }
 ###

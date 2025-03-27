@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Container } from "reactstrap";
+import { Container, Spinner } from "reactstrap";
 import initFontAwesome from "./utils/initFontAwesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 initFontAwesome();
@@ -29,7 +29,21 @@ const Routes = () => {
     { path: "/", element: <Start /> },
     { path: "/sign-up", element: <AccountCreation /> },
     { path: "/log-in", element: <LogIn /> },
-    { path: "*", element: <h2>Please Sign Up/In to access this page</h2> },
+    {
+      path: "*",
+      element: (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <Spinner color="primary" />
+        </div>
+      ),
+    },
   ];
 
   const privateRoutes = [

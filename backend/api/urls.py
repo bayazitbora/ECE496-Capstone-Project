@@ -49,6 +49,9 @@ urlpatterns = [
     #register: registers a user with a username and password
     path('register/', views.register_user, name='registerUser'),
     
+    #deleteUser: deletes a given user if the logged in user is a super user
+    path('deleteUser/', views.deleteUser, name='deleteUser'),
+    
     #token: given a username and password, will login a user and return a JWT.
     path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
 

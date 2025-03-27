@@ -8,7 +8,7 @@ import {
   Button,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const OwnReview = ({ review, onDelete }) => {
   return (
@@ -19,19 +19,8 @@ const OwnReview = ({ review, onDelete }) => {
       <CardBody>
         <Row className="align-items-center mb-2">
           <Col xs="auto">
-            {Array.from({ length: 5 }, (_, index) => (
-              <FontAwesomeIcon
-                key={index}
-                icon={faStar}
-                style={{
-                  color: index < review.score ? "#ffc107" : "#e4e5e9",
-                }}
-              />
-            ))}
-          </Col>
-          <Col xs="auto">
             <CardTitle tag="h6" className="mb-0">
-              {review.reviewer}
+              From: {review.reviewer}
             </CardTitle>
           </Col>
           <Col className="d-flex justify-content-end align-items-center">

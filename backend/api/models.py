@@ -121,7 +121,7 @@ class MyUser(AbstractUser):
     def update_minors(self, listOfMinors):
         for minor in listOfMinors:
             if not self.minors.filter(minor=minor):
-                self.minors.create(minor=minor)
+                self.minors.add(Minor.objects.get_or_create(minor=minor)[0])
 
     def update_user(self, request):
         if request['first_name']:
@@ -136,6 +136,9 @@ class MyUser(AbstractUser):
         if 'minors' in request:
             if request['minors']:
                 self.update_minors(request['minors'])
+            else:
+                self.minors.add(Minor.objects.get_or_create(minor="None")[0])
+        
         if 'grad_year' in request:
             if request['grad_year']:
                 self.expectedGrad = request['grad_year']
