@@ -496,9 +496,9 @@ def job_match(request, course):
         print(dictOfStudentInfo)
         groupSize = course.groupSize
         df = pd.DataFrame(listOfDictOfStudentInfo)
-        df2 = generate_students(10) #generate random 10 students
-        new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
-        dictOfMatches = cluster_and_match_students(new_df, groupSize) 
+        #df2 = generate_students(10) #generate random 10 students
+        #new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
+        dictOfMatches = cluster_and_match_students(df, groupSize) 
         print(dictOfMatches)
         print(studentIndex)
 

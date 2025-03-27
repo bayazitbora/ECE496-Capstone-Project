@@ -104,11 +104,14 @@ def create_profiles():
         username = username.strip()
         profile_data = {}
         profile_data['profile'] = {}
-        profile_data['profile']['courseCode'] = 'ECE496'
+        profile_data['profile']['courseCode'] = 'TEST100'
         profile_data['profile']['hoursToCommit'] = random.randint(1, 10)
-        profile_data['profile']['interests'] = random.choice(interests)
-        profile_data['profile']['skills'] = random.choice(skills)
+        profile_data['profile']['interests'] = []
+        profile_data['profile']['interests'].append(random.choice(interests))
+        profile_data['profile']['skills'] =  []
+        profile_data['profile']['skills'].append(random.choice(skills))
         token = login_as_user(username)
         headers = {"Authorization": f"Bearer {token}"}
+        print(profile_data)
         p = requests.post(profile_url, json=profile_data, headers=headers)
         print(f"Made profile for {username}: {p.status_code}")
