@@ -87,9 +87,9 @@ function Profile() {
           </p>
         </div>
         <div>
-          <h2>Reviews</h2>
+          <h2>Recommendations</h2>
           {reviews.length === 0 ? (
-            <p>No reviews available.</p>
+            <p>No recommendations available.</p>
           ) : (
             reviews.map((review) => (
               <OwnReview
