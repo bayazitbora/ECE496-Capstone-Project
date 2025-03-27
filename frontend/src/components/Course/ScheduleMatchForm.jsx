@@ -22,7 +22,7 @@ const ScheduleMatchForm = ({ onSubmit }) => {
             selected={matchDate}
             onChange={(date) => {
               setMatchDate(date);
-              console.log("Match date:", date);
+              // console.log("Match date:", date);
             }}
             showTimeSelect
             dateFormat="Pp"
