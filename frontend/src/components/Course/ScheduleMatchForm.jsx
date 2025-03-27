@@ -20,7 +20,10 @@ const ScheduleMatchForm = ({ onSubmit }) => {
           </Label>
           <DatePicker
             selected={matchDate}
-            onChange={(date) => setMatchDate(date)}
+            onChange={(date) => {
+              setMatchDate(date);
+              console.log("Match date:", date);
+            }}
             showTimeSelect
             dateFormat="Pp"
             className="form-control mr-3"
