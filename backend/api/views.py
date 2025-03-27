@@ -63,6 +63,43 @@ def getRoutes(request):
     return Response(routes)
 
 #Protected Endpoints----------------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deleteUser(request):
+    user = get_user_model().objects.get(username=request.user.username)
+    if not user.is_superuser:
+        #add another line here when we want users to delete themselves
+        return Response(
+                {
+                    "user": request.user.username,
+                    "message": "User does not have the required permissions."
+                }, status=status.HTTP_403_FORBIDDEN)
+    else:
+        usernameToDelete = request.data.get('toDelete')
+        if usernameToDelete is not None:
+            user = get_user_model().objects.get(username=usernameToDelete)
+            if user is not None:
+                for iprofile in user.profile.all():
+                    iprofile.delete()
+                user.delete()
+                return Response(
+                    {
+                        "user": usernameToDelete,
+                        "message": "User is deleted"
+                    }, status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {
+                        "user": usernameToDelete,
+                        "message": "User not found"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+            {
+                "user": usernameToDelete,
+                "message": "Something went wrong"
+            }, status=status.HTTP_501_NOT_IMPLEMENTED)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -459,9 +496,9 @@ def job_match(request, course):
         print(dictOfStudentInfo)
         groupSize = course.groupSize
         df = pd.DataFrame(listOfDictOfStudentInfo)
-        df2 = generate_students(10) #generate random 10 students
-        new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
-        dictOfMatches = cluster_and_match_students(new_df, groupSize) 
+        #df2 = generate_students(1) #generate random 10 students
+        #new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
+        dictOfMatches = cluster_and_match_students(df, groupSize) 
         print(dictOfMatches)
         print(studentIndex)
 
@@ -511,9 +548,9 @@ def generate_random_student():
         'GPA': round(gpa, 2),
         'major': random.choice(major_categories),
         'minor': random.choice(minor_categories),
-        'courses_taken': random.sample(courses_categories, k.random.randint(1, len(courses_categories))),
-        'areas_of_interest': random.sample(interests_categories, k.random.randint(1, len(interests_categories))),
-        'technical_skills': random.sample(skills_categories, k.random.randint(1, len(skills_categories))),
+        'courses_taken': random.sample(courses_categories, random.randint(1, len(courses_categories))),
+        'areas_of_interest': random.sample(interests_categories, random.randint(1, len(interests_categories))),
+        'technical_skills': random.sample(skills_categories, random.randint(1, len(skills_categories))),
         #'schedule': random.sample(schedule_categories, k.random.randint(1, len(schedule_categories))), # change according to questionnaire
         'meeting_freq': meeting_freq # change according to questionnaire
     }
