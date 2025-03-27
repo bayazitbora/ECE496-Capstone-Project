@@ -53,7 +53,7 @@ def register_user(end):
         user_data['first_name'] = first_name
         user_data['last_name'] = last_name
         user_data['pos'] = random.choice(engineering_disciplines)
-        user_data['email'] = str(i) + first_name + last_name + "@mail.utoronto.ca"
+        user_data['email'] = first_name + last_name + str(i) + "@mail.utoronto.ca"
         #add username so we can delete later
         with open("GeneratedUsernames.txt", "a") as file:
             file.write(user_data['username'] + "\n")
@@ -104,7 +104,7 @@ def create_profiles():
         username = username.strip()
         profile_data = {}
         profile_data['profile'] = {}
-        profile_data['profile']['courseCode'] = 'TEST100'
+        profile_data['profile']['courseCode'] = 'ECE496'
         profile_data['profile']['hoursToCommit'] = random.randint(1, 10)
         profile_data['profile']['interests'] = []
         profile_data['profile']['interests'].append(random.choice(interests))

@@ -56,8 +56,8 @@ function CourseMngmt() {
   const handleScheduleMatch = async (matchDate) => {
     const formattedMatchDate = matchDate
       .toISOString()
-      .replace(/\.\d{3}Z$/, ".-0500");
-    console.log("Formatted match date:", formattedMatchDate); // Print formatted matchDate for error checking
+      .replace(/\.\d{3}Z$/, ".-0400");
+    console.log("Formatted match date:", formattedMatchDate);
     setPrivateAxiosToken(token);
     try {
       const response = await privateAxios.post("scheduleMatch/", {
