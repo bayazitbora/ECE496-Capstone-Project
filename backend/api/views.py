@@ -496,7 +496,7 @@ def job_match(request, course):
         print(dictOfStudentInfo)
         groupSize = course.groupSize
         df = pd.DataFrame(listOfDictOfStudentInfo)
-        #df2 = generate_students(10) #generate random 10 students
+        #df2 = generate_students(1) #generate random 10 students
         #new_df = pd.concat([df, df2], ignore_index=True) #combine the real data with fake data
         dictOfMatches = cluster_and_match_students(df, groupSize) 
         print(dictOfMatches)
@@ -548,9 +548,9 @@ def generate_random_student():
         'GPA': round(gpa, 2),
         'major': random.choice(major_categories),
         'minor': random.choice(minor_categories),
-        'courses_taken': random.sample(courses_categories, k.random.randint(1, len(courses_categories))),
-        'areas_of_interest': random.sample(interests_categories, k.random.randint(1, len(interests_categories))),
-        'technical_skills': random.sample(skills_categories, k.random.randint(1, len(skills_categories))),
+        'courses_taken': random.sample(courses_categories, random.randint(1, len(courses_categories))),
+        'areas_of_interest': random.sample(interests_categories, random.randint(1, len(interests_categories))),
+        'technical_skills': random.sample(skills_categories, random.randint(1, len(skills_categories))),
         #'schedule': random.sample(schedule_categories, k.random.randint(1, len(schedule_categories))), # change according to questionnaire
         'meeting_freq': meeting_freq # change according to questionnaire
     }

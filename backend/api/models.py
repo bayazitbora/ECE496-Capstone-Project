@@ -136,6 +136,9 @@ class MyUser(AbstractUser):
         if 'minors' in request:
             if request['minors']:
                 self.update_minors(request['minors'])
+            else:
+                self.minors.add(Minor.objects.get_or_create(minor="None")[0])
+        
         if 'grad_year' in request:
             if request['grad_year']:
                 self.expectedGrad = request['grad_year']
