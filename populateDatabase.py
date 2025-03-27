@@ -1,6 +1,9 @@
 import requests
 import random
 
+# Get API URL from environment variable, default to Render URL if not set
+API_URL = 'https://backend-nfdh.onrender.com'
+
 #README---------------------------------------------------------------------------------------
 #This script comes with three functions that can be used to populate the DB
 #it creates a file called GeneratedUsernames to keep track of the last users created in the DB by
@@ -45,7 +48,7 @@ interests = ["Software", "Hardware", "Building", "Research"]
 def register_user(end):
     for i in range(0, end):
         # Generate unique username and email for each user
-        register_url = 'http://127.0.0.1:8000/api/register/'
+        register_url = f'{API_URL}/api/register/'
         user_data = user_data_template.copy()
         first_name = random.choice(first_names)
         last_name = random.choice(last_names)
@@ -62,7 +65,7 @@ def register_user(end):
         print(f"Registered: {user_data['username']} {response.status_code}")
 
 def get_superuser_token():
-    login_url = 'http://127.0.0.1:8000/api/token/'
+    login_url = f'{API_URL}/api/token/'
     creds = {"username": "mysuperuser", "password": "dontdeploythisuser"}
     response = requests.post(login_url, json=creds)
     if response.ok:
@@ -70,7 +73,7 @@ def get_superuser_token():
     return None
 
 def login_as_user(username):
-    login_url = 'http://127.0.0.1:8000/api/token/'
+    login_url = f'{API_URL}/api/token/'
     creds = {"username": username, "password": "Thisisademo"}
     response = requests.post(login_url, json=creds)
     if response.ok:
@@ -78,7 +81,7 @@ def login_as_user(username):
     return None
 
 def delete_users():
-    delete_url = 'http://127.0.0.1:8000/api/deleteUser/'
+    delete_url = f'{API_URL}/api/deleteUser/'
     with open("GeneratedUsernames.txt", "r") as file:
         usernames = file.readlines()
     
@@ -96,7 +99,7 @@ def delete_users():
     open("generatedusernames.txt", "w").close()
 
 def create_profiles():
-    profile_url = 'http://127.0.0.1:8000/api/updateProfile/'
+    profile_url = f'{API_URL}/api/updateProfile/'
     with open("GeneratedUsernames.txt", "r") as file:
         usernames = file.readlines()
     
