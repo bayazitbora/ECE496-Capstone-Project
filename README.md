@@ -1,5 +1,10 @@
 # ECE496 Capstone
 
+Here is a quick demo: 
+
+[![Demo](https://img.youtube.com/vi/bstFiXSstjU/hqdefault.jpg)](https://youtu.be/bstFiXSstjU)
+
+
 ## Docker Setup
 
 This is the easiest way to start working on our project.
