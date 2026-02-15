@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+import datetime
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -42,6 +43,7 @@ class Profile(models.Model):
     interests       = models.ManyToManyField(Interest, blank=True)
     skills          = models.ManyToManyField(Skill, blank=True)
     hoursToCommit   = models.IntegerField(default=0)
+    matchedUsers    = models.ManyToManyField(User, related_name='matchedUsers')
 
     #not implemented
     availableTimes  = models.ManyToManyField(AvailableTimes)
@@ -57,18 +59,28 @@ class Profile(models.Model):
                    + str(self.skills.all())
                    + ", "
                    + str(self.hoursToCommit)
+                   + ", "
+                   + str(self.matchedUsers.all())
                    )
         return message
     
     def update_interests(self, listOfInterests):
         for interest in listOfInterests:
-            #interestToAdd = Interest(interest=interest)
-            self.interests.create(interest=interest)
+            inter = Interest.objects.filter(interest=interest)
+            if inter:
+                #interestToAdd = Interest(interest=interest)
+                self.interests.add(inter.first())
+            else:
+                self.interests.create(interest=interest)
 
     def update_skills(self, listOfskills):
         for skill in listOfskills:
+            sk = Skill.objects.filter(skill=skill)
             #skillToAdd = Skill(skill=skill)
-            self.skills.create(skill=skill)
+            if sk:
+                self.skills.add(sk.first())
+            else:
+                self.skills.create(skill=skill)
 
     def update_profile(self, profile):
         if profile['interests']:
@@ -90,6 +102,8 @@ class MyUser(AbstractUser):
     email_verified  = models.BooleanField(default=False)
     first_name      = models.CharField(max_length=50)
     last_name       = models.CharField(max_length=50)
+    title           = models.CharField(null=True, max_length=20)
+    bio             = models.TextField(null=True)
     programOfStudy  = models.CharField(max_length=200, default="N/A")
     minors          = models.ManyToManyField(Minor)
     expectedGrad    = models.IntegerField(default=0)
@@ -107,7 +121,7 @@ class MyUser(AbstractUser):
     def update_minors(self, listOfMinors):
         for minor in listOfMinors:
             if not self.minors.filter(minor=minor):
-                self.minors.create(minor=minor)
+                self.minors.add(Minor.objects.get_or_create(minor=minor)[0])
 
     def update_user(self, request):
         if request['first_name']:
@@ -119,9 +133,12 @@ class MyUser(AbstractUser):
             if request['pos']:
                 self.programOfStudy = request['pos']
         
-        if 'minor' in request:
+        if 'minors' in request:
             if request['minors']:
                 self.update_minors(request['minors'])
+            else:
+                self.minors.add(Minor.objects.get_or_create(minor="None")[0])
+        
         if 'grad_year' in request:
             if request['grad_year']:
                 self.expectedGrad = request['grad_year']
@@ -134,6 +151,11 @@ class MyUser(AbstractUser):
             if request['teacher'] == "True":
                 self.is_teacher = True
                 self.user_type = 'teacher'
+                if 'title' in request:
+                    self.title = request['title']
+
+        if 'bio' in request:
+            self.bio = request.get('bio')
 
         self.save()
         
@@ -141,12 +163,69 @@ class Course(models.Model):
     is_active       = models.BooleanField()
     courseCode      = models.CharField(max_length=50)
     courseName      = models.CharField(max_length=140, default="N/A")
+    session         = models.CharField(max_length=50, default="Fall")
+    year            = models.IntegerField(default=datetime.datetime.now().year)  # Change default year to current year
+    description     = models.CharField(max_length=500, default="")
+
     teacher         = models.ManyToManyField(MyUser, related_name='teachers')
     students        = models.ManyToManyField(MyUser, related_name='students')
+    matchDate       = models.DateTimeField(null=True)
+    jobID           = models.CharField(max_length=256, null=True)
+    groupSize       = models.IntegerField(default=2)
+
     def __str__ (self):
         return self.courseCode
     
-    def update_course(self, courseInfo, user):
+    def add_teacher(self, user):
         self.teacher.add(user)
-        self.courseName = courseInfo['courseName']
-        self.courseCode = courseInfo['courseCode']
+
+    def add_student(self, user):
+        self.students.add(user)
+
+    def update_course(self, courseInfo):
+        if 'courseName' in courseInfo:
+            self.courseName = courseInfo['courseName']
+
+        if 'courseCode' in courseInfo:
+            self.courseCode = courseInfo['courseCode']
+
+        if 'session' in courseInfo:
+            if courseInfo['session'] == 'Fall':
+                self.session = 'Fall'
+            if courseInfo['session'] == 'Winter':
+                self.session = 'Winter'
+            if courseInfo['session'] == 'Summer':
+                self.session = 'Summer'
+
+        if 'year' in courseInfo:
+            self.year = courseInfo['year']
+
+        if 'description' in courseInfo:
+            self.description = courseInfo['description']
+
+        if 'groupSize' in courseInfo:
+            self.groupSize = courseInfo['groupSize']
+    
+    def add_job(self, jobID, matchDate):
+        self.jobID = jobID
+        self.matchDate = matchDate
+        self.save()
+
+class Review(models.Model):
+    reviewer = models.ForeignKey(User, related_name='reviews_given', on_delete=models.CASCADE)
+    reviewee = models.ForeignKey(User, related_name='reviews_received', on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    comment = models.TextField()
+
+    def __str__(self):
+        return f'Review from {self.reviewer.username} to {self.reviewee.username}'
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    text = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Message from {self.sender.username} to {self.receiver.username}'

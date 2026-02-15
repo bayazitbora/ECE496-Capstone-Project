@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from django.db import models
-from .models import Skill, Interest, Profile, Minor
+from .models import Skill, Interest, Profile, Minor, Review, Message
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
 from django.contrib.auth import get_user_model
@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import make_password
 class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = get_user_model()
-        fields = ['id', 
+        fields = [
                   'username', 
                   'email', 
                   'password', 
@@ -40,8 +40,37 @@ class ProfileSerializer(serializers.Serializer):
     hoursToCommit   = serializers.IntegerField(default=0)
     interests = InterestsSerializer(many=True)
     skills = SkillsSerializer(many=True)
+    matchedUsers = UserSerializer(many=True)
 
     class Meta:
         model = Profile
         fields = ('courseCode', 'interests', 'skills', 'hoursToCommit')
+
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.SerializerMethodField()
+    reviewee = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Review
+        fields = ['id', 'reviewer', 'reviewee', 'score', 'comment']
+
+    def get_reviewer(self, obj):
+        return obj.reviewer.username
+
+    def get_reviewee(self, obj):
+        return obj.reviewee.username
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SerializerMethodField()
+    receiver = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'receiver', 'title', 'text', 'date']
+
+    def get_sender(self, obj):
+        return obj.sender.username
+
+    def get_receiver(self, obj):
+        return obj.receiver.username
 

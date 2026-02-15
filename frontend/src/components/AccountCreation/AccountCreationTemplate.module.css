@@ -11,6 +11,7 @@
   font-size: 24px;
   margin-bottom: 20px;
   color: black;
+  margin-top: 20px;
 }
 
 .confirmCancelContainer {
@@ -42,4 +43,8 @@
 
 .cancelButton:hover {
   background-color: #e21414;
+}
+
+.leftAlign {
+  text-align: left;
 }

@@ -28,11 +28,29 @@ urlpatterns = [
     #createCourse: creates a course object, !!not impl fully!!
     path('createCourse/', views.createCourse, name="createCourse"),
 
-    #temporary url to match teams
-    path('matchTeams/', views.matchTeams, name="matchTeams"),
+    #listCourses: lists all courses stored in the database
+    path('listCourses/', views.listCourses, name="listCourses"),
+    
+    #listUserCourses: lists all courses that a user is a student/teacher of
+    path('listUserCourses/', views.listUserCourses, name="listUserCourses"),
+    
+    #listUsersInCourse: lists all users related to a course
+    path('listUsersInCourse/', views.listUsersInCourse, name="listUsersInCourse"),
+
+    #scheduleMatch: given a courseCode and datetime, it adds a thread to match students
+    #at a given time
+    #JSON FORMAT:
+    # "courseInfo": {
+    #     "courseCode": "MIE100",
+    #     "matchDate": "2025-01-28T04:24:58.-0500"
+    # }
+    path('scheduleMatch/', views.scheduleMatch, name="scheduleMatch"),
 
     #register: registers a user with a username and password
     path('register/', views.register_user, name='registerUser'),
+    
+    #deleteUser: deletes a given user if the logged in user is a super user
+    path('deleteUser/', views.deleteUser, name='deleteUser'),
     
     #token: given a username and password, will login a user and return a JWT.
     path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -40,4 +58,21 @@ urlpatterns = [
     #token/refresh: refreshes a users JWT to keep them logged in.
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
+    #addReview: adds a review
+    path('addReview/', views.add_review, name="addReview"),
+
+    #deleteReview: deletes a review
+    path('deleteReview/', views.delete_review, name="deleteReview"),
+
+    #getReviews: returns all reviews
+    path('getReviews/', views.get_reviews, name="getReviews"),
+
+    #sendMessage: sends a message from the authenticated user to another user
+    path('sendMessage/', views.send_message, name="sendMessage"),
+
+    #getMessages: retrieves all received and sent messages for the authenticated user
+    path('getMessages/', views.get_messages, name="getMessages"),
+
+    #deleteMessage: deletes a message for the authenticated user
+    path('deleteMessage/', views.delete_message, name="deleteMessage"),
 ]

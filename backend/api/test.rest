@@ -12,15 +12,17 @@ POST http://127.0.0.1:8000/api/register/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
-    "password": "Thisisatest",
-    "email": "John.Doe@nothing.com",
-    "first_name": "John",
-    "last_name": "Doe",
-    "pos": "Computer Engineering",
-    "gpa": "3.8",
+    "username": "teacher3",
+    "password": "Thisisademo",
+    "email": "DanielTeacher@mail.utoronto.ca",
+    "teacher": "True",
+    "first_name": "Daniel",
+    "last_name": "Teacher",
+    "title": "prof",
+    "pos": "Anthropology",
+    "gpa": "4.0",
     "grad_year": "2025",
-    "minors": ["AI"]
+    "minors": ["None"]
 }
 
 ###
@@ -29,8 +31,8 @@ POST http://127.0.0.1:8000/api/token/
 content-type: application/json
 
 {
-    "username": "JohnDoe1234",
-    "password": "Thisisatest"
+    "username": "teacher3",
+    "password": "Thisisademo"
 }
 
 ###
@@ -42,12 +44,12 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 { 
-    "email": "John.Doe@nothing.com",
+    "email": "John.Doe@mail.utoronto.ca",
     "profile": {
-        "courseCode": "CIV220",
-        "hoursToCommit": "9",
-        "interests": ["NoEcology", "Social Justice", "Swimming"],
-        "skills": ["C++", "Talking", "Programming"]
+        "courseCode": "ECE496",
+        "hoursToCommit": "10",
+        "interests": ["Horses", "Money", "Cars"],
+        "skills": ["C++", "Python", "Programming"]
     }
 }
 ###
@@ -59,11 +61,13 @@ Authorization: Bearer {{jwtoken}}
 
 {
     "first_name": "John",
-    "last_name": "Doette",
+    "last_name": "Doe",
     "pos": "Software Engineering",
     "gpa": "4.0",
+    "teacher": "False",
     "grad_year": "2025",
-    "minors": ["AI", "AI 2"]
+    "minors": ["AI"],
+    "bio": "Hi! My name is John Doe and I like hammer head sharks."
 }
 
 ###
@@ -72,7 +76,7 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "email": "John.Doe@nothing.com"
+    "username": "JohnDoe"
 }
 
 ###
@@ -81,14 +85,108 @@ Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
-    "requested_user": "JohnDoe1234"
+    "requested_user": "paul.dup"
 }
 
 ###
-POST http://127.0.0.1:8000/api/matchTeams/
+POST http://127.0.0.1:8000/api/createCourse/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseInfo": {
+        "courseCode": "TEST100",
+        "courseName": "Testing Course",
+        "description": "Course to test student matching",
+        "session": "Fall",
+        "year": 2025,
+        "groupSize": "4"
+    }
+}
+
+###
+POST http://127.0.0.1:8000/api/scheduleMatch/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "courseInfo": {
+        "courseCode": "TEST100",
+        "matchDate": "2025-03-27T00:03:58.-0400"
+    }
+}
+###
+POST http://127.0.0.1:8000/api/listUserCourses/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+}
+###
+POST http://127.0.0.1:8000/api/listUsersInCourse/
 Content-Type: application/json
 Authorization: Bearer {{jwtoken}}
 
 {
     "courseCode": "ECE496"
+}
+###
+POST http://127.0.0.1:8000/api/listCourses/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+}
+
+###
+POST http://127.0.0.1:8000/api/addReview/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "reviewee": "guest",
+    "score": 3,
+    "comment": "Terrible teammate."
+}
+
+###
+DELETE http://127.0.0.1:8000/api/deleteReview/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{
+    "review_id": 2
+}
+
+###
+GET http://127.0.0.1:8000/api/getReviews/?username=paul.dup
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+###
+POST http://127.0.0.1:8000/api/sendMessage/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+    "receiver": "paul.dup", 
+    "title": "Hello",
+    "text": "Hello, Paul. How are you?"
+}
+
+###
+GET http://127.0.0.1:8000/api/getMessages/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+}
+
+###
+DELETE  http://127.0.0.1:8000/api/deleteMessage/
+Content-Type: application/json
+Authorization: Bearer {{jwtoken}}
+
+{ 
+    "message_id": 1
 }

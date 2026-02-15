@@ -136,7 +136,7 @@ class CustomMultiLabelBinarizer(BaseEstimator, TransformerMixin):
 #                 for student in remaining_indices:
 #                     # Euclidean distance between each student and the mean of embeddings already in the group
 #                     distance: float = np.linalg.norm(student_embeddings[student] - embedding_average)
-                    
+#                     
 #                     # find the student with the smallest distance
 #                     if distance < closest_student_dist:
 #                         closest_student_dist = distance
@@ -181,7 +181,8 @@ def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.
         students_in_c = c_data.index
         embeddings_c = student_embeddings[students_in_c]
 
-        gmm = GaussianMixture(n_components=len(students_in_c) // group_size, random_state=42) #gmm to previous students embeddings
+        n_components = max(1, len(students_in_c) // group_size)
+        gmm = GaussianMixture(n_components=n_components, random_state=42) #gmm to previous students embeddings
         gmm.fit(embeddings_c)
         gmm_probs = gmm.predict_proba(embeddings_c) #probabilities of each student belonging to each gmm cluster
         for idx in range(gmm_probs.shape[1]):
@@ -220,7 +221,7 @@ def form_groups_gmm(data: pd.DataFrame, group_size: int, student_embeddings: np.
                 data.loc[student, 'group'] = groups_num
 
             groups_dict[groups_num] = group
-            groups_num += 1
+            groups_num += 1 
 
         # #for each student find the most likely cluster
         # for student_idx in students_in_c:
@@ -397,7 +398,7 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
             ('courses', CustomMultiLabelEmbeddingTransformer(), 'courses_taken'),
             ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
             ('skills', CustomMultiLabelEmbeddingTransformer(), 'technical_skills'),
-        #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+            #('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
             ('freq', MinMaxScaler(), ['meeting_freq']),
         ])
 
@@ -423,12 +424,12 @@ def cluster_and_match_students(data: pd.DataFrame, group_size: int,  schedule_ca
     model = KMeans()
 
     # Use KElbowVisualizer to find the optimal k
-    visualizer = KElbowVisualizer(model, k=(2, 12), metric='silhouette') 
-    visualizer.fit(dealbreakers)  
-    optimal_k = visualizer.elbow_value_ if visualizer.elbow_value_ is not None else 5
+    #visualizer = KElbowVisualizer(model, k=(2, 12), metric='silhouette') 
+    #visualizer.fit(dealbreakers)  
+    #optimal_k = visualizer.elbow_value_ if visualizer.elbow_value_ is not None else 5
 
     # Cluster the data using the optimal k
-    kmeans = KMeans(n_clusters=optimal_k).fit(dealbreakers)
+    kmeans = KMeans(n_clusters=6).fit(dealbreakers)
 
     # Label the dataframe
     data['cluster'] = kmeans.labels_

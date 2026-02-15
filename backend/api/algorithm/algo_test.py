@@ -1,4 +1,4 @@
-from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_greedy, find_best_k, cluster_and_match_students
+from algorithm import EmbeddingTransformer, CustomMultiLabelBinarizer, CustomMultiLabelEmbeddingTransformer, form_groups_gmm, find_best_k, cluster_and_match_students
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, MultiLabelBinarizer, normalize
 from sklearn.compose import ColumnTransformer
@@ -58,7 +58,7 @@ def generate_random_student():
         'courses_taken': random.sample(courses_categories, k=random.randint(1, len(courses_categories))),
         'areas_of_interest': random.sample(interests_categories, k=random.randint(1, len(interests_categories))),
         'technical_skills': random.sample(skills_categories, k=random.randint(1, len(skills_categories))),
-        #'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
+        'schedule': random.sample(schedule_categories, k=random.randint(1, len(schedule_categories))), # change according to questionnaire
         'meeting_freq': meeting_freq # change according to questionnaire
     }
 
@@ -95,8 +95,8 @@ hours = [f"{hour:02d}:00" for hour in range(9, 22)]
 schedule_categories = [f"{day}_{hour}" for day, hour in itertools.product(days, hours)]
 
 # Example usage:
-n = 300  # Number of students to generate
-group_size = 4 # Number of students per group
+n = 245  # Number of students to generate
+group_size = 6 # Number of students per group
 data = generate_students(n)
 # Save the student data to a CSV file
 data.to_pickle('student_data.pkl')
@@ -121,7 +121,7 @@ dealbreakers_preprocessor = ColumnTransformer(
     transformers=[
         ('interests', CustomMultiLabelEmbeddingTransformer(), 'areas_of_interest'),
         ('major', EmbeddingTransformer(), 'major'),
-    #    ('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
+        #('schedule', CustomMultiLabelBinarizer(classes=schedule_categories), 'schedule'),
         ('freq', MinMaxScaler(), ['meeting_freq']),
     ])
 
@@ -138,7 +138,7 @@ dealbreakers = normalize(dealbreakers, norm='l2')
 # Run the algorithm
 start_time = time.time()
 
-cluster_and_match_students(data, group_size)
+cluster_and_match_students(data, group_size, schedule_categories)
 
 end_time = time.time()
 runtime = end_time - start_time

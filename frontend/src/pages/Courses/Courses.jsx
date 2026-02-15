@@ -1,14 +1,30 @@
 import { useState, useContext, useEffect } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from "reactstrap";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Row,
+  Col,
+} from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AddCourseModal from "../../components/AddCourse/AddCourseModal";
+import CreateCourseModal from "../../components/CreateCourse/CreateCourseModal";
 import styles from "./Courses.module.css";
-import { createProfile, getSelf } from "../../api/api";
+import { privateAxios, setPrivateAxiosToken } from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 import { SignUpContext } from "../../context/SignUpContext";
 import CourseCard from "../../components/Courses/CourseCard";
+import { useNavigate } from "react-router-dom";
 
+/**
+ * Courses component handles the display and management of user courses.
+ * It fetches user profiles, displays them, and allows adding new courses.
+ */
 function Courses() {
+  const { token } = useAuth();
   const [open, setOpen] = useState(false);
   const [formState, setFormState] = useState({
     courseCode: "",
@@ -17,42 +33,67 @@ function Courses() {
     hoursToCommit: 0,
     skills: [],
   });
+  const [courseState, setCourseState] = useState({
+    courseCode: "",
+    courseName: "",
+    description: "",
+    session: "",
+    year: new Date().getFullYear(),
+    groupSize: "",
+    isActive: true,
+  });
   const { state: signUpState, dispatch } = useContext(SignUpContext);
   const { username, profiles: initialProfiles } = signUpState;
   const [profiles, setProfiles] = useState(initialProfiles || {});
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
+  const navigate = useNavigate();
 
+  /**
+   * Fetches user profiles on component mount.
+   */
   useEffect(() => {
-    if (initialProfiles && Object.keys(initialProfiles).length > 0) {
-      setProfiles(initialProfiles);
-    } else {
-      const fetchProfiles = async () => {
-        try {
-          const response = await getSelf({ username });
-          setProfiles(response.profiles);
-          dispatch({ type: "SET_PROFILES", profiles: response.profiles });
-          console.log("User profiles:", response.profiles);
-        } catch (error) {
-          console.error("Error fetching profiles:", error);
-        }
-      };
+    const fetchProfiles = async () => {
+      setPrivateAxiosToken(token);
+      try {
+        const response = await privateAxios.post("listUserCourses/", {
+          username,
+        });
+        const userData = response.data;
+        setProfiles(userData.courses);
+        dispatch({ type: "SET_PROFILES", profiles: userData.courses });
+        console.log("User courses:", userData.courses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
 
-      fetchProfiles();
-    }
-  }, [username, initialProfiles, dispatch]);
+    fetchProfiles();
+  }, [username, dispatch, token]);
 
+  /**
+   * Advances to the next step in the course addition process.
+   */
   const nextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
+
+  /**
+   * Goes back to the previous step in the course addition process.
+   */
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
+  /**
+   * Handles the form submission for adding a new course.
+   * Sends the course data to the server and updates the user profiles.
+   * @param {Event} event - The form submission event.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("Submit button clicked");
@@ -60,12 +101,22 @@ function Courses() {
     console.log(formState);
 
     try {
-      const response = await createProfile(username, formState);
-      console.log("Profile created successfully:", response);
+      const response = await privateAxios.post("updateProfile/", {
+        username,
+        profile: formState,
+      });
+      console.log("Profile created successfully:", response.data);
 
-      const updatedProfiles = await getSelf({ username });
-      setProfiles(updatedProfiles.profiles);
-      console.log("Updated profiles:", updatedProfiles.profiles);
+      const updatedProfilesResponse = await privateAxios.post(
+        "listUserCourses/",
+        {
+          username,
+        }
+      );
+      const updatedProfiles = updatedProfilesResponse.data;
+      setProfiles(updatedProfiles.courses);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.courses });
+      console.log("Updated courses:", updatedProfiles.courses);
 
       setFormState({
         courseCode: "",
@@ -75,14 +126,17 @@ function Courses() {
         skills: [],
       });
       setCurrentStep(1);
-      
     } catch (error) {
-      console.error("Error creating profile:", error);
+      console.error(error);
     }
 
     handleClose();
   };
 
+  /**
+   * Handles input changes for the course addition form.
+   * @param {Event} event - The input change event.
+   */
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormState((prevState) => ({
@@ -91,8 +145,63 @@ function Courses() {
     }));
   };
 
+  /**
+   * Handles the creation of a new course.
+   * Sends the course data to the server and updates the user profiles.
+   * @param {Object} courseState - The data of the new course.
+   */
+  const handleCreate = async (courseState) => {
+    try {
+      const response = await privateAxios.post(
+        "http://127.0.0.1:8000/api/createCourse/",
+        {
+          courseInfo: {
+            courseCode: courseState.courseCode,
+            courseName: courseState.courseName,
+            description: courseState.description,
+            session: courseState.session,
+            year: courseState.year,
+            groupSize: courseState.groupSize,
+          },
+        }
+      );
+      console.log("Course created successfully:", response.data);
+
+      const updatedProfilesResponse = await privateAxios.post(
+        "listUserCourses/",
+        {
+          username,
+        }
+      );
+      const updatedProfiles = updatedProfilesResponse.data;
+      setProfiles(updatedProfiles.courses);
+      dispatch({ type: "SET_PROFILES", profiles: updatedProfiles.courses });
+      console.log("Updated courses:", updatedProfiles.courses);
+    } catch (error) {
+      console.error("Error creating course:", error);
+    }
+    setCourseState({
+      courseCode: "",
+      courseName: "",
+      description: "",
+      session: "",
+      year: new Date().getFullYear(),
+      groupSize: "",
+      isActive: true,
+    });
+    handleClose();
+  };
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const handleCourseClick = (courseCode) => {
+    if (signUpState.teacher === "True") {
+      navigate(`/course-management/${courseCode}`);
+    } else {
+      navigate(`/course/${courseCode}`);
+    }
+  };
 
   return (
     <>
@@ -106,15 +215,16 @@ function Courses() {
             <Row>
               {Object.keys(profiles).map((courseCode) => (
                 <Col sm="4" key={courseCode}>
-                  <CourseCard 
-                    courseCode={courseCode} 
-                    profile={profiles[courseCode]} 
+                  <CourseCard
+                    courseCode={courseCode}
+                    profile={profiles[courseCode]}
+                    onClick={() => handleCourseClick(courseCode)}
                   />
                 </Col>
               ))}
             </Row>
           ) : (
-            <p>No profiles found.</p>
+            <p>No courses found.</p>
           )}
         </div>
 
@@ -132,22 +242,36 @@ function Courses() {
         </Button>
 
         <Modal isOpen={open} toggle={handleClose}>
-          <ModalHeader toggle={handleClose}>Add Course</ModalHeader>
+          <ModalHeader toggle={handleClose}>
+            {signUpState.teacher == "False" ? "Add Course" : "Create Course"}
+          </ModalHeader>
           <ModalBody>
-            <AddCourseModal
-              currentStep={currentStep}
-              handleOpen={open}
-              handleClose={handleClose}
-              nextStep={nextStep}
-              prevStep={prevStep}
-              formState={formState}
-              handleInputChange={handleInputChange}
-              handleSubmit={handleSubmit}
-              totalSteps={totalSteps}
-            />
+            {signUpState.teacher == "False" ? (
+              <AddCourseModal
+                currentStep={currentStep}
+                handleOpen={open}
+                handleClose={handleClose}
+                nextStep={nextStep}
+                prevStep={prevStep}
+                formState={formState}
+                handleInputChange={handleInputChange}
+                handleSubmit={handleSubmit}
+                totalSteps={totalSteps}
+              />
+            ) : (
+              <CreateCourseModal
+                handleOpen={open}
+                handleClose={handleClose}
+                handleCreate={handleCreate}
+                courseState={courseState}
+                setCourseState={setCourseState}
+              />
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={handleClose}>Cancel</Button>
+            <Button color="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
           </ModalFooter>
         </Modal>
       </div>
